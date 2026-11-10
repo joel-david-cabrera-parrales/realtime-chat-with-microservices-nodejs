@@ -11,6 +11,23 @@ services:
     # depends_on:
     networks:
       - chat-app-network
+  aws-local-s3:
+    container_name: chat-s3
+    image: localstack/localstack:latest
+    ports:
+      - "${AWS_STORAGE_SERVICE_PORT}:4566" # Puerto unificado de LocalStack
+    environment:
+      - LOCALSTACK_AUTH_TOKEN=${AWS_LOCAL_TOKEN}
+      - SERVICES=${AWS_STORAGE_SERVICE}
+      - AWS_DEFAULT_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - PERSISTENCE=1
+    volumes:
+      - "./volumes/aws-s3-data:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./microservices/file-service/aws/localstack-init:/etc/localstack/init/ready.d:ro"
+    networks:
+      - chat-app-network
 
   postgres:
     image: postgres:16
@@ -28,7 +45,7 @@ services:
     networks:
       - chat-app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_DATABASE}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -43,7 +60,7 @@ services:
       - '8088:80'
     depends_on:
       postgres:
-        condition: service_started
+        condition: service_healthy
     networks:
       - chat-app-network
     volumes:
