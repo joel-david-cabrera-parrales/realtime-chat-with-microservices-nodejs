@@ -12,6 +12,44 @@ services:
     networks:
       - chat-app-network
 
+  postgres:
+    image: postgres:16
+    container_name: chat-app-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE} 
+    ports:
+      - '5440:5432'
+    volumes:
+      - ./volumes/postgres_data:/var/lib/postgresql/data
+      # Mapeamos la carpeta de scripts de inicialización automática
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - chat-app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+  pgadmin:
+    image: dpage/pgadmin4:9.19.0
+    container_name: chat-pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - '8088:80'
+    depends_on:
+      postgres:
+        condition: service_started
+    networks:
+      - chat-app-network
+    volumes:
+      - ./volumes/pgadmin_data:/var/lib/pgadmin
+
 networks:
   chat-app-network:
     driver: bridge
+    enable_ipv6: true
