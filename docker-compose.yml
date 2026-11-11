@@ -10,7 +10,7 @@ services:
       - ./microservices/api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       profile-service:
-        condition: service_started
+        condition: service_healthy
       postgres:
         condition: service_healthy
     networks:
@@ -33,23 +33,26 @@ services:
     networks:
       - chat-app-network
   profile-service:
-    container_name: chat-profile-service
+    container_name: profile-service
     build: 
       context: ./microservices/profile-service
       dockerfile: Dockerfile.dev
     env_file:
       - ./microservices/profile-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
     networks:
       - chat-app-network
     volumes:
       - ./microservices/profile-service:/app
       - /app/node_modules/
-    # healthcheck:
-    #   test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 10
-    #   start_period: 20s
 
   postgres:
     image: postgres:16
@@ -65,7 +68,9 @@ services:
       # Mapeamos la carpeta de scripts de inicialización automática
       - ./init-scripts:/docker-entrypoint-initdb.d
     networks:
-      - chat-app-network
+      chat-app-network:
+        aliases:
+          - lumina-db
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_DATABASE}"]
       interval: 5s

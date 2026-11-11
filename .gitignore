@@ -5,5 +5,8 @@
 node_modules/
 dist/
 
+temp-err.log
+temp-out.log
+
 # Servicio que sirve como plantilla para inicializar rapidamente nuevos microservicios
 /microservices/scafold-service/
