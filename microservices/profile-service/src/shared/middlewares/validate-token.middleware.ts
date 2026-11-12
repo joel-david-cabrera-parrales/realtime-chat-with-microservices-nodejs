@@ -5,16 +5,18 @@ import { sendError } from "../http/api-response";
 export interface TokenPayload {
   credentialId: number;
   username: string;
+  profileCode?: string;
 }
 
-export function createValidateTokenMiddleware(
-  tokenService: TokenService,
-) {
-  return function validateTokenMiddleware(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): void {
+export function createValidateTokenMiddleware(tokenService: TokenService, internalApiKey?: string) {
+  return function validateTokenMiddleware(req: Request, res: Response, next: NextFunction): void {
+    const providedInternalKey = req.headers["x-internal-api-key"];
+
+    if (internalApiKey !== undefined && providedInternalKey === internalApiKey) {
+      next();
+      return;
+    }
+
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith("Bearer ")) {
@@ -26,13 +28,23 @@ export function createValidateTokenMiddleware(
       return;
     }
 
-    const token = authHeader.split(" ")[1];
+    const token = authHeader.slice("Bearer ".length).trim();
+
+    if (!token) {
+      sendError(res, {
+        statusCode: 401,
+        message: "Token no proporcionado",
+        error: "Unauthorized",
+      });
+      return;
+    }
 
     try {
-      const payload = tokenService.verifyToken(token) as unknown as TokenPayload;
+      const payload = tokenService.verifyAccessToken(token) as unknown as TokenPayload;
       res.locals.token = token;
       res.locals.credentialId = payload.credentialId;
       res.locals.username = payload.username;
+      res.locals.profileCode = payload.profileCode;
       next();
     } catch {
       sendError(res, {

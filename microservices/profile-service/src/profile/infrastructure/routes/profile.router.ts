@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { NextFunction, Request, RequestHandler, Response, Router } from "express";
 import { body, param, ValidationChain } from "express-validator";
 import { validateRequest } from "../../../shared/middlewares/validate.request.middleware";
 import { GENDER_VALUES } from "../../domain/value-objects/gender.value-object";
@@ -85,7 +85,10 @@ const updateBodyValidation: ValidationChain[] = [
 export class ProfileRouter {
   private readonly router: Router;
 
-  constructor(private readonly controller: ProfileControllerContract) {
+  constructor(
+    private readonly controller: ProfileControllerContract,
+    private readonly validateToken: RequestHandler,
+  ) {
     this.router = Router();
     this.configure();
   }
@@ -95,6 +98,8 @@ export class ProfileRouter {
   }
 
   private configure(): void {
+    this.router.use(this.validateToken);
+
     this.router.post("/", createBodyValidation, validateRequest, (req: Request, res: Response, next: NextFunction) => {
       this.controller.create(req, res, next).catch(next);
     });

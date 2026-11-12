@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { DataSource } from "typeorm";
+import { jwtAdapter } from "../../plugins/jwt/jwt.provider";
+import { createValidateTokenMiddleware } from "../../shared/middlewares/validate-token.middleware";
 import { CreateProfileUseCaseImpl } from "../application/use-cases/create-profile.use-case.impl";
 import { DeleteProfileUseCaseImpl } from "../application/use-cases/delete-profile.use-case.impl";
 import { ExistsProfileByEmailUseCaseImpl } from "../application/use-cases/exists-profile-by-email.use-case.impl";
@@ -36,7 +38,8 @@ export const profileFactory = {
     );
 
     const profileController = new ProfileController(profileService);
+    const validateToken = createValidateTokenMiddleware(jwtAdapter, process.env.INTERNAL_API_KEY);
 
-    return new ProfileRouter(profileController).getRouter();
+    return new ProfileRouter(profileController, validateToken).getRouter();
   },
 };

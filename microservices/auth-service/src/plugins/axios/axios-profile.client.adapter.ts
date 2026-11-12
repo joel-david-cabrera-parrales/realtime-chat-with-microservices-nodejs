@@ -3,6 +3,7 @@ import { ProfileClientService, ProfileCreationData, ProfileData } from "../../sh
 
 export interface AxiosProfileClientOptions {
   baseUrl: string;
+  internalApiKey?: string | undefined;
   timeout?: number;
 }
 
@@ -18,6 +19,9 @@ export class AxiosProfileClientAdapter extends ProfileClientService {
     this.client = axios.create({
       baseURL: options.baseUrl,
       timeout: options.timeout ?? 5000,
+      headers: {
+        ...(options.internalApiKey === undefined ? {} : { "X-Internal-Api-Key": options.internalApiKey }),
+      },
     });
   }
 
