@@ -36,7 +36,6 @@ export class ExpressServer extends Server {
   protected configRoutes(): void {
     this.app.use("/api/health", buildHealthRouter());
     this.app.use("/api/auth/health", buildHealthRouter());
-    this.app.use("/api/auth/signin", () => {});
     this.app.use(errorHandler);
   }
 

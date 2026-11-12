@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { ExpressServer } from "./plugins/express.adapter";
 import { appDatasource } from "./plugins/typorm/datasource.provider";
+import { seedAuthenticationTypes } from "./plugins/typorm/seeders/authentication-type.seeder";
 
 dotenv.config();
 
@@ -10,6 +11,7 @@ async function main(): Promise<void> {
   try {
     if (!appDatasource.isInitialized) {
       await appDatasource.initialize();
+      await seedAuthenticationTypes(appDatasource);
       console.log("Database connected");
     }
   } catch (error) {

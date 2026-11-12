@@ -1,7 +1,7 @@
 import { DataSource } from "typeorm";
 
 export enum AvailableDatasource {
-  postgres = 'postgres'
+  postgres = "postgres",
 }
 
 interface CustomDatasourceProps {

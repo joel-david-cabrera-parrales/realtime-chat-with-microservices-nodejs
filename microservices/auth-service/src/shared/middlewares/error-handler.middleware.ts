@@ -2,12 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { HttpException } from "../http/http.exception";
 import { sendError } from "../http/api-response";
 
-export function errorHandler(
-  err: unknown,
-  _req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
+export function errorHandler(err: unknown, _req: Request, res: Response, next: NextFunction): void {
   if (res.headersSent) {
     next(err);
     return;
