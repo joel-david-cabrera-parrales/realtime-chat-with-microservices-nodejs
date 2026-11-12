@@ -7,4 +7,5 @@ export abstract class CredentialRepository {
   abstract findById(id: CredentialId): Promise<Credential | null>;
   abstract findByUsername(username: Username): Promise<Credential | null>;
   abstract existsByUsername(username: Username): Promise<boolean>;
+  abstract delete(id: CredentialId): Promise<void>;
 }

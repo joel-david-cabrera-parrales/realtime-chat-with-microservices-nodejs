@@ -11,6 +11,10 @@ export class CredentialId {
     return new CredentialId(value);
   }
 
+  public static new(): CredentialId {
+    return new CredentialId(0);
+  }
+
   public get value(): number {
     return this.id;
   }

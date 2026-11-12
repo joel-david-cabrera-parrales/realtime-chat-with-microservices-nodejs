@@ -16,7 +16,6 @@ export interface CredentialProps {
 }
 
 export interface CreateCredentialProps {
-  credentialId: number;
   username: string;
   passwordHash?: string | undefined;
   profileCode: string;

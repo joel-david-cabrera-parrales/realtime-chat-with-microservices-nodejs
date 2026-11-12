@@ -14,7 +14,7 @@ export class Credential {
     const now = new Date();
 
     return new Credential({
-      id: CredentialId.create(props.credentialId),
+      id: CredentialId.new(),
       code: CredentialCode.generate(),
       username: Username.create(props.username),
       passwordHash: props.passwordHash === undefined ? undefined : PasswordHash.create(props.passwordHash),
@@ -56,6 +56,10 @@ export class Credential {
 
   public get isAuthenticated(): boolean {
     return this.props.isAuthenticated;
+  }
+
+  public get passwordHash(): PasswordHash | undefined {
+    return this.props.passwordHash;
   }
 
   public get createdAt(): Date {
