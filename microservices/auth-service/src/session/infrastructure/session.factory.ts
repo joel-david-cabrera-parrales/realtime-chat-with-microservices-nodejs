@@ -15,6 +15,7 @@ import { RevokeSessionUseCaseImpl } from "../application/use-cases/revoke-sessio
 import { UpdateSessionActivityUseCaseImpl } from "../application/use-cases/update-session-activity.use-case.impl";
 import { SessionApplicationService } from "../application/services/session.application.service";
 import { SignupApplicationService } from "../application/services/signup.application.service";
+import { createValidateTokenMiddleware } from "../../shared/middlewares/validate-token.middleware";
 import { SessionController } from "./controllers/session.controller";
 import { TypeOrmCredentialDataSource } from "./datasources/typeorm-credential.datasource";
 import { TypeOrmSessionDataSource } from "./datasources/typeorm-session.datasource";
@@ -64,7 +65,8 @@ export const sessionFactory = {
 
     const sessionTtlSeconds = new EnvAdapter().getInt("SESSION_TTL_SECONDS", 86400);
     const sessionController = new SessionController(sessionService, signupService, sessionTtlSeconds);
+    const validateToken = createValidateTokenMiddleware(jwtAdapter);
 
-    return new SessionRouter(sessionController).getRouter();
+    return new SessionRouter(sessionController, validateToken).getRouter();
   },
 };

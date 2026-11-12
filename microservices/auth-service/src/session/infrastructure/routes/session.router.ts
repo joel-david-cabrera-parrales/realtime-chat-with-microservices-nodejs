@@ -1,7 +1,9 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { NextFunction, Request, RequestHandler, Response, Router } from "express";
 import { body, param, query, ValidationChain } from "express-validator";
 import { validateRequest } from "../../../shared/middlewares/validate.request.middleware";
 import { SessionControllerContract } from "../controllers/contracts/session.controller.contract";
+
+const PUBLIC_PATHS = new Set<string>(["/signin", "/signup", "/refresh"]);
 
 const idValidation: ValidationChain[] = [param("id").isUUID().withMessage("El id debe ser un UUID válido")];
 
@@ -51,7 +53,10 @@ const refreshBodyValidation: ValidationChain[] = [
 export class SessionRouter {
   private readonly router: Router;
 
-  constructor(private readonly controller: SessionControllerContract) {
+  constructor(
+    private readonly controller: SessionControllerContract,
+    private readonly validateToken: RequestHandler,
+  ) {
     this.router = Router();
     this.configure();
   }
@@ -61,6 +66,15 @@ export class SessionRouter {
   }
 
   private configure(): void {
+    this.router.use((req: Request, res: Response, next: NextFunction) => {
+      if (PUBLIC_PATHS.has(req.path)) {
+        next();
+        return;
+      }
+
+      this.validateToken(req, res, next);
+    });
+
     this.router.post("/signin", signinBodyValidation, validateRequest, (req: Request, res: Response, next: NextFunction) => {
       this.controller.signin(req, res, next).catch(next);
     });
