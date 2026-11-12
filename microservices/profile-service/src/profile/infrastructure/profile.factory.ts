@@ -19,9 +19,7 @@ export const profileFactory = {
     const profileDataSource = new TypeOrmProfileDataSource(dataSource);
     const profileRepository = new ProfileRepositoryImpl(profileDataSource);
 
-    const existsProfileByEmailUseCase = new ExistsProfileByEmailUseCaseImpl(
-      profileRepository,
-    );
+    const existsProfileByEmailUseCase = new ExistsProfileByEmailUseCaseImpl(profileRepository);
     const createProfileUseCase = new CreateProfileUseCaseImpl(profileRepository);
     const getProfileUseCase = new GetProfileUseCaseImpl(profileRepository);
     const existsProfileUseCase = new ExistsProfileUseCaseImpl(profileRepository);

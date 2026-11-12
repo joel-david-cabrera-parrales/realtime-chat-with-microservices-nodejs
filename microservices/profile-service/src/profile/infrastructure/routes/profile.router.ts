@@ -108,15 +108,9 @@ export class ProfileRouter {
       this.controller.getById(req, res, next).catch(next);
     });
 
-    this.router.patch(
-      "/:id",
-      idValidation,
-      updateBodyValidation,
-      validateRequest,
-      (req: Request, res: Response, next: NextFunction) => {
-        this.controller.update(req, res, next).catch(next);
-      },
-    );
+    this.router.patch("/:id", idValidation, updateBodyValidation, validateRequest, (req: Request, res: Response, next: NextFunction) => {
+      this.controller.update(req, res, next).catch(next);
+    });
 
     this.router.delete("/:id", idValidation, validateRequest, (req: Request, res: Response, next: NextFunction) => {
       this.controller.delete(req, res, next).catch(next);

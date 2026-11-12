@@ -1,11 +1,6 @@
 import { InvalidGenderException } from "../exceptions/invalid-gender.exception";
 
-export const GENDER_VALUES = [
-  "male",
-  "female",
-  "other",
-  "prefer_not_to_say",
-] as const;
+export const GENDER_VALUES = ["male", "female", "other", "prefer_not_to_say"] as const;
 
 export type GenderValue = (typeof GENDER_VALUES)[number];
 

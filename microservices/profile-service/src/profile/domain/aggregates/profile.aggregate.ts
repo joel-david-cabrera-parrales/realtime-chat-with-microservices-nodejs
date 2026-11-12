@@ -6,13 +6,7 @@ import { FullName } from "../value-objects/full-name.value-object";
 import { Gender } from "../value-objects/gender.value-object";
 import { Phone } from "../value-objects/phone.value-object";
 import { ProfileId } from "../value-objects/profile-id.value-object";
-import {
-  CreateProfileProps,
-  ProfilePrimitives,
-  ProfileProps,
-  RehydrateProfileProps,
-  UpdateProfileProps,
-} from "../interfaces/profile.interface";
+import { CreateProfileProps, ProfilePrimitives, ProfileProps, RehydrateProfileProps, UpdateProfileProps } from "../interfaces/profile.interface";
 
 export class Profile {
   private constructor(private readonly props: ProfileProps) {}

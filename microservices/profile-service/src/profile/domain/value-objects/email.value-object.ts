@@ -9,11 +9,7 @@ export class Email {
   public static create(value: string): Email {
     const normalized = value.trim().toLowerCase();
 
-    if (
-      normalized.length === 0 ||
-      normalized.length > MAX_LENGTH ||
-      !EMAIL_PATTERN.test(normalized)
-    ) {
+    if (normalized.length === 0 || normalized.length > MAX_LENGTH || !EMAIL_PATTERN.test(normalized)) {
       throw new InvalidEmailException(value);
     }
 

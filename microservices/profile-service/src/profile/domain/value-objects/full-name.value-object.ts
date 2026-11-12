@@ -9,8 +9,7 @@ export class FullName {
   public static create(value: string): FullName {
     const normalized = value.trim().replace(/\s+/g, " ");
     const hasLetter = /\p{L}/u.test(normalized);
-    const hasValidLength =
-      normalized.length >= MIN_LENGTH && normalized.length <= MAX_LENGTH;
+    const hasValidLength = normalized.length >= MIN_LENGTH && normalized.length <= MAX_LENGTH;
 
     if (!hasLetter || !hasValidLength) {
       throw new InvalidFullNameException(MIN_LENGTH, MAX_LENGTH);

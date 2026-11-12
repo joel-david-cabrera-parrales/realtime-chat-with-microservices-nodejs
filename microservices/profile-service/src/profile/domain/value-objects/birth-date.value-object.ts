@@ -12,13 +12,9 @@ export class BirthDate {
       throw new InvalidBirthDateException("no es una fecha válida");
     }
 
-    const normalized = new Date(
-      Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-    );
+    const normalized = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
     const now = new Date();
-    const today = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-    );
+    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
     if (normalized.getTime() > today.getTime()) {
       throw new InvalidBirthDateException("no puede estar en el futuro");

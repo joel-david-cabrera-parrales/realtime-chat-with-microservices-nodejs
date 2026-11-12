@@ -9,9 +9,7 @@ export class GetProfileUseCaseImpl extends GetProfileUseCase {
   }
 
   public async execute(id: string): Promise<ProfileOutput | null> {
-    const profile = await this.profileRepository.findById(
-      ProfileId.create(id),
-    );
+    const profile = await this.profileRepository.findById(ProfileId.create(id));
 
     return profile === null ? null : profile.toPrimitives();
   }
