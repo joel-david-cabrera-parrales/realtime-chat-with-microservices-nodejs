@@ -3,6 +3,8 @@ import { Server } from "../shared/classes/server.class";
 import express, { Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import { buildHealthRouter } from "../health/infrastructure/routes/health.router";
+import { errorHandler } from "../shared/middlewares/error-handler.middleware";
 
 export class ExpressServer extends Server {
   private readonly app: Application;
@@ -32,19 +34,10 @@ export class ExpressServer extends Server {
   }
 
   protected configRoutes(): void {
-    // this.app.get("/health", (_req, res) => {
-    //   res.json({ status: "ok", timestamp: new Date().toISOString() });
-    // });
-    // this.app.use("/api/auth", buildAuthRouter());
-    // this.app.use("/api/chatbot", buildChatbotRouter());
-    // this.app.use("/api/session", buildSessionRouter());
-    // this.app.use("/api/profile", buildNewProfileRouter());
-    // this.app.use("/api/files", buildFilesRouter());
-    // this.app.use("/api/projects", buildProjectRouter());
-    // this.app.use("/api/analyses", buildAnalysisRouter());
-    // this.app.use("/api/reports", buildReportRouter());
-    // this.app.use(chatbotErrorHandlerMiddleware);
-    // this.app.use(errorHandlerMiddleware);
+    this.app.use("/api/health", buildHealthRouter());
+    // Registra aqui los modulos del servicio:
+    // this.app.use("/api/<recurso>", buildRouter());
+    this.app.use(errorHandler);
   }
 
   public start(): void {

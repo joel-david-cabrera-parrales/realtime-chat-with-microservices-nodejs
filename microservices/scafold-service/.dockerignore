@@ -4,5 +4,4 @@ dist
 .env*
 Dockerfile*
 docker-compose*
-package-lock.json
 README.md

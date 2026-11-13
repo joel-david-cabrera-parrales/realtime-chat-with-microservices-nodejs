@@ -1,7 +1,7 @@
 import { DataSource } from "typeorm";
 
 export enum AvailableDatasource {
-  postgres = 'postgres'
+  postgres = "postgres",
 }
 
 interface CustomDatasourceProps {
@@ -18,7 +18,7 @@ interface CustomDatasourceProps {
 export class TORMDatasouce {
   private datasouce: DataSource;
 
-  constructor(private readonly props: CustomDatasourceProps) {
+  constructor(props: CustomDatasourceProps) {
     const $props = {
       ...props,
       entities: [__dirname + "/entities/**/*{.js,.ts}"],
