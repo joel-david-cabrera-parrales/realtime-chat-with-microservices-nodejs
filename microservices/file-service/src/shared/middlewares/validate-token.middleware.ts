@@ -7,14 +7,8 @@ export interface TokenPayload {
   username: string;
 }
 
-export function createValidateTokenMiddleware(
-  tokenService: TokenService,
-) {
-  return function validateTokenMiddleware(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): void {
+export function createValidateTokenMiddleware(tokenService: TokenService) {
+  return function validateTokenMiddleware(req: Request, res: Response, next: NextFunction): void {
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith("Bearer ")) {

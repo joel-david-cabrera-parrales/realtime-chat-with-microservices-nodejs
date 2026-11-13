@@ -18,10 +18,7 @@ export function requestPath(req: Request): string {
   return req.originalUrl ?? req.path ?? "";
 }
 
-export function sendSuccess<T>(
-  res: Response,
-  options: SendSuccessOptions<T>,
-): void {
+export function sendSuccess<T>(res: Response, options: SendSuccessOptions<T>): void {
   const { statusCode = 200, message = "OK", data } = options;
   const body: ApiSuccess<T> = {
     statusCode,
@@ -34,10 +31,7 @@ export function sendSuccess<T>(
   res.status(statusCode).json(body);
 }
 
-export function sendError(
-  res: Response,
-  options: SendErrorOptions,
-): void {
+export function sendError(res: Response, options: SendErrorOptions): void {
   const { statusCode, message, error } = options;
   const body: ApiError = {
     statusCode,

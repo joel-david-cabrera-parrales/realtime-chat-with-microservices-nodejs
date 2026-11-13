@@ -16,7 +16,7 @@ services:
       postgres:
         condition: service_healthy
       file-service:
-        condition: service_started
+        condition: service_healthy
     networks:
       - chat-app-network
   aws-local-s3:
@@ -88,12 +88,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-    #   interval: 30s
-    #   timeout: 5s
-    #   retries: 10
-    #   start_period: 40s
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
     networks:
       - chat-app-network
     volumes:

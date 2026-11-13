@@ -1,36 +1,24 @@
-import "dotenv/config";
-import { EnvAdapter } from "./plugins/env/env.adapter";
-import { AvailableDatasource, TORMDatasouce } from "./plugins/typorm/type-orm.datasource";
-import { ServerProps } from "./shared/interfaces/server-props.interface";
+import dotenv from "dotenv";
 import { ExpressServer } from "./plugins/express.adapter";
+import { appDatasource } from "./plugins/typorm/datasource.provider";
 
-const envService = new EnvAdapter();
+dotenv.config();
 
-const serverProps: ServerProps = {
-  port: envService.getInt("PORT", 3000),
-  jsonSpaces: 2,
-};
+const port = Number(process.env.PORT ?? 3000);
 
-const conectionProps = {
-  type: AvailableDatasource.postgres,
-  host: envService.get("TORM_HOST_DB"),
-  port: envService.getInt("TORM_PORT_DB"),
-  username: envService.get("TORM_USER_DB"),
-  password: envService.get("TORM_PASSWORD_DB"),
-  database: envService.get("TORM_NAME_DB"),
-  logging: true,
-  synchronize: true,
-};
+async function main(): Promise<void> {
+  try {
+    if (!appDatasource.isInitialized) {
+      await appDatasource.initialize();
+      console.log("Database connected");
+    }
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    console.warn("Server will start anyway; /api/health will report degraded");
+  }
 
-const bootstrap = async (): Promise<void> => {
-  const orm = new TORMDatasouce(conectionProps);
-  await orm.appDatasource.initialize();
-
-  const server = new ExpressServer(serverProps);
+  const server = new ExpressServer({ port, jsonSpaces: 2 });
   server.start();
-};
+}
 
-bootstrap().catch((err) => {
-  console.error("[FATAL] No se pudo inicializar la base de datos:", err);
-  process.exit(1);
-});
+main();
