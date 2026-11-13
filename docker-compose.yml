@@ -9,6 +9,8 @@ services:
     volumes:
       - ./microservices/api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
+      notification-service:
+        condition: service_healthy
       auth-service:
         condition: service_healthy
       profile-service:
@@ -79,6 +81,28 @@ services:
       - chat-app-network
     volumes:
       - ./microservices/auth-service:/app
+      - /app/node_modules/
+      - /app/node_modules/
+  notification-service:
+    container_name: notification-service
+    build: 
+      context: ./microservices/notification-service
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./microservices/notification-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    networks:
+      - chat-app-network
+    volumes:
+      - ./microservices/notification-service:/app
       - /app/node_modules/
   file-service:
     container_name: file-service
