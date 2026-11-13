@@ -14,3 +14,17 @@ export const authRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+export const uploadRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  handler: (_req, res) => {
+    sendError(res, {
+      statusCode: 429,
+      message: "Demasiadas subidas. Intente nuevamente en 15 minutos.",
+      error: "Too Many Requests",
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});

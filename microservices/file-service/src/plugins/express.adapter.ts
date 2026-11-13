@@ -4,7 +4,9 @@ import express, { Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { buildHealthRouter } from "../health/infrastructure/routes/health.router";
+import { filesFactory } from "../files/infrastructure/files.factory";
 import { errorHandler } from "../shared/middlewares/error-handler.middleware";
+import { appDatasource } from "./typorm/datasource.provider";
 
 export class ExpressServer extends Server {
   private readonly app: Application;
@@ -35,9 +37,9 @@ export class ExpressServer extends Server {
 
   protected configRoutes(): void {
     this.app.use("/api/health", buildHealthRouter());
-    this.app.use("/api/files/health", buildHealthRouter());
-    this.app.use("/api/file-service/health", buildHealthRouter());
-    // this.app.use("/api/files", buildFilesRouter());
+    this.app.use("/api/file/health", buildHealthRouter());
+    this.app.use("/api/file", filesFactory.createRouter(appDatasource));
+    this.app.use("/api/files", filesFactory.createRouter(appDatasource));
     // this.app.use("/api/projects", buildProjectRouter());
     // this.app.use("/api/analyses", buildAnalysisRouter());
     // this.app.use("/api/reports", buildReportRouter());
