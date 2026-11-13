@@ -1,4 +1,4 @@
-import { AvatarUrl } from "../value-objects/avatar-url.value-object";
+import { AvatarFileCode } from "../value-objects/avatar-file-code.value-object";
 import { Bio } from "../value-objects/bio.value-object";
 import { BirthDate } from "../value-objects/birth-date.value-object";
 import { Email } from "../value-objects/email.value-object";
@@ -15,7 +15,7 @@ export interface ProfileProps {
   birthDate: BirthDate | undefined;
   gender: Gender | undefined;
   bio: Bio | undefined;
-  avatarUrl: AvatarUrl | undefined;
+  avatarFileCode: AvatarFileCode | undefined;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,7 +27,6 @@ export interface CreateProfileProps {
   birthDate?: string | Date | undefined;
   gender?: string | undefined;
   bio?: string | undefined;
-  avatarUrl?: string | undefined;
 }
 
 export interface RehydrateProfileProps {
@@ -38,7 +37,7 @@ export interface RehydrateProfileProps {
   birthDate: string | null;
   gender: string | null;
   bio: string | null;
-  avatarUrl: string | null;
+  avatarFileCode: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,7 +48,6 @@ export interface UpdateProfileProps {
   birthDate?: string | Date | null | undefined;
   gender?: string | null | undefined;
   bio?: string | null | undefined;
-  avatarUrl?: string | null | undefined;
 }
 
 export interface ProfilePrimitives {
@@ -60,7 +58,7 @@ export interface ProfilePrimitives {
   birthDate: string | null;
   gender: string | null;
   bio: string | null;
-  avatarUrl: string | null;
+  avatarFileCode: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -13,7 +13,7 @@ export class ProfileMapper {
     entity.birthDate = primitives.birthDate;
     entity.gender = primitives.gender;
     entity.bio = primitives.bio;
-    entity.avatarUrl = primitives.avatarUrl;
+    entity.avatarFileCode = primitives.avatarFileCode;
 
     return entity;
   }
@@ -27,7 +27,7 @@ export class ProfileMapper {
       birthDate: entity.birthDate,
       gender: entity.gender,
       bio: entity.bio,
-      avatarUrl: entity.avatarUrl,
+      avatarFileCode: entity.avatarFileCode,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     });

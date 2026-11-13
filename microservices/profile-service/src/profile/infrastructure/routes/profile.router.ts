@@ -1,6 +1,9 @@
 import { NextFunction, Request, RequestHandler, Response, Router } from "express";
+import multer from "multer";
 import { body, param, ValidationChain } from "express-validator";
 import { validateRequest } from "../../../shared/middlewares/validate.request.middleware";
+import { sendError } from "../../../shared/http/api-response";
+import { buildUploadMiddleware } from "../../../plugins/multer/multer.plugin";
 import { GENDER_VALUES } from "../../domain/value-objects/gender.value-object";
 import { ProfileControllerContract } from "../controllers/contracts/profile.controller.contract";
 
@@ -57,12 +60,6 @@ function bioValidation(): ValidationChain {
     .withMessage("La biografía no puede superar los 500 caracteres");
 }
 
-function avatarUrlValidation(): ValidationChain {
-  return body("avatarUrl")
-    .isURL({ protocols: ["http", "https"] })
-    .withMessage("La URL de avatar debe ser una URL http/https válida");
-}
-
 const createBodyValidation: ValidationChain[] = [
   fullNameValidation(),
   emailValidation(),
@@ -70,7 +67,6 @@ const createBodyValidation: ValidationChain[] = [
   birthDateValidation().optional(),
   genderValidation().optional(),
   bioValidation().optional(),
-  avatarUrlValidation().optional(),
 ];
 
 const updateBodyValidation: ValidationChain[] = [
@@ -79,7 +75,6 @@ const updateBodyValidation: ValidationChain[] = [
   birthDateValidation().optional({ values: "null" }),
   genderValidation().optional({ values: "null" }),
   bioValidation().optional({ values: "null" }),
-  avatarUrlValidation().optional({ values: "null" }),
 ];
 
 export class ProfileRouter {
@@ -112,8 +107,36 @@ export class ProfileRouter {
       this.controller.update(req, res, next).catch(next);
     });
 
+    this.router.post("/:id/avatar", idValidation, validateRequest, this.uploadHandler(), (req: Request, res: Response, next: NextFunction) => {
+      this.controller.uploadAvatar(req, res, next).catch(next);
+    });
+
     this.router.delete("/:id", idValidation, validateRequest, (req: Request, res: Response, next: NextFunction) => {
       this.controller.delete(req, res, next).catch(next);
     });
+  }
+
+  private uploadHandler(): RequestHandler {
+    const upload = buildUploadMiddleware().single("file");
+
+    return (req: Request, res: Response, next: NextFunction): void => {
+      upload(req, res, (error: unknown) => {
+        if (error instanceof multer.MulterError) {
+          sendError(res, {
+            statusCode: error.code === "LIMIT_FILE_SIZE" ? 413 : 400,
+            message: error.message,
+            error: error.code,
+          });
+          return;
+        }
+
+        if (error !== undefined && error !== null) {
+          next(error);
+          return;
+        }
+
+        next();
+      });
+    };
   }
 }

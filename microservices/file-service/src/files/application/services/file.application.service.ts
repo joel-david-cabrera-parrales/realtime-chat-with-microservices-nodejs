@@ -25,6 +25,7 @@ export class FileApplicationService {
     private readonly listFilesUseCase: ListFilesUseCase,
     private readonly deleteFileUseCase: DeleteFileUseCase,
     private readonly storageService: S3StorageService,
+    private readonly publicBaseUrl: string,
   ) {}
 
   public async upload(input: UploadFileInput): Promise<FileOutput> {
@@ -76,16 +77,30 @@ export class FileApplicationService {
     return this.toStream(file);
   }
 
-  public async getStreamByKey(storedKey: string): Promise<FileStream> {
-    const file = await this.listFilesUseCase.execute(this.profileCodeFromKey(storedKey));
+  public async getPublicStream(fileCode: string): Promise<FileStream> {
+    const file = await this.getFileUseCase.execute(fileCode);
 
-    const match = file.find((item) => item.storedKey === storedKey);
-
-    if (match === undefined) {
-      throw new FileNotFoundException(storedKey);
+    if (file === null || file.category !== FileCategory.PROFILE_PHOTO) {
+      throw new FileNotFoundException(fileCode);
     }
 
-    return this.toStream(match);
+    return this.toStream(file);
+  }
+
+  public async getProfilePhoto(profileCode: string): Promise<FileOutput | null> {
+    const [photo] = await this.listFilesUseCase.execute(profileCode, FileCategory.PROFILE_PHOTO);
+    return photo === undefined ? null : this.toOutput(photo);
+  }
+
+  public async deleteProfilePhoto(profileCode: string): Promise<FileOutput | null> {
+    const [photo] = await this.listFilesUseCase.execute(profileCode, FileCategory.PROFILE_PHOTO);
+
+    if (photo === undefined) {
+      return null;
+    }
+
+    const deleted = await this.deleteFileUseCase.execute(photo.fileCode);
+    return deleted === null ? null : this.toOutput(deleted);
   }
 
   public async remove(fileCode: string): Promise<FileOutput> {
@@ -117,12 +132,9 @@ export class FileApplicationService {
     };
   }
 
-  private profileCodeFromKey(storedKey: string): string {
-    const segments = storedKey.split("/");
-    return segments.length > 1 ? (segments[1] ?? "") : "";
-  }
-
   private toOutput(file: FileMetadata): FileOutput {
+    const base = this.publicBaseUrl.replace(/\/+$/, "");
+
     return {
       fileCode: file.fileCode,
       profileCode: file.profileCode,
@@ -130,7 +142,8 @@ export class FileApplicationService {
       originalName: file.originalName,
       mimeType: file.mimeType,
       sizeBytes: file.sizeBytes,
-      url: `/api/file/${file.fileCode}/download`,
+      url: `${base}/api/file/${file.fileCode}/download`,
+      publicUrl: file.category === FileCategory.PROFILE_PHOTO ? `${base}/api/file/public/${file.fileCode}` : null,
       createdAt: file.createdAt.toISOString(),
     };
   }

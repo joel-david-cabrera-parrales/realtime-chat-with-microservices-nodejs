@@ -25,8 +25,8 @@ export class FilesRouter {
   }
 
   private configure(): void {
-    this.router.get("/public", (req: Request, res: Response, next: NextFunction) => {
-      this.controller.downloadByKey(req, res, next).catch(next);
+    this.router.get("/public/:fileCode", fileCodeValidation, validateRequest, (req: Request, res: Response, next: NextFunction) => {
+      this.controller.getPublicFile(req, res, next).catch(next);
     });
 
     this.router.use(this.validateToken);
@@ -41,6 +41,14 @@ export class FilesRouter {
 
     this.router.get("/", (req: Request, res: Response, next: NextFunction) => {
       this.controller.list(req, res, next).catch(next);
+    });
+
+    this.router.get("/profile-photo", (req: Request, res: Response, next: NextFunction) => {
+      this.controller.getProfilePhoto(req, res, next).catch(next);
+    });
+
+    this.router.delete("/profile-photo", (req: Request, res: Response, next: NextFunction) => {
+      this.controller.deleteProfilePhoto(req, res, next).catch(next);
     });
 
     this.router.get("/:fileCode", fileCodeValidation, validateRequest, (req: Request, res: Response, next: NextFunction) => {

@@ -7,5 +7,7 @@ export abstract class ProfileControllerContract {
 
   public abstract update(req: Request, res: Response, next: NextFunction): Promise<void>;
 
+  public abstract uploadAvatar(req: Request, res: Response, next: NextFunction): Promise<void>;
+
   public abstract delete(req: Request, res: Response, next: NextFunction): Promise<void>;
 }

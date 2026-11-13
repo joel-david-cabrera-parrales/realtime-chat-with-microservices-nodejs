@@ -3,7 +3,7 @@ import { sendError, sendSuccess } from "../../../shared/http/api-response";
 import { FileCategory } from "../../domain/enums/file-category.enum";
 import { FileAccessDeniedException } from "../../domain/exceptions/file-access-denied.exception";
 import { ProfileCodeRequiredException } from "../../domain/exceptions/profile-code-required.exception";
-import { FileApplicationService } from "../../application/services/file.application.service";
+import { FileApplicationService, FileStream } from "../../application/services/file.application.service";
 
 export class FilesController {
   constructor(private readonly fileService: FileApplicationService) {}
@@ -60,21 +60,38 @@ export class FilesController {
     }
   }
 
-  public async downloadByKey(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getPublicFile(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const key = String(req.query.key ?? "");
+      const stream = await this.fileService.getPublicStream(this.getFileCode(req));
+      this.streamFile(res, req, stream, "inline");
+    } catch (error) {
+      next(error);
+    }
+  }
 
-      if (key === "") {
-        sendError(res, {
-          statusCode: 400,
-          message: 'El query param "key" es obligatorio',
-          error: "KEY_REQUIRED",
-        });
-        return;
-      }
+  public async getProfilePhoto(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const photo = await this.fileService.getProfilePhoto(this.getProfileCode(req));
 
-      const stream = await this.fileService.getStreamByKey(key);
-      this.streamFile(res, req, stream);
+      sendSuccess(res, {
+        statusCode: 200,
+        message: "Foto de perfil obtenida",
+        data: photo,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async deleteProfilePhoto(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const photo = await this.fileService.deleteProfilePhoto(this.getProfileCode(req));
+
+      sendSuccess(res, {
+        statusCode: 200,
+        message: "Foto de perfil eliminada",
+        data: photo,
+      });
     } catch (error) {
       next(error);
     }
@@ -130,12 +147,8 @@ export class FilesController {
     }
   }
 
-  private streamFile(
-    res: Response,
-    req: Request,
-    stream: { body: NodeJS.ReadableStream; contentType: string; contentLength?: number; originalName: string },
-  ): void {
-    const disposition = req.query.disposition === "inline" ? "inline" : "attachment";
+  private streamFile(res: Response, req: Request, stream: FileStream, defaultDisposition: "inline" | "attachment" = "attachment"): void {
+    const disposition = req.query.disposition === "inline" || req.query.disposition === "attachment" ? req.query.disposition : defaultDisposition;
 
     res.setHeader("Content-Type", stream.contentType);
     if (stream.contentLength !== undefined) {

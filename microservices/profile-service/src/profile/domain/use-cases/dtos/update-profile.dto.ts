@@ -5,5 +5,4 @@ export interface UpdateProfileInput {
   birthDate?: string | null;
   gender?: string | null;
   bio?: string | null;
-  avatarUrl?: string | null;
 }

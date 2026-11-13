@@ -26,8 +26,8 @@ export class ProfileEntity {
   @Column({ name: "bio", type: "varchar", length: 500, nullable: true })
   public bio!: string | null;
 
-  @Column({ name: "avatar_url", type: "varchar", length: 2048, nullable: true })
-  public avatarUrl!: string | null;
+  @Column({ name: "avatar_file_code", type: "uuid", nullable: true })
+  public avatarFileCode!: string | null;
 
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   public createdAt!: Date;

@@ -24,7 +24,6 @@ export class UpdateProfileUseCaseImpl extends UpdateProfileUseCase {
       birthDate: input.birthDate,
       gender: input.gender,
       bio: input.bio,
-      avatarUrl: input.avatarUrl,
     });
 
     await this.profileRepository.save(profile);

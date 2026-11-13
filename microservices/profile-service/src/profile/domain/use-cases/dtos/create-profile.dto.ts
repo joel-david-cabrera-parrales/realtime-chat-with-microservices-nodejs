@@ -5,5 +5,4 @@ export interface CreateProfileInput {
   birthDate?: string;
   gender?: string;
   bio?: string;
-  avatarUrl?: string;
 }

@@ -1,12 +1,9 @@
-import dotenv from "dotenv";
-import * as env from "env-var";
+import { envService } from "../env/env.provider";
 import { JwtAdapter } from "./jwt.adapter";
 
-dotenv.config();
-
 export const jwtAdapter = new JwtAdapter({
-  accessSecret: env.get("JWT_SECRET").required().asString(),
-  refreshSecret: env.get("JWT_REFRESH_SECRET").required().asString(),
-  accessExpiresIn: env.get("JWT_ACCESS_EXPIRES_IN").default(900).asInt(),
-  refreshExpiresIn: env.get("JWT_REFRESH_EXPIRES_IN").default(604800).asInt(),
+  accessSecret: envService.get("JWT_SECRET"),
+  refreshSecret: envService.get("JWT_REFRESH_SECRET"),
+  accessExpiresIn: envService.getInt("JWT_ACCESS_EXPIRES_IN", 900),
+  refreshExpiresIn: envService.getInt("JWT_REFRESH_EXPIRES_IN", 604800),
 });

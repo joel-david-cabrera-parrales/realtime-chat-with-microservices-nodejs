@@ -70,6 +70,39 @@ export class ProfileController extends ProfileControllerContract {
     }
   }
 
+  public async uploadAvatar(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const file = req.file;
+
+      if (!file) {
+        sendError(res, {
+          statusCode: 400,
+          message: 'No se recibió el archivo en el campo "file"',
+          error: "FILE_REQUIRED",
+        });
+        return;
+      }
+
+      const profile = await this.profileService.uploadAvatar({
+        id: this.getId(req),
+        file: {
+          originalName: file.originalname,
+          mimeType: file.mimetype,
+          buffer: file.buffer,
+          sizeBytes: file.size,
+        },
+      });
+
+      sendSuccess(res, {
+        statusCode: 201,
+        message: "Foto de perfil actualizada",
+        data: profile,
+      });
+    } catch (error) {
+      this.handleError(error, res, next);
+    }
+  }
+
   public async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       await this.profileService.delete(this.getId(req));

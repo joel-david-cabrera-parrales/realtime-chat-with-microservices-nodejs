@@ -1,10 +1,8 @@
-import dotenv from "dotenv";
 import { ExpressServer } from "./plugins/express.adapter";
+import { envService } from "./plugins/env/env.provider";
 import { appDatasource } from "./plugins/typorm/datasource.provider";
 
-dotenv.config();
-
-const port = Number(process.env.PORT ?? 3001);
+const port = envService.getInt("PORT", 3001);
 
 async function main(): Promise<void> {
   try {

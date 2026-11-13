@@ -21,5 +21,6 @@ export interface FileOutput {
   mimeType: string;
   sizeBytes: number;
   url: string;
+  publicUrl: string | null;
   createdAt: string;
 }

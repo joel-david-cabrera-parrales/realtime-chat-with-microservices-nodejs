@@ -6,7 +6,7 @@ export interface ProfileOutput {
   birthDate: string | null;
   gender: string | null;
   bio: string | null;
-  avatarUrl: string | null;
+  avatarFileCode: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,4 +1,4 @@
-import { AvatarUrl } from "../value-objects/avatar-url.value-object";
+import { AvatarFileCode } from "../value-objects/avatar-file-code.value-object";
 import { Bio } from "../value-objects/bio.value-object";
 import { BirthDate } from "../value-objects/birth-date.value-object";
 import { Email } from "../value-objects/email.value-object";
@@ -22,7 +22,7 @@ export class Profile {
       birthDate: props.birthDate === undefined ? undefined : BirthDate.create(props.birthDate),
       gender: props.gender === undefined ? undefined : Gender.create(props.gender),
       bio: props.bio === undefined ? undefined : Bio.create(props.bio),
-      avatarUrl: props.avatarUrl === undefined ? undefined : AvatarUrl.create(props.avatarUrl),
+      avatarFileCode: undefined,
       createdAt: now,
       updatedAt: now,
     });
@@ -37,7 +37,7 @@ export class Profile {
       birthDate: props.birthDate === null ? undefined : BirthDate.create(props.birthDate),
       gender: props.gender === null ? undefined : Gender.create(props.gender),
       bio: props.bio === null ? undefined : Bio.create(props.bio),
-      avatarUrl: props.avatarUrl === null ? undefined : AvatarUrl.create(props.avatarUrl),
+      avatarFileCode: props.avatarFileCode === null ? undefined : AvatarFileCode.create(props.avatarFileCode),
       createdAt: new Date(props.createdAt.getTime()),
       updatedAt: new Date(props.updatedAt.getTime()),
     });
@@ -71,8 +71,8 @@ export class Profile {
     return this.props.bio;
   }
 
-  public get avatarUrl(): AvatarUrl | undefined {
-    return this.props.avatarUrl;
+  public get avatarFileCode(): AvatarFileCode | undefined {
+    return this.props.avatarFileCode;
   }
 
   public get createdAt(): Date {
@@ -104,10 +104,11 @@ export class Profile {
       this.props.bio = changes.bio === null ? undefined : Bio.create(changes.bio);
     }
 
-    if (changes.avatarUrl !== undefined) {
-      this.props.avatarUrl = changes.avatarUrl === null ? undefined : AvatarUrl.create(changes.avatarUrl);
-    }
+    this.props.updatedAt = new Date();
+  }
 
+  public assignAvatarFileCode(fileCode: string): void {
+    this.props.avatarFileCode = AvatarFileCode.create(fileCode);
     this.props.updatedAt = new Date();
   }
 
@@ -124,7 +125,7 @@ export class Profile {
       birthDate: this.props.birthDate?.toISOString() ?? null,
       gender: this.props.gender?.value ?? null,
       bio: this.props.bio?.value ?? null,
-      avatarUrl: this.props.avatarUrl?.value ?? null,
+      avatarFileCode: this.props.avatarFileCode?.value ?? null,
       createdAt: this.props.createdAt.toISOString(),
       updatedAt: this.props.updatedAt.toISOString(),
     };

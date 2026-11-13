@@ -6,6 +6,7 @@ import { ExistsProfileByEmailUseCase } from "../../domain/use-cases/exists-profi
 import { ExistsProfileUseCase } from "../../domain/use-cases/exists-profile.use-case";
 import { GetProfileUseCase } from "../../domain/use-cases/get-profile.use-case";
 import { UpdateProfileUseCase } from "../../domain/use-cases/update-profile.use-case";
+import { UploadAvatarInput, UploadAvatarUseCase } from "../../domain/use-cases/upload-avatar.use-case";
 import { CreateProfileInput } from "../../domain/use-cases/dtos/create-profile.dto";
 import { ProfileOutput } from "../../domain/use-cases/dtos/profile-output.dto";
 import { UpdateProfileInput } from "../../domain/use-cases/dtos/update-profile.dto";
@@ -18,6 +19,7 @@ export class ProfileApplicationService extends ProfileApplicationServiceContract
     private readonly existsProfileUseCase: ExistsProfileUseCase,
     private readonly existsProfileByEmailUseCase: ExistsProfileByEmailUseCase,
     private readonly updateProfileUseCase: UpdateProfileUseCase,
+    private readonly uploadAvatarUseCase: UploadAvatarUseCase,
     private readonly deleteProfileUseCase: DeleteProfileUseCase,
   ) {
     super();
@@ -25,6 +27,7 @@ export class ProfileApplicationService extends ProfileApplicationServiceContract
 
   public async create(input: CreateProfileInput): Promise<ProfileOutput> {
     const emailExists = await this.existsProfileByEmailUseCase.execute(input.email);
+
     if (emailExists) throw new EmailAlreadyExistsException(input.email);
 
     return this.createProfileUseCase.execute(input);
@@ -40,7 +43,12 @@ export class ProfileApplicationService extends ProfileApplicationServiceContract
 
   public async update(input: UpdateProfileInput): Promise<ProfileOutput> {
     await this.existsProfile(input.id);
+
     return this.updateProfileUseCase.execute(input);
+  }
+
+  public uploadAvatar(input: UploadAvatarInput): Promise<ProfileOutput> {
+    return this.uploadAvatarUseCase.execute(input);
   }
 
   public async delete(id: string): Promise<void> {
@@ -48,13 +56,11 @@ export class ProfileApplicationService extends ProfileApplicationServiceContract
     await this.deleteProfileUseCase.execute(id);
   }
 
-  private async existsProfile(id: string): Promise<boolean> {
+  private async existsProfile(id: string): Promise<void> {
     const exists = await this.existsProfileUseCase.execute(id);
 
     if (!exists) {
       throw new ProfileNotFoundException(id);
     }
-
-    return exists;
   }
 }

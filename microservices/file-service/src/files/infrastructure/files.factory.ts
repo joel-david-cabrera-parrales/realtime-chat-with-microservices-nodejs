@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { DataSource } from "typeorm";
+import { envService } from "../../plugins/env/env.provider";
 import { jwtAdapter } from "../../plugins/jwt/jwt.provider";
 import { s3Adapter } from "../../plugins/s3/s3.provider";
 import { UuidCodeGeneratorService } from "../../plugins/uuid/uuid.code.generator.service";
@@ -22,10 +23,17 @@ export const filesFactory = {
     const listFilesUseCase = new ListFilesUseCaseImpl(fileDataSource);
     const deleteFileUseCase = new DeleteFileUseCaseImpl(fileDataSource, s3Adapter);
 
-    const fileService = new FileApplicationService(uploadFileUseCase, getFileUseCase, listFilesUseCase, deleteFileUseCase, s3Adapter);
+    const fileService = new FileApplicationService(
+      uploadFileUseCase,
+      getFileUseCase,
+      listFilesUseCase,
+      deleteFileUseCase,
+      s3Adapter,
+      envService.getOptional("PUBLIC_BASE_URL") ?? "http://localhost:3000",
+    );
 
     const filesController = new FilesController(fileService);
-    const validateToken = createValidateTokenMiddleware(jwtAdapter, process.env.INTERNAL_API_KEY);
+    const validateToken = createValidateTokenMiddleware(jwtAdapter, envService.getOptional("INTERNAL_API_KEY"));
 
     return new FilesRouter(filesController, validateToken).getRouter();
   },
