@@ -11,6 +11,8 @@ services:
     depends_on:
       notification-service:
         condition: service_healthy
+      chat-service:
+        condition: service_healthy
       auth-service:
         condition: service_healthy
       profile-service:
@@ -84,6 +86,28 @@ services:
     volumes:
       - ./microservices/auth-service:/app
       - /app/node_modules/
+  chat-service:
+    container_name: chat-service
+    build: 
+      context: ./microservices/chat-service
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./microservices/chat-service/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    networks:
+      - chat-app-network
+    volumes:
+      - ./microservices/chat-service:/app
       - /app/node_modules/
   notification-service:
     container_name: notification-service
@@ -183,21 +207,22 @@ services:
       start_period: 20s
     networks:
       - chat-app-network
-  pgadmin:
-    image: dpage/pgadmin4:9.19.0
-    container_name: chat-pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-    ports:
-      - '8088:80'
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - chat-app-network
-    volumes:
-      - ./volumes/pgadmin_data:/var/lib/pgadmin
+ 
+  # pgadmin:
+  #   image: dpage/pgadmin4:9.19.0
+  #   container_name: chat-pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_EMAIL}
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+  #   ports:
+  #     - '8088:80'
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - chat-app-network
+  #   volumes:
+  #     - ./volumes/pgadmin_data:/var/lib/pgadmin
 
 networks:
   chat-app-network:
