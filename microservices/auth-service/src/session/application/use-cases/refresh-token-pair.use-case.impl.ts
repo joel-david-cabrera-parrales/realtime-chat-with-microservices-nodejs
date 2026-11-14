@@ -15,6 +15,7 @@ import { SessionId } from "../../domain/value-objects/session-id.value-object";
 import { TokenStatus } from "../../domain/value-objects/token-status.value-object";
 import { HashService } from "../../../shared/domain/hash.service";
 import { TokenService } from "../../../shared/domain/token.generator.service";
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 
 export class RefreshTokenPairUseCaseImpl extends RefreshTokenPairUseCase {
   constructor(
@@ -27,7 +28,7 @@ export class RefreshTokenPairUseCaseImpl extends RefreshTokenPairUseCase {
     super();
   }
 
-  public async execute(input: RefreshTokenPairInput): Promise<RefreshTokenPairOutput> {
+  public async execute(input: RefreshTokenPairInput): Promise<DomainEventResult<RefreshTokenPairOutput>> {
     const payload = this.verifyPayload(input.refreshToken);
     const sessionId = SessionId.create(payload.sessionId);
 
@@ -68,12 +69,15 @@ export class RefreshTokenPairUseCaseImpl extends RefreshTokenPairUseCase {
     await this.tokenRepository.save(storedToken);
     await this.sessionRepository.save(session);
 
-    return this.tokenIssuer.issue({
-      sessionId: sessionId.value,
-      credentialId: storedToken.credentialId,
-      profileCode: storedToken.profileCode.value,
-      username: payload.username,
-    });
+    return {
+      output: await this.tokenIssuer.issue({
+        sessionId: sessionId.value,
+        credentialId: storedToken.credentialId,
+        profileCode: storedToken.profileCode.value,
+        username: payload.username,
+      }),
+      events: session.pullEvents(),
+    };
   }
 
   private async findMatchingToken(sessionId: SessionId, refreshToken: string): Promise<Token | null> {

@@ -5,6 +5,7 @@ import { SessionRevocationService } from "../../domain/services/session-revocati
 import { SessionOutput } from "../../domain/use-cases/dtos/session-output.dto";
 import { RevokeSessionUseCase } from "../../domain/use-cases/revoke-session.use-case";
 import { SessionId } from "../../domain/value-objects/session-id.value-object";
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 
 export class RevokeSessionUseCaseImpl extends RevokeSessionUseCase {
   constructor(
@@ -14,7 +15,7 @@ export class RevokeSessionUseCaseImpl extends RevokeSessionUseCase {
     super();
   }
 
-  public async execute(id: string): Promise<SessionOutput> {
+  public async execute(id: string): Promise<DomainEventResult<SessionOutput>> {
     const sessionId = SessionId.create(id);
     const session = await this.sessionRepository.findById(sessionId);
 
@@ -32,6 +33,9 @@ export class RevokeSessionUseCaseImpl extends RevokeSessionUseCase {
       await this.tokenRepository.save(token);
     }
 
-    return session.toPrimitives();
+    return {
+      output: session.toPrimitives(),
+      events: session.pullEvents(),
+    };
   }
 }

@@ -1,5 +1,6 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { SessionOutput } from "./dtos/session-output.dto";
 
 export abstract class GetSessionUseCase {
-  public abstract execute(id: string): Promise<SessionOutput | null>;
+  public abstract execute(id: string): Promise<DomainEventResult<SessionOutput | null>>;
 }

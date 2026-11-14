@@ -38,6 +38,8 @@ export abstract class DomainEvent {
 
   public abstract get eventName(): string;
 
+  public abstract toPayload(): unknown;
+
   public toPrimitives(): DomainEventPrimitives {
     return {
       eventName: this.eventName,

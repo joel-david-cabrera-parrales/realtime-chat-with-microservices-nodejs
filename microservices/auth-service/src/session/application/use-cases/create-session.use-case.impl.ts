@@ -5,6 +5,7 @@ import { SessionRepository } from "../../domain/repositories/session.repository"
 import { CreateSessionUseCase } from "../../domain/use-cases/create-session.use-case";
 import { CreateSessionInput } from "../../domain/use-cases/dtos/create-session.dto";
 import { CreateSessionOutput } from "../../domain/use-cases/dtos/session-output.dto";
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 
 export class CreateSessionUseCaseImpl extends CreateSessionUseCase {
   constructor(
@@ -14,7 +15,7 @@ export class CreateSessionUseCaseImpl extends CreateSessionUseCase {
     super(tokenIssuer);
   }
 
-  public async execute(input: CreateSessionInput): Promise<CreateSessionOutput> {
+  public async execute(input: CreateSessionInput): Promise<DomainEventResult<CreateSessionOutput>> {
     const { credential } = input;
 
     if (!credential.isAuthenticated) {
@@ -41,8 +42,11 @@ export class CreateSessionUseCaseImpl extends CreateSessionUseCase {
     });
 
     return {
-      session: sessionPrimitives,
-      tokens,
+      output: {
+        session: sessionPrimitives,
+        tokens,
+      },
+      events: session.pullEvents(),
     };
   }
 }

@@ -3,6 +3,7 @@ import { DataSource } from "typeorm";
 import { profileClient } from "../../plugins/axios/axios.provider";
 import { bcryptAdapter } from "../../plugins/bcrypt/bcrypt.provider";
 import { EnvAdapter } from "../../plugins/env/env.adapter";
+import { domainEventPublisher } from "../../plugins/events/events.provider";
 import { jwtAdapter } from "../../plugins/jwt/jwt.provider";
 import { AuthenticateCredentialUseCaseImpl } from "../application/use-cases/authenticate-credential.use-case.impl";
 import { CreateCredentialUseCaseImpl } from "../application/use-cases/create-credential.use-case.impl";
@@ -59,9 +60,16 @@ export const sessionFactory = {
       refreshTokenPairUseCase,
       revokeSessionUseCase,
       updateSessionActivityUseCase,
+      domainEventPublisher,
     );
 
-    const signupService = new SignupApplicationService(profileClient, createCredentialUseCase, authenticateCredentialUseCase, createSessionUseCase);
+    const signupService = new SignupApplicationService(
+      profileClient,
+      createCredentialUseCase,
+      authenticateCredentialUseCase,
+      createSessionUseCase,
+      domainEventPublisher,
+    );
 
     const sessionTtlSeconds = new EnvAdapter().getInt("SESSION_TTL_SECONDS", 86400);
     const sessionController = new SessionController(sessionService, signupService, sessionTtlSeconds);

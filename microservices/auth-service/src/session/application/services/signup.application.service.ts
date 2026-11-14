@@ -3,6 +3,7 @@ import { CreateCredentialUseCase } from "../../domain/use-cases/create-credentia
 import { CreateSessionUseCase } from "../../domain/use-cases/create-session.use-case";
 import { SignupInput, SignupOutput } from "../../domain/use-cases/dtos/signup.dto";
 import { ProfileClientService } from "../../../shared/domain/profile.client.service";
+import { DomainEventPublisher } from "../../../shared/domain/events/domain-event-publisher";
 import { SignupApplicationServiceContract } from "../contracts/signup.application.service.contract";
 
 export class SignupApplicationService extends SignupApplicationServiceContract {
@@ -11,6 +12,7 @@ export class SignupApplicationService extends SignupApplicationServiceContract {
     private readonly createCredentialUseCase: CreateCredentialUseCase,
     private readonly authenticateCredentialUseCase: AuthenticateCredentialUseCase,
     private readonly createSessionUseCase: CreateSessionUseCase,
+    private readonly domainEventPublisher: DomainEventPublisher,
   ) {
     super();
   }
@@ -36,20 +38,22 @@ export class SignupApplicationService extends SignupApplicationServiceContract {
         password: input.password,
       });
 
-      const { session, tokens } = await this.createSessionUseCase.execute({
+      const { output, events } = await this.createSessionUseCase.execute({
         credential,
         expiresAt: input.expiresAt,
         ipAddress: input.ipAddress,
         userAgent: input.userAgent,
       });
 
+      await this.domainEventPublisher.publish(events);
+
       return {
         authenticated: true,
         credentialId: credential.id.value,
         credentialCode: credential.code.value,
         profileCode: credential.profileCode.value,
-        session,
-        tokens,
+        session: output.session,
+        tokens: output.tokens,
       };
     } catch (error) {
       await this.compensate(profile.id);

@@ -8,6 +8,7 @@ import { UpdateSessionActivityUseCase } from "../../domain/use-cases/update-sess
 import { RefreshTokenPairInput, RefreshTokenPairOutput } from "../../domain/use-cases/dtos/refresh-token-pair.dto";
 import { SessionOutput } from "../../domain/use-cases/dtos/session-output.dto";
 import { SigninInput, SigninOutput } from "../../domain/use-cases/dtos/signin.dto";
+import { DomainEventPublisher } from "../../../shared/domain/events/domain-event-publisher";
 import { SessionApplicationServiceContract } from "../contracts/session.application.service.contract";
 
 export class SessionApplicationService extends SessionApplicationServiceContract {
@@ -19,6 +20,7 @@ export class SessionApplicationService extends SessionApplicationServiceContract
     private readonly refreshTokenPairUseCase: RefreshTokenPairUseCase,
     private readonly revokeSessionUseCase: RevokeSessionUseCase,
     private readonly updateSessionActivityUseCase: UpdateSessionActivityUseCase,
+    private readonly domainEventPublisher: DomainEventPublisher,
   ) {
     super();
   }
@@ -29,40 +31,62 @@ export class SessionApplicationService extends SessionApplicationServiceContract
       password: input.password,
     });
 
-    const { session, tokens } = await this.createSessionUseCase.execute({
+    const { output, events } = await this.createSessionUseCase.execute({
       credential,
       expiresAt: input.expiresAt,
       ipAddress: input.ipAddress,
       userAgent: input.userAgent,
     });
 
+    await this.domainEventPublisher.publish(events);
+
     return {
       authenticated: true,
       credentialId: credential.id.value,
       credentialCode: credential.code.value,
       profileCode: credential.profileCode.value,
-      session,
-      tokens,
+      session: output.session,
+      tokens: output.tokens,
     };
   }
 
-  public getById(id: string): Promise<SessionOutput | null> {
-    return this.getSessionUseCase.execute(id);
+  public async getById(id: string): Promise<SessionOutput | null> {
+    const { output, events } = await this.getSessionUseCase.execute(id);
+
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public list(credentialId: number): Promise<SessionOutput[]> {
-    return this.listSessionsUseCase.execute(credentialId);
+  public async list(credentialId: number): Promise<SessionOutput[]> {
+    const { output, events } = await this.listSessionsUseCase.execute(credentialId);
+
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public refresh(input: RefreshTokenPairInput): Promise<RefreshTokenPairOutput> {
-    return this.refreshTokenPairUseCase.execute(input);
+  public async refresh(input: RefreshTokenPairInput): Promise<RefreshTokenPairOutput> {
+    const { output, events } = await this.refreshTokenPairUseCase.execute(input);
+
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public revoke(id: string): Promise<SessionOutput> {
-    return this.revokeSessionUseCase.execute(id);
+  public async revoke(id: string): Promise<SessionOutput> {
+    const { output, events } = await this.revokeSessionUseCase.execute(id);
+
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public updateActivity(id: string): Promise<SessionOutput> {
-    return this.updateSessionActivityUseCase.execute(id);
+  public async updateActivity(id: string): Promise<SessionOutput> {
+    const { output, events } = await this.updateSessionActivityUseCase.execute(id);
+
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 }
