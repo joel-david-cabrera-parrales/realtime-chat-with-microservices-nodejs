@@ -1,6 +1,10 @@
+import { DomainEvent } from "../../../shared/domain/events/domain-event";
 import { InvalidCredentialIdException } from "../exceptions/invalid-credential-id.exception";
 import { InvalidSessionExpirationException } from "../exceptions/invalid-session-expiration.exception";
 import { SessionExpiredException } from "../exceptions/session-expired.exception";
+import { SessionCreatedEvent } from "../events/session-created.event";
+import { SessionExpiredEvent } from "../events/session-expired.event";
+import { SessionRevokedEvent } from "../events/session-revoked.event";
 import { CreateSessionProps, RehydrateSessionProps, SessionPrimitives, SessionProps } from "../interfaces/session.interface";
 import { SessionStateMachine } from "../state-machine/session.state-machine";
 import { IpAddress } from "../value-objects/ip-address.value-object";
@@ -10,6 +14,8 @@ import { SessionStatus, SessionStatusValue } from "../value-objects/session-stat
 import { UserAgent } from "../value-objects/user-agent.value-object";
 
 export class Session {
+  private readonly events: DomainEvent[] = [];
+
   private constructor(private readonly props: SessionProps) {}
 
   public static create(props: CreateSessionProps): Session {
@@ -19,7 +25,7 @@ export class Session {
       throw new InvalidSessionExpirationException();
     }
 
-    return new Session({
+    const session = new Session({
       id: SessionId.generate(),
       credentialId: Session.validateCredentialId(props.credentialId),
       profileCode: ProfileCode.create(props.profileCode),
@@ -32,6 +38,18 @@ export class Session {
       createdAt: now,
       updatedAt: now,
     });
+
+    session.recordEvent(
+      new SessionCreatedEvent({
+        sessionId: session.props.id.value,
+        credentialId: session.props.credentialId,
+        profileCode: session.props.profileCode.value,
+        expiresAt: session.props.expiresAt,
+        occurredAt: now,
+      }),
+    );
+
+    return session;
   }
 
   public static rehydrate(props: RehydrateSessionProps): Session {
@@ -132,6 +150,16 @@ export class Session {
     this.props.updatedAt = now;
   }
 
+  public hasEvents(): boolean {
+    return this.events.length > 0;
+  }
+
+  public pullEvents(): DomainEvent[] {
+    const pending = [...this.events];
+    this.events.length = 0;
+    return pending;
+  }
+
   public equals(other: Session): boolean {
     return this.props.id.equals(other.id);
   }
@@ -162,6 +190,39 @@ export class Session {
     }
 
     this.props.updatedAt = at;
+
+    this.recordTransitionEvent(next, at);
+  }
+
+  private recordTransitionEvent(next: SessionStatus, at: Date): void {
+    if (next === SessionStatus.expired) {
+      this.recordEvent(
+        new SessionExpiredEvent({
+          sessionId: this.props.id.value,
+          credentialId: this.props.credentialId,
+          profileCode: this.props.profileCode.value,
+          expiredAt: at,
+          occurredAt: at,
+        }),
+      );
+      return;
+    }
+
+    if (next === SessionStatus.revoked) {
+      this.recordEvent(
+        new SessionRevokedEvent({
+          sessionId: this.props.id.value,
+          credentialId: this.props.credentialId,
+          profileCode: this.props.profileCode.value,
+          revokedAt: at,
+          occurredAt: at,
+        }),
+      );
+    }
+  }
+
+  private recordEvent(event: DomainEvent): void {
+    this.events.push(event);
   }
 
   private static validateCredentialId(value: number): number {
