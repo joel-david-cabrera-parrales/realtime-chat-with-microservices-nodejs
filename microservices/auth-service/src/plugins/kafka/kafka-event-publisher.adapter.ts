@@ -158,6 +158,12 @@ export class KafkaEventPublisherAdapter extends EventPublisher {
       topic: message.topic,
       messages: [{ key: message.key, value: message.value }],
     });
+
+    console.log("[auth-kafka] evento publicado", {
+      topic: message.topic,
+      key: message.key,
+      envelope: JSON.parse(message.value) as MessageEnvelope,
+    });
   }
 
   private enqueue(message: BufferedMessage, error: unknown): void {
@@ -169,6 +175,7 @@ export class KafkaEventPublisherAdapter extends EventPublisher {
     this.buffer.push(message);
     console.warn(
       `[kafka] no se pudo publicar en "${message.topic}"; mensaje almacenado en buffer (${this.buffer.length}/${this.options.bufferMax})`,
+      { envelope: JSON.parse(message.value) as MessageEnvelope },
       error,
     );
   }

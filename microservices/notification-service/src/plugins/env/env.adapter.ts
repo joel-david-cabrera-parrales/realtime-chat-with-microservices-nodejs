@@ -14,6 +14,14 @@ export class EnvAdapter extends EnvService {
     return variable.required().asInt();
   }
 
+  public getString(key: string, defaultValue: string): string {
+    return env.get(key).default(defaultValue).asString();
+  }
+
+  public getBool(key: string, defaultValue: boolean): boolean {
+    return env.get(key).default(defaultValue ? "true" : "false").asBool();
+  }
+
   public getOptional(key: string): string | undefined {
     return env.get(key).asString();
   }
