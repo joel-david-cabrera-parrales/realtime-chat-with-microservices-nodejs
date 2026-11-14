@@ -10,6 +10,6 @@ export const appDatasource = new TORMDatasouce({
   username: process.env.TORM_USER_DB ?? "postgres",
   password: process.env.TORM_PASSWORD_DB ?? "postgres",
   database: process.env.TORM_NAME_DB ?? "profile_db",
-  logging: true,
+  logging: false,
   synchronize: true,
 }).appDatasource;

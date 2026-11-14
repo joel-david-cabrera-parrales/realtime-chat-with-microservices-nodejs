@@ -5,6 +5,7 @@ import { bcryptAdapter } from "../../plugins/bcrypt/bcrypt.provider";
 import { EnvAdapter } from "../../plugins/env/env.adapter";
 import { domainEventPublisher } from "../../plugins/events/events.provider";
 import { jwtAdapter } from "../../plugins/jwt/jwt.provider";
+import { kafkaEventPublisher } from "../../plugins/kafka/kafka.provider";
 import { AuthenticateCredentialUseCaseImpl } from "../application/use-cases/authenticate-credential.use-case.impl";
 import { CreateCredentialUseCaseImpl } from "../application/use-cases/create-credential.use-case.impl";
 import { CreateSessionUseCaseImpl } from "../application/use-cases/create-session.use-case.impl";
@@ -18,6 +19,7 @@ import { SessionApplicationService } from "../application/services/session.appli
 import { SignupApplicationService } from "../application/services/signup.application.service";
 import { createValidateTokenMiddleware } from "../../shared/middlewares/validate-token.middleware";
 import { SessionController } from "./controllers/session.controller";
+import { registerSessionListeners } from "./listeners/session-listeners.provider";
 import { TypeOrmCredentialDataSource } from "./datasources/typeorm-credential.datasource";
 import { TypeOrmSessionDataSource } from "./datasources/typeorm-session.datasource";
 import { TypeOrmTokenDataSource } from "./datasources/typeorm-token.datasource";
@@ -28,6 +30,8 @@ import { SessionRouter } from "./routes/session.router";
 
 export const sessionFactory = {
   createRouter(dataSource: DataSource): Router {
+    registerSessionListeners(kafkaEventPublisher);
+
     const credentialDataSource = new TypeOrmCredentialDataSource(dataSource);
     const sessionDataSource = new TypeOrmSessionDataSource(dataSource);
     const tokenDataSource = new TypeOrmTokenDataSource(dataSource);
