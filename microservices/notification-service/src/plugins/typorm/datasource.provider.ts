@@ -7,7 +7,7 @@ export const appDatasource = new TORMDatasouce({
   port: envService.getInt("TORM_PORT_DB", 5432),
   username: envService.getOptional("TORM_USER_DB") ?? "postgres",
   password: envService.getOptional("TORM_PASSWORD_DB") ?? "postgres",
-  database: envService.getOptional("TORM_NAME_DB") ?? "scafold_db",
+  database: envService.getOptional("TORM_NAME_DB") ?? "notification_db",
   logging: true,
   synchronize: true,
 }).appDatasource;

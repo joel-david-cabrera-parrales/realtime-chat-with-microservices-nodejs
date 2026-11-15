@@ -1,7 +1,13 @@
 {
   "name": "notification-service",
   "version": "1.0.0",
-  "description": "",
+  "description": "Consumidor de eventos de Kafka para el envío de notificaciones por email",
+  "license": "MIT",
+  "author": {
+    "name": "Joel Cabrera",
+    "url": "https://github.com/joel-david-cabrera-parrales"
+  },
+  "repository": "https://github.com/joel-david-cabrera-parrales/realtime-chat-with-microservices-nodejs",
   "main": "index.js",
   "scripts": {
     "start": "node dist/index.js",
@@ -11,7 +17,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\""
   },
-  "keywords": [],
+  "keywords": ["microservices", "kafka", "email", "notifications", "typescript"],
   "type": "commonjs",
   "dependencies": {
     "axios": "^1.21.1",

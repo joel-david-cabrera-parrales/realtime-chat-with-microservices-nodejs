@@ -2,11 +2,13 @@ import { NextFunction, Request, Response } from "express";
 import { HttpException } from "../http/http.exception";
 import { sendError } from "../http/api-response";
 
-export function errorHandler(err: unknown, _req: Request, res: Response, next: NextFunction): void {
+export function errorHandler(err: unknown, req: Request, res: Response, next: NextFunction): void {
   if (res.headersSent) {
     next(err);
     return;
   }
+
+  const requestId = String(res.locals.requestId ?? "");
 
   if (err instanceof HttpException) {
     sendError(res, {
@@ -17,7 +19,17 @@ export function errorHandler(err: unknown, _req: Request, res: Response, next: N
     return;
   }
 
-  console.error(err);
+  console.error(
+    JSON.stringify({
+      level: "error",
+      service: process.env.SERVICE_NAME ?? "unknown",
+      requestId,
+      method: req.method,
+      path: req.originalUrl,
+      timestamp: new Date().toISOString(),
+      error: err instanceof Error ? err.message : String(err),
+    }),
+  );
 
   sendError(res, {
     statusCode: 500,

@@ -5,6 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import { buildHealthRouter } from "../health/infrastructure/routes/health.router";
 import { errorHandler } from "../shared/middlewares/error-handler.middleware";
+import { createRequestLoggerMiddleware } from "../shared/middlewares/request-logger.middleware";
 
 export class ExpressServer extends Server {
   private readonly app: Application;
@@ -27,6 +28,7 @@ export class ExpressServer extends Server {
 
   protected configMiddlewares(): void {
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",").map((o) => o.trim());
+    this.app.use(createRequestLoggerMiddleware("notification-service"));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cors({ origin: allowedOrigins ?? "*" }));
@@ -35,6 +37,7 @@ export class ExpressServer extends Server {
 
   protected configRoutes(): void {
     this.app.use("/api/health", buildHealthRouter());
+    this.app.use("/api/notification/health", buildHealthRouter());
     // Registra aqui los modulos del servicio:
     // this.app.use("/api/<recurso>", buildRouter());
     this.app.use(errorHandler);

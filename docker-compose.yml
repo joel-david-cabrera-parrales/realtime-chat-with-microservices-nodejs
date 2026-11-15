@@ -1,4 +1,4 @@
-name: chat-app
+name: realtime-messaging-platform
 
 services:
   nginx:
@@ -11,18 +11,18 @@ services:
     depends_on:
       notification-service:
         condition: service_healthy
-      chat-service:
+      messaging-service:
         condition: service_healthy
-      auth-service:
+      identity-service:
         condition: service_healthy
-      profile-service:
+      user-profile-service:
         condition: service_healthy
       postgres:
         condition: service_healthy
-      file-service:
+      media-service:
         condition: service_healthy
     networks:
-      - chat-app-network
+      - messaging-platform-network
   aws-local-s3:
     container_name: chat-s3
     image: localstack/localstack:latest
@@ -37,20 +37,20 @@ services:
     volumes:
       - "./volumes/aws-s3-data:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./microservices/file-service/aws/localstack-init:/etc/localstack/init/ready.d:ro"
+      - "./microservices/media-service/aws/localstack-init:/etc/localstack/init/ready.d:ro"
     networks:
-      - chat-app-network
-  profile-service:
-    container_name: profile-service
-    build: 
-      context: ./microservices/profile-service
+      - messaging-platform-network
+  user-profile-service:
+    container_name: user-profile-service
+    build:
+      context: ./microservices/user-profile-service
       dockerfile: Dockerfile.dev
     env_file:
-      - ./microservices/profile-service/.env
+      - ./microservices/user-profile-service/.env
     depends_on:
       postgres:
         condition: service_healthy
-      file-service:
+      media-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
@@ -59,17 +59,17 @@ services:
       retries: 10
       start_period: 40s
     networks:
-      - chat-app-network
+      - messaging-platform-network
     volumes:
-      - ./microservices/profile-service:/app
+      - ./microservices/user-profile-service:/app
       - /app/node_modules/
-  auth-service:
-    container_name: auth-service
-    build: 
-      context: ./microservices/auth-service
+  identity-service:
+    container_name: identity-service
+    build:
+      context: ./microservices/identity-service
       dockerfile: Dockerfile.dev
     env_file:
-      - ./microservices/auth-service/.env
+      - ./microservices/identity-service/.env
     depends_on:
       postgres:
         condition: service_healthy
@@ -82,17 +82,17 @@ services:
       retries: 10
       start_period: 40s
     networks:
-      - chat-app-network
+      - messaging-platform-network
     volumes:
-      - ./microservices/auth-service:/app
+      - ./microservices/identity-service:/app
       - /app/node_modules/
-  chat-service:
-    container_name: chat-service
-    build: 
-      context: ./microservices/chat-service
+  messaging-service:
+    container_name: messaging-service
+    build:
+      context: ./microservices/messaging-service
       dockerfile: Dockerfile.dev
     env_file:
-      - ./microservices/chat-service/.env
+      - ./microservices/messaging-service/.env
     depends_on:
       postgres:
         condition: service_healthy
@@ -105,13 +105,13 @@ services:
       retries: 10
       start_period: 40s
     networks:
-      - chat-app-network
+      - messaging-platform-network
     volumes:
-      - ./microservices/chat-service:/app
+      - ./microservices/messaging-service:/app
       - /app/node_modules/
   notification-service:
     container_name: notification-service
-    build: 
+    build:
       context: ./microservices/notification-service
       dockerfile: Dockerfile.dev
     env_file:
@@ -128,17 +128,17 @@ services:
       retries: 10
       start_period: 40s
     networks:
-      - chat-app-network
+      - messaging-platform-network
     volumes:
       - ./microservices/notification-service:/app
       - /app/node_modules/
-  file-service:
-    container_name: file-service
-    build: 
-      context: ./microservices/file-service
+  media-service:
+    container_name: media-service
+    build:
+      context: ./microservices/media-service
       dockerfile: Dockerfile.dev
     env_file:
-      - ./microservices/file-service/.env
+      - ./microservices/media-service/.env
     depends_on:
       postgres:
         condition: service_healthy
@@ -151,18 +151,24 @@ services:
       retries: 10
       start_period: 40s
     networks:
-      - chat-app-network
+      - messaging-platform-network
     volumes:
-      - ./microservices/file-service:/app
+      - ./microservices/media-service:/app
       - /app/node_modules/
 
   postgres:
     image: postgres:16
-    container_name: chat-app-postgres
+    container_name: messaging-platform-postgres
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_DATABASE} 
+      POSTGRES_DB: ${DB_DATABASE}
+      # Credenciales por base de datos: las consume init-scripts/01-init-databases.sh
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      PROFILE_DB_PASSWORD: ${PROFILE_DB_PASSWORD}
+      CHAT_DB_PASSWORD: ${CHAT_DB_PASSWORD}
+      STORAGE_DB_PASSWORD: ${STORAGE_DB_PASSWORD}
+      NOTIFICATION_DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
     ports:
       - '5440:5432'
     volumes:
@@ -170,9 +176,9 @@ services:
       # Mapeamos la carpeta de scripts de inicialización automática
       - ./init-scripts:/docker-entrypoint-initdb.d
     networks:
-      chat-app-network:
+      messaging-platform-network:
         aliases:
-          - lumina-db
+          - messaging-db
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_DATABASE}"]
       interval: 5s
@@ -206,11 +212,11 @@ services:
       retries: 10
       start_period: 20s
     networks:
-      - chat-app-network
- 
+      - messaging-platform-network
+
   # pgadmin:
   #   image: dpage/pgadmin4:9.19.0
-  #   container_name: chat-pgadmin4
+  #   container_name: messaging-pgadmin4
   #   environment:
   #     PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_EMAIL}
   #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
@@ -220,11 +226,11 @@ services:
   #     postgres:
   #       condition: service_healthy
   #   networks:
-  #     - chat-app-network
+  #     - messaging-platform-network
   #   volumes:
   #     - ./volumes/pgadmin_data:/var/lib/pgadmin
 
 networks:
-  chat-app-network:
+  messaging-platform-network:
     driver: bridge
     enable_ipv6: true

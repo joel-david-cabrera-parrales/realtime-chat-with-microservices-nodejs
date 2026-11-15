@@ -1,7 +1,6 @@
 /agent
 .env
 /volumes
-/init-scripts
 node_modules/
 dist/
 
