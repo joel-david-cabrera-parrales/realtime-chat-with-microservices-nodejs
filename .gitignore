@@ -1,4 +1,8 @@
 /agent
 .env
 /volumes
-/init-scripts
+node_modules/
+dist/
+
+temp-err.log
+temp-out.log

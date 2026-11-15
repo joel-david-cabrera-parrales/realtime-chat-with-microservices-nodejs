@@ -1,0 +1,22 @@
+import { ExpressServer } from "./plugins/express.adapter";
+import { envService } from "./plugins/env/env.provider";
+import { appDatasource } from "./plugins/typorm/datasource.provider";
+
+const port = envService.getInt("PORT", 3000);
+
+async function main(): Promise<void> {
+  try {
+    if (!appDatasource.isInitialized) {
+      await appDatasource.initialize();
+      console.log("Database connected");
+    }
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    console.warn("Server will start anyway; /api/health will report degraded");
+  }
+
+  const server = new ExpressServer({ port, jsonSpaces: 2 });
+  server.start();
+}
+
+main();
