@@ -4,6 +4,8 @@ import express, { Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { buildHealthRouter } from "../health/infrastructure/routes/health.router";
+import { chatFactory } from "../chat/infrastructure/chat.factory";
+import { appDatasource } from "./typorm/datasource.provider";
 import { errorHandler } from "../shared/middlewares/error-handler.middleware";
 
 export class ExpressServer extends Server {
@@ -35,8 +37,7 @@ export class ExpressServer extends Server {
 
   protected configRoutes(): void {
     this.app.use("/api/health", buildHealthRouter());
-    // Registra aqui los modulos del servicio:
-    // this.app.use("/api/<recurso>", buildRouter());
+    this.app.use("/api/chat", chatFactory.createRouter(appDatasource));
     this.app.use(errorHandler);
   }
 

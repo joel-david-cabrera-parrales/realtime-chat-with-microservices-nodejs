@@ -1,6 +1,7 @@
 export interface IssueTokenPairInput {
   sessionId: string;
   credentialId: number;
+  credentialCode: string;
   profileCode: string;
   username: string;
 }

@@ -1,0 +1,5 @@
+import { ConversationListOutput, ListConversationsInput } from "./dtos/conversation.dto";
+
+export abstract class ListConversationsUseCase {
+  public abstract execute(input: ListConversationsInput): Promise<ConversationListOutput>;
+}

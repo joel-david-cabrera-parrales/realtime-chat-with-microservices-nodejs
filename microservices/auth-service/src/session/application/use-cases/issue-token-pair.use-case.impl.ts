@@ -21,6 +21,7 @@ export class IssueTokenPairUseCaseImpl extends IssueTokenPairUseCase {
     const payload: Record<string, unknown> = {
       sessionId: input.sessionId,
       credentialId: input.credentialId,
+      credentialCode: input.credentialCode,
       profileCode: input.profileCode,
       username: input.username,
     };

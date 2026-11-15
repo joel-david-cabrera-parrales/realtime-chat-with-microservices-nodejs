@@ -73,6 +73,7 @@ export class RefreshTokenPairUseCaseImpl extends RefreshTokenPairUseCase {
       output: await this.tokenIssuer.issue({
         sessionId: sessionId.value,
         credentialId: storedToken.credentialId,
+        credentialCode: payload.credentialCode,
         profileCode: storedToken.profileCode.value,
         username: payload.username,
       }),

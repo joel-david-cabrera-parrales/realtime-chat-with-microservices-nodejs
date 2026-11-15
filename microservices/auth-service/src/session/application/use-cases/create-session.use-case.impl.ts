@@ -37,6 +37,7 @@ export class CreateSessionUseCaseImpl extends CreateSessionUseCase {
     const tokens = await this.tokenIssuer.issue({
       sessionId: sessionPrimitives.id,
       credentialId: sessionPrimitives.credentialId,
+      credentialCode: credential.code.value,
       profileCode: sessionPrimitives.profileCode,
       username: credential.username.value,
     });

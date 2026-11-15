@@ -21,6 +21,7 @@ Monorepo con microservicios en **Node + TypeScript + Express 5 + TypeORM + Postg
 | `auth-service` | 3000 | no publicado | `http://localhost/api/auth` |
 | `profile-service` | 3000 | no publicado | `http://localhost/api/profile` |
 | `file-service` | 3000 | no publicado | `http://localhost/api/file` (alias `/api/files`) |
+| `chat-service` | 3000 | no publicado | `http://localhost/api/chat` |
 | `postgres` | 5432 | 5440 | — |
 | `pgadmin` | 80 | 8088 | `http://localhost:8088` |
 | `localstack` (S3) | 4566 | `${AWS_STORAGE_SERVICE_PORT}` (4566) | — |
@@ -863,7 +864,98 @@ Errores: `400`, `401`, `403 FILE_ACCESS_DENIED`, `404 FILE_NOT_FOUND`, `500`.
 
 ---
 
-# 4. Colección Postman — orden de ejecución
+# 4. CHAT SERVICE
+
+Base: `{{baseUrl}}/api/chat`. Todos los endpoints requieren **JWT Bearer** (el actor se obtiene del `credentialCode` del token).
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `POST` | `/api/chat/conversations` | Crear conversación (`direct` o `group`) |
+| `GET` | `/api/chat/conversations` | Listar mis conversaciones (`?cursor=&limit=`) |
+| `GET` | `/api/chat/conversations/:code` | Detalle de una conversación |
+| `POST` | `/api/chat/conversations/:code/participants` | Añadir participante (solo admin del grupo) |
+| `DELETE` | `/api/chat/conversations/:code/participants/:credentialCode` | Quitar participante (solo admin del grupo) |
+| `POST` | `/api/chat/conversations/:code/leave` | Salir de la conversación |
+| `PATCH` | `/api/chat/conversations/:code` | Renombrar la conversación (solo admin del grupo) |
+| `DELETE` | `/api/chat/conversations/:code` | Eliminar conversación (borrado lógico) |
+| `POST` | `/api/chat/conversations/:code/messages` | Enviar mensaje |
+| `GET` | `/api/chat/conversations/:code/messages` | Listar mensajes (`?cursor=&limit=`) |
+| `GET` | `/api/chat/messages/:code` | Detalle de un mensaje |
+| `PATCH` | `/api/chat/messages/:code` | Editar mensaje (solo el emisor) |
+| `DELETE` | `/api/chat/messages/:code` | Eliminar mensaje (emisor o admin del grupo) |
+| `POST` | `/api/chat/messages/:code/delivered` | Marcar mensaje como entregado |
+| `POST` | `/api/chat/messages/:code/read` | Marcar mensaje como leído |
+
+### Identidad
+
+El actor se identifica por el **`credentialCode`** (UUID) presente en el JWT de `auth-service`. Ese campo se añadió al payload del token (`sessionId`, `credentialId`, `credentialCode`, `profileCode`, `username`).
+
+### `ConversationOutput`
+
+```json
+{
+  "code": "8a3f1c22-5f7b-4c2e-9d1a-0f2b6c8d4e10",
+  "type": "group",
+  "title": "Equipo de desarrollo",
+  "participants": [
+    {
+      "credentialCode": "1a2b3c4d-1111-4111-8111-111111111111",
+      "role": "admin",
+      "status": "active",
+      "joinedAt": "2026-11-15T10:00:00.000Z",
+      "leftAt": null
+    }
+  ],
+  "createdBy": "1a2b3c4d-1111-4111-8111-111111111111",
+  "lastMessageAt": "2026-11-15T10:05:00.000Z",
+  "createdAt": "2026-11-15T10:00:00.000Z",
+  "updatedAt": "2026-11-15T10:05:00.000Z",
+  "deletedAt": null
+}
+```
+
+### `MessageOutput`
+
+```json
+{
+  "code": "5c7d8e9f-2222-4333-8444-555555555555",
+  "conversationCode": "8a3f1c22-5f7b-4c2e-9d1a-0f2b6c8d4e10",
+  "senderCredentialCode": "1a2b3c4d-1111-4111-8111-111111111111",
+  "content": "Hola a todos",
+  "status": "read",
+  "deliveredAt": "2026-11-15T10:05:01.000Z",
+  "readAt": "2026-11-15T10:05:30.000Z",
+  "editedAt": null,
+  "deletedAt": null,
+  "deletedBy": null,
+  "createdAt": "2026-11-15T10:05:00.000Z",
+  "updatedAt": "2026-11-15T10:05:30.000Z"
+}
+```
+
+### Reglas de dominio
+
+- **Conversación `direct`**: exactamente 2 participantes, sin título. La pareja de participantes genera una clave determinista (`direct_key`, sha256) que impide duplicar el mismo chat 1:1: al crear una conversación directa que ya existe, el endpoint devuelve la existente en lugar de crear otra.
+- **Conversación `group`**: mínimo 2 participantes, título obligatorio (3–80 caracteres) y al menos un administrador (`role: admin`). El creador es el administrador inicial.
+- **Participantes**: máximo 256 por conversación. No se puede quitar al último administrador. En conversaciones `direct` el conjunto de participantes es inmutable (salir de la conversación sí se permite).
+- **Mensajes**: contenido de 1 a 4096 caracteres. Estados globales `sent → delivered → read` (monótonos). La edición solo la realiza el emisor y exige un contenido distinto. El borrado es lógico (`deleted_at`) y lo puede hacer el emisor o un administrador del grupo.
+- **Acuses**: cada participante genera su propio acuse (`message_receipts`), además del estado global del mensaje.
+- **Paginación por cursor**: `?cursor=<createdAt>|<code>&limit=<1..100>`. La respuesta incluye `nextCursor` (o `null` si no hay más resultados). Los mensajes se listan en orden cronológico ascendente; las conversaciones, de más reciente a más antigua.
+
+### Catálogo de errores - chat-service
+
+| Código HTTP | Códigos de error |
+|---|---|
+| 400 | `INVALID_CONVERSATION_CODE`, `INVALID_MESSAGE_CODE`, `INVALID_MESSAGE_RECEIPT_CODE`, `INVALID_CREDENTIAL_CODE`, `INVALID_CONVERSATION_TITLE`, `INVALID_CONVERSATION_TYPE`, `INVALID_PARTICIPANT_ROLE`, `INVALID_PARTICIPANT_STATUS`, `INVALID_MESSAGE_CONTENT`, `INVALID_MESSAGE_STATUS`, `INVALID_RECEIPT_STATUS`, `INVALID_DIRECT_KEY`, `INVALID_PAGINATION_CURSOR`, `CONVERSATION_TITLE_REQUIRED`, `DIRECT_CONVERSATION_REQUIRES_TWO_PARTICIPANTS`, `GROUP_CONVERSATION_REQUIRES_TWO_PARTICIPANTS`, `DIRECT_CONVERSATION_PARTICIPANTS_IMMUTABLE`, `Datos de entrada inválidos` (+`details[]`) |
+| 401 | `Unauthorized` |
+| 403 | `CONVERSATION_NOT_PARTICIPANT`, `CONVERSATION_NOT_ADMIN`, `LAST_ADMIN_CANNOT_BE_REMOVED`, `MESSAGE_NOT_EDITABLE` |
+| 404 | `CONVERSATION_NOT_FOUND`, `MESSAGE_NOT_FOUND`, `RECEIPT_NOT_FOUND` |
+| 409 | `CONVERSATION_ALREADY_EXISTS`, `DUPLICATE_CONVERSATION_PARTICIPANT`, `CONVERSATION_PARTICIPANT_LIMIT_REACHED`, `MESSAGE_ALREADY_DELETED`, `MESSAGE_CONTENT_UNCHANGED` |
+| 500 | `Internal Server Error` |
+
+---
+
+# 5. Colección Postman — orden de ejecución
 
 1. `POST /api/auth/signup` → guarda `accessToken`, `refreshToken`, `profileCode`, `session.id`.
 2. `POST /api/auth/signin` (opcional, para reemitir tokens).
@@ -881,22 +973,34 @@ Errores: `400`, `401`, `403 FILE_ACCESS_DENIED`, `404 FILE_NOT_FOUND`, `500`.
 14. `GET /api/auth/sessions/{{sessionId}}`.
 15. `POST /api/auth/sessions/{{sessionId}}/activity`.
 16. `POST /api/auth/sessions/{{sessionId}}/revoke`.
+17. `POST /api/chat/conversations` — crear conversación `direct` con el `credentialCode` de otro usuario → guarda `conversationCode`.
+18. `POST /api/chat/conversations/{{conversationCode}}/messages` — enviar mensaje → guarda `messageCode`.
+19. `GET /api/chat/conversations` — listar conversaciones del usuario.
+20. `GET /api/chat/conversations/{{conversationCode}}/messages` — listar mensajes (polling).
+21. `POST /api/chat/messages/{{messageCode}}/read` — marcar como leído.
 
 ### Variables de entorno sugeridas
 
 ```
-baseUrl      = http://localhost
-accessToken  = (desde signup/signin -> data.tokens.accessToken)
-refreshToken = (desde signup/signin -> data.tokens.refreshToken)
-profileCode  = (desde signup/signin -> data.profileCode)
-sessionId    = (desde signup/signin -> data.session.id)
-fileCode     = (desde file upload -> data.fileCode)
+baseUrl       = http://localhost
+accessToken   = (desde signup/signin -> data.tokens.accessToken)
+refreshToken  = (desde signup/signin -> data.tokens.refreshToken)
+profileCode   = (desde signup/signin -> data.profileCode)
+credentialCode= (desde signup/signin -> data.credentialCode)
+sessionId     = (desde signup/signin -> data.session.id)
+fileCode      = (desde file upload -> data.fileCode)
+conversationCode = (desde POST /api/chat/conversations -> data.code)
+messageCode   = (desde POST /api/chat/conversations/:code/messages -> data.code)
 ```
 
 ---
 
-# 5. Notas y limitaciones conocidas
+# 6. Notas y limitaciones conocidas
 
 - **No hay OpenAPI/Swagger** en `auth-service`, `profile-service` ni `file-service`. Este README es la única especificación disponible.
 - **Los microservicios no exponen puertos al host**; el único punto de entrada público es el gateway nginx (`http://localhost`). Para depurar un servicio aislado hay que levantar el contenedor con `docker compose exec` o agregar un mapeo `ports:`.
 - `GET /api/health` **no funciona a través del gateway**: la regla de nginx lo enviaría a `health-service`, que no existe. Usar `GET /api/auth/health`, `/api/profile/health` o `/api/file/health`.
+- **`chat-service` es solo REST + polling**: no hay WebSocket ni eventos de dominio (Kafka), por lo que el cliente debe consultar `GET /api/chat/conversations/:code/messages` periódicamente.
+- **`chat-service` no soporta adjuntos**: los mensajes son solo texto. La integración con `file-service` (imágenes, audio, documentos) queda pendiente.
+- **El borrado de mensajes es "para todos"**: no existe el borrado "solo para mí", que requeriría visibilidad por participante.
+- Las tablas del chat (`conversations`, `conversation_participants`, `messages`, `message_receipts`) se crean automáticamente porque el datasource usa `synchronize: true`.

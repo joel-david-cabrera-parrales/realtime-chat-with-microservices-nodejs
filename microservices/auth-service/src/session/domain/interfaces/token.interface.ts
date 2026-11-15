@@ -40,6 +40,7 @@ export interface RehydrateTokenProps {
 
 export interface TokenPayload {
   credentialId: number;
+  credentialCode: string;
   profileCode: string;
   username: string;
   sessionId: string;

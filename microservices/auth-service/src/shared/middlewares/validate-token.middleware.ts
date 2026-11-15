@@ -4,6 +4,7 @@ import { sendError } from "../http/api-response";
 
 export interface TokenPayload {
   credentialId: number;
+  credentialCode: string;
   username: string;
 }
 
@@ -35,6 +36,7 @@ export function createValidateTokenMiddleware(tokenService: TokenService) {
       const payload = tokenService.verifyAccessToken(token) as unknown as TokenPayload;
       res.locals.token = token;
       res.locals.credentialId = payload.credentialId;
+      res.locals.credentialCode = payload.credentialCode;
       res.locals.username = payload.username;
       next();
     } catch {
