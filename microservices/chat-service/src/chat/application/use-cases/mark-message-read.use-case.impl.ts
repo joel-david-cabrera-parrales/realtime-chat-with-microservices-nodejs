@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { MessageReceipt } from "../../domain/aggregates/message-receipt.aggregate";
 import { MessageReceiptRepository } from "../../domain/repositories/message-receipt.repository";
 import { MessageRepository } from "../../domain/repositories/message.repository";
@@ -20,7 +21,7 @@ export class MarkMessageReadUseCaseImpl extends MarkMessageReadUseCase {
     super();
   }
 
-  public async execute(input: MarkMessageReadInput): Promise<MessageOutput> {
+  public async execute(input: MarkMessageReadInput): Promise<DomainEventResult<MessageOutput>> {
     const message = await this.messageLoader.load(input.code);
     const conversation = await this.conversationLoader.load(message.conversationCode.value);
     const actor = CredentialCode.create(input.actorCredentialCode);
@@ -45,9 +46,12 @@ export class MarkMessageReadUseCaseImpl extends MarkMessageReadUseCase {
       await this.messageReceiptRepository.save(existing);
     }
 
-    message.markRead();
+    message.markRead(actor);
     await this.messageRepository.save(message);
 
-    return ChatOutputMapper.toMessageOutput(message.toPrimitives());
+    return {
+      output: ChatOutputMapper.toMessageOutput(message.toPrimitives()),
+      events: message.pullEvents(),
+    };
   }
 }

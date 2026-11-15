@@ -20,11 +20,20 @@ import {
   CreateConversationProps,
   RehydrateConversationProps,
 } from "../interfaces/conversation.interface";
+import { DomainEvent } from "../../../shared/domain/events/domain-event";
+import { ConversationCreatedEvent } from "../events/conversation-created.event";
+import { ConversationDeletedEvent } from "../events/conversation-deleted.event";
+import { ConversationRenamedEvent } from "../events/conversation-renamed.event";
+import { ParticipantAddedEvent } from "../events/participant-added.event";
+import { ParticipantLeftEvent } from "../events/participant-left.event";
+import { ParticipantRemovedEvent } from "../events/participant-removed.event";
 
 export const MAX_PARTICIPANTS = 256;
 export const MIN_GROUP_PARTICIPANTS = 2;
 
 export class Conversation {
+  private readonly events: DomainEvent[] = [];
+
   private constructor(private readonly props: ConversationProps) {}
 
   public static create(props: CreateConversationProps): Conversation {
@@ -51,7 +60,7 @@ export class Conversation {
         throw new DirectConversationRequiresTwoParticipantsException(codes.length);
       }
 
-      return new Conversation({
+      const conversation = new Conversation({
         code: ConversationCode.generate(),
         type,
         title: undefined,
@@ -63,6 +72,10 @@ export class Conversation {
         updatedAt: now,
         deletedAt: undefined,
       });
+
+      conversation.recordCreatedEvent(now);
+
+      return conversation;
     }
 
     if (props.title === undefined || props.title.trim().length === 0) {
@@ -73,7 +86,7 @@ export class Conversation {
       throw new GroupConversationRequiresTwoParticipantsException(codes.length);
     }
 
-    return new Conversation({
+    const conversation = new Conversation({
       code: ConversationCode.generate(),
       type,
       title: ConversationTitle.create(props.title),
@@ -87,6 +100,10 @@ export class Conversation {
       updatedAt: now,
       deletedAt: undefined,
     });
+
+    conversation.recordCreatedEvent(now);
+
+    return conversation;
   }
 
   public static rehydrate(props: RehydrateConversationProps): Conversation {
@@ -191,6 +208,15 @@ export class Conversation {
 
     this.props.participants.push(Participant.create(code.value, role));
     this.props.updatedAt = new Date();
+
+    this.recordEvent(
+      new ParticipantAddedEvent({
+        conversationCode: this.props.code.value,
+        participantCredentialCode: code.value,
+        role: role.value,
+        occurredAt: new Date(),
+      }),
+    );
   }
 
   public removeParticipant(credentialCode: string): void {
@@ -214,6 +240,14 @@ export class Conversation {
 
     participant.markLeft();
     this.props.updatedAt = new Date();
+
+    this.recordEvent(
+      new ParticipantRemovedEvent({
+        conversationCode: this.props.code.value,
+        participantCredentialCode: participant.credentialCode.value,
+        occurredAt: new Date(),
+      }),
+    );
   }
 
   public leave(credentialCode: string): void {
@@ -233,6 +267,14 @@ export class Conversation {
 
     participant.markLeft();
     this.props.updatedAt = new Date();
+
+    this.recordEvent(
+      new ParticipantLeftEvent({
+        conversationCode: this.props.code.value,
+        participantCredentialCode: participant.credentialCode.value,
+        occurredAt: new Date(),
+      }),
+    );
   }
 
   public rename(title: string): void {
@@ -246,6 +288,14 @@ export class Conversation {
 
     this.props.title = ConversationTitle.create(title);
     this.props.updatedAt = new Date();
+
+    this.recordEvent(
+      new ConversationRenamedEvent({
+        conversationCode: this.props.code.value,
+        title: this.props.title.value,
+        occurredAt: new Date(),
+      }),
+    );
   }
 
   public touchLastMessage(at: Date = new Date()): void {
@@ -260,6 +310,23 @@ export class Conversation {
 
     this.props.deletedAt = new Date(at.getTime());
     this.props.updatedAt = new Date();
+
+    this.recordEvent(
+      new ConversationDeletedEvent({
+        conversationCode: this.props.code.value,
+        occurredAt: new Date(),
+      }),
+    );
+  }
+
+  public hasEvents(): boolean {
+    return this.events.length > 0;
+  }
+
+  public pullEvents(): DomainEvent[] {
+    const pending = [...this.events];
+    this.events.length = 0;
+    return pending;
   }
 
   public equals(other: Conversation): boolean {
@@ -283,5 +350,22 @@ export class Conversation {
 
   private countAdmins(): number {
     return this.props.participants.filter((participant) => participant.isAdmin() && participant.isActive()).length;
+  }
+
+  private recordCreatedEvent(at: Date): void {
+    this.recordEvent(
+      new ConversationCreatedEvent({
+        conversationCode: this.props.code.value,
+        type: this.props.type.value,
+        title: this.props.title?.value ?? null,
+        createdBy: this.props.createdBy.value,
+        participantCredentialCodes: this.props.participants.map((participant) => participant.credentialCode.value),
+        occurredAt: at,
+      }),
+    );
+  }
+
+  private recordEvent(event: DomainEvent): void {
+    this.events.push(event);
   }
 }

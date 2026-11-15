@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { CredentialCode } from "../../domain/value-objects/credential-code.value-object";
 import { LeaveConversationUseCase } from "../../domain/use-cases/leave-conversation.use-case";
 import { ConversationOutput, LeaveConversationInput } from "../../domain/use-cases/dtos/conversation.dto";
@@ -15,7 +16,7 @@ export class LeaveConversationUseCaseImpl extends LeaveConversationUseCase {
     super();
   }
 
-  public async execute(input: LeaveConversationInput): Promise<ConversationOutput> {
+  public async execute(input: LeaveConversationInput): Promise<DomainEventResult<ConversationOutput>> {
     const conversation = await this.conversationLoader.load(input.conversationCode);
     const actor = CredentialCode.create(input.actorCredentialCode);
 
@@ -25,6 +26,9 @@ export class LeaveConversationUseCaseImpl extends LeaveConversationUseCase {
 
     await this.conversationRepository.save(conversation);
 
-    return ChatOutputMapper.toConversationOutput(conversation.toPrimitives());
+    return {
+      output: ChatOutputMapper.toConversationOutput(conversation.toPrimitives()),
+      events: conversation.pullEvents(),
+    };
   }
 }

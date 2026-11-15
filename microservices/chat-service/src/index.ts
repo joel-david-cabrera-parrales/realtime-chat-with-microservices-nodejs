@@ -1,6 +1,8 @@
 import { ExpressServer } from "./plugins/express.adapter";
 import { envService } from "./plugins/env/env.provider";
+import { socketProvider, SOCKET_PATH } from "./plugins/socket/socket.provider";
 import { appDatasource } from "./plugins/typorm/datasource.provider";
+import { realtimeFactory } from "./chat/realtime/infrastructure/realtime.factory";
 
 const port = envService.getInt("PORT", 3000);
 
@@ -16,7 +18,23 @@ async function main(): Promise<void> {
   }
 
   const server = new ExpressServer({ port, jsonSpaces: 2 });
-  server.start();
+  const httpServer = server.start();
+
+  const io = socketProvider.create(httpServer);
+  realtimeFactory.create(io, appDatasource);
+
+  console.log(`Socket.io listening on path ${SOCKET_PATH}`);
+
+  const shutdown = (): void => {
+    console.log("Shutting down chat-service");
+    io.close();
+    httpServer.close(() => {
+      process.exit(0);
+    });
+  };
+
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
 }
 
 main();

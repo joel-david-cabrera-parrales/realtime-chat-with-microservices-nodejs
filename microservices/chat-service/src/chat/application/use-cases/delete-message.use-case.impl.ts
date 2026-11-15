@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { MessageRepository } from "../../domain/repositories/message.repository";
 import { CredentialCode } from "../../domain/value-objects/credential-code.value-object";
 import { DeleteMessageUseCase } from "../../domain/use-cases/delete-message.use-case";
@@ -17,17 +18,20 @@ export class DeleteMessageUseCaseImpl extends DeleteMessageUseCase {
     super();
   }
 
-  public async execute(input: DeleteMessageInput): Promise<MessageOutput> {
+  public async execute(input: DeleteMessageInput): Promise<DomainEventResult<MessageOutput>> {
     const message = await this.messageLoader.load(input.code);
     const conversation = await this.conversationLoader.load(message.conversationCode.value);
     const actor = CredentialCode.create(input.actorCredentialCode);
 
     this.accessPolicy.assertCanDelete(message, conversation, actor);
 
-    message.softDelete(actor.value);
+    message.softDelete(actor);
 
     await this.messageRepository.save(message);
 
-    return ChatOutputMapper.toMessageOutput(message.toPrimitives());
+    return {
+      output: ChatOutputMapper.toMessageOutput(message.toPrimitives()),
+      events: message.pullEvents(),
+    };
   }
 }

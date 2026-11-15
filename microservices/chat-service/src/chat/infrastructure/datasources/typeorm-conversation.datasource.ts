@@ -1,4 +1,4 @@
-import { DataSource, Repository } from "typeorm";
+import { DataSource, IsNull, Repository } from "typeorm";
 import { Conversation } from "../../domain/aggregates/conversation.aggregate";
 import { ConversationDataSource } from "../../domain/datasources/conversation.datasource";
 import { ConversationCode } from "../../domain/value-objects/conversation-code.value-object";
@@ -7,7 +7,7 @@ import { DirectKey } from "../../domain/value-objects/direct-key.value-object";
 import { PaginationCursor } from "../../domain/value-objects/pagination-cursor.value-object";
 import { ConversationEntity } from "../../../plugins/typorm/entities/conversation.entity";
 import { ConversationParticipantEntity } from "../../../plugins/typorm/entities/conversation-participant.entity";
-import { ConversationMapper, ParticipantMapper } from "../mappers/conversation.mapper";
+import { ConversationMapper } from "../mappers/conversation.mapper";
 
 export class TypeOrmConversationDataSource implements ConversationDataSource {
   constructor(private readonly dataSource: DataSource) {}
@@ -39,7 +39,7 @@ export class TypeOrmConversationDataSource implements ConversationDataSource {
 
   public async findByCode(code: ConversationCode): Promise<Conversation | null> {
     const entity = await this.repository.findOne({
-      where: { code: code.value, deletedAt: null },
+      where: { code: code.value, deletedAt: IsNull() },
     });
 
     if (entity === null) {
@@ -55,7 +55,7 @@ export class TypeOrmConversationDataSource implements ConversationDataSource {
 
   public async findByDirectKey(directKey: DirectKey): Promise<Conversation | null> {
     const entity = await this.repository.findOne({
-      where: { directKey: directKey.value, deletedAt: null },
+      where: { directKey: directKey.value, deletedAt: IsNull() },
     });
 
     if (entity === null) {
@@ -71,7 +71,7 @@ export class TypeOrmConversationDataSource implements ConversationDataSource {
 
   public async existsByDirectKey(directKey: DirectKey): Promise<boolean> {
     return this.repository.exists({
-      where: { directKey: directKey.value, deletedAt: null },
+      where: { directKey: directKey.value, deletedAt: IsNull() },
     });
   }
 

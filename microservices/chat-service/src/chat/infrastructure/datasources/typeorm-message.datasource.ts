@@ -1,4 +1,4 @@
-import { DataSource, Repository } from "typeorm";
+import { DataSource, IsNull, Repository } from "typeorm";
 import { Message } from "../../domain/aggregates/message.aggregate";
 import { MessageDataSource } from "../../domain/datasources/message.datasource";
 import { ConversationCode } from "../../domain/value-objects/conversation-code.value-object";
@@ -68,7 +68,7 @@ export class TypeOrmMessageDataSource implements MessageDataSource {
 
   public async findLatestByConversation(conversationCode: ConversationCode): Promise<Message | null> {
     const entity = await this.repository.findOne({
-      where: { conversationCode: conversationCode.value, deletedAt: null },
+      where: { conversationCode: conversationCode.value, deletedAt: IsNull() },
       order: { createdAt: "DESC" },
     });
 

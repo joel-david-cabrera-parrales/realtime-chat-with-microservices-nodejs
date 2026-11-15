@@ -1,3 +1,4 @@
+import { DomainEventPublisher } from "../../../shared/domain/events/domain-event-publisher";
 import {
   AddParticipantInput,
   ConversationListOutput,
@@ -55,67 +56,113 @@ export class ChatApplicationService extends ChatApplicationServiceContract {
     private readonly deleteMessageUseCase: DeleteMessageUseCase,
     private readonly markMessageDeliveredUseCase: MarkMessageDeliveredUseCase,
     private readonly markMessageReadUseCase: MarkMessageReadUseCase,
+    private readonly domainEventPublisher: DomainEventPublisher,
   ) {
     super();
   }
 
-  public createConversation(input: CreateConversationInput): Promise<ConversationOutput> {
-    return this.createConversationUseCase.execute(input);
+  public async createConversation(input: CreateConversationInput): Promise<ConversationOutput> {
+    const { output, events } = await this.createConversationUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public listConversations(input: ListConversationsInput): Promise<ConversationListOutput> {
-    return this.listConversationsUseCase.execute(input);
+  public async listConversations(input: ListConversationsInput): Promise<ConversationListOutput> {
+    const { output, events } = await this.listConversationsUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public getConversation(input: GetConversationInput): Promise<ConversationOutput | null> {
-    return this.getConversationUseCase.execute(input);
+  public async getConversation(input: GetConversationInput): Promise<ConversationOutput | null> {
+    const { output, events } = await this.getConversationUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public addParticipant(input: AddParticipantInput): Promise<ConversationOutput> {
-    return this.addParticipantUseCase.execute(input);
+  public async addParticipant(input: AddParticipantInput): Promise<ConversationOutput> {
+    const { output, events } = await this.addParticipantUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public removeParticipant(input: RemoveParticipantInput): Promise<ConversationOutput> {
-    return this.removeParticipantUseCase.execute(input);
+  public async removeParticipant(input: RemoveParticipantInput): Promise<ConversationOutput> {
+    const { output, events } = await this.removeParticipantUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public leaveConversation(input: LeaveConversationInput): Promise<ConversationOutput> {
-    return this.leaveConversationUseCase.execute(input);
+  public async leaveConversation(input: LeaveConversationInput): Promise<ConversationOutput> {
+    const { output, events } = await this.leaveConversationUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public renameConversation(input: RenameConversationInput): Promise<ConversationOutput> {
-    return this.renameConversationUseCase.execute(input);
+  public async renameConversation(input: RenameConversationInput): Promise<ConversationOutput> {
+    const { output, events } = await this.renameConversationUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public deleteConversation(input: DeleteConversationInput): Promise<ConversationOutput> {
-    return this.deleteConversationUseCase.execute(input);
+  public async deleteConversation(input: DeleteConversationInput): Promise<ConversationOutput> {
+    const { output, events } = await this.deleteConversationUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public sendMessage(input: SendMessageInput): Promise<MessageOutput> {
-    return this.sendMessageUseCase.execute(input);
+  public async sendMessage(input: SendMessageInput): Promise<MessageOutput> {
+    const { output, events } = await this.sendMessageUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public listMessages(input: ListMessagesInput): Promise<MessageListOutput> {
-    return this.listMessagesUseCase.execute(input);
+  public async listMessages(input: ListMessagesInput): Promise<MessageListOutput> {
+    const { output, events } = await this.listMessagesUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public getMessage(input: GetMessageInput): Promise<MessageOutput | null> {
-    return this.getMessageUseCase.execute(input);
+  public async getMessage(input: GetMessageInput): Promise<MessageOutput | null> {
+    const { output, events } = await this.getMessageUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public editMessage(input: EditMessageInput): Promise<MessageOutput> {
-    return this.editMessageUseCase.execute(input);
+  public async editMessage(input: EditMessageInput): Promise<MessageOutput> {
+    const { output, events } = await this.editMessageUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public deleteMessage(input: DeleteMessageInput): Promise<MessageOutput> {
-    return this.deleteMessageUseCase.execute(input);
+  public async deleteMessage(input: DeleteMessageInput): Promise<MessageOutput> {
+    const { output, events } = await this.deleteMessageUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public markMessageDelivered(input: MarkMessageDeliveredInput): Promise<MessageOutput> {
-    return this.markMessageDeliveredUseCase.execute(input);
+  public async markMessageDelivered(input: MarkMessageDeliveredInput): Promise<MessageOutput> {
+    const { output, events } = await this.markMessageDeliveredUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 
-  public markMessageRead(input: MarkMessageReadInput): Promise<MessageOutput> {
-    return this.markMessageReadUseCase.execute(input);
+  public async markMessageRead(input: MarkMessageReadInput): Promise<MessageOutput> {
+    const { output, events } = await this.markMessageReadUseCase.execute(input);
+    await this.domainEventPublisher.publish(events);
+
+    return output;
   }
 }

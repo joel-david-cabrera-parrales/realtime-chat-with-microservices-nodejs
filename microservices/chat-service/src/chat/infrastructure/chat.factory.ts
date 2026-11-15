@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { DataSource } from "typeorm";
 import { jwtAdapter } from "../../plugins/jwt/jwt.provider";
+import { domainEventPublisher } from "../../plugins/events/events.provider";
 import { createValidateTokenMiddleware } from "../../shared/middlewares/validate-token.middleware";
 import { AddParticipantUseCaseImpl } from "../application/use-cases/add-participant.use-case.impl";
 import { CreateConversationUseCaseImpl } from "../application/use-cases/create-conversation.use-case.impl";
@@ -93,6 +94,7 @@ export const chatFactory = {
       deleteMessageUseCase,
       markMessageDeliveredUseCase,
       markMessageReadUseCase,
+      domainEventPublisher,
     );
 
     const chatController = new ChatController(chatService);

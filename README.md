@@ -942,6 +942,60 @@ El actor se identifica por el **`credentialCode`** (UUID) presente en el JWT de 
 - **Acuses**: cada participante genera su propio acuse (`message_receipts`), además del estado global del mensaje.
 - **Paginación por cursor**: `?cursor=<createdAt>|<code>&limit=<1..100>`. La respuesta incluye `nextCursor` (o `null` si no hay más resultados). Los mensajes se listan en orden cronológico ascendente; las conversaciones, de más reciente a más antigua.
 
+### Realtime (socket.io)
+
+El servicio expone un servidor **socket.io** en el path `/api/chat/socket.io` (push-only: el socket **notifica**, las acciones se siguen haciendo por REST).
+
+**Conexión** — el JWT viaja en el handshake (`auth.token`) o, como fallback, en `?token=` o en la cabecera `Authorization`:
+
+```js
+const socket = io("http://localhost", {
+  path: "/api/chat/socket.io",
+  transports: ["websocket"],
+  auth: { token: "<accessToken>" },
+});
+
+socket.on("connect_error", (error) => console.error(error.message)); // "UNAUTHORIZED" si el token falla
+```
+
+Ejemplos listos en `microservices/chat-service/scripts/`:
+
+```bash
+cd microservices/chat-service
+CHAT_TOKEN=<jwt> CHAT_CONVERSATION_CODE=<uuid> npx tsx scripts/socket-client.example.ts
+CHAT_TOKEN=<jwt> CHAT_CONVERSATION_CODE=<uuid> npx tsx scripts/socket-typing.example.ts
+```
+
+**Eventos que el servidor emite** (todos incluyen el `conversationCode`):
+
+| Evento | Cuándo se emite | Payload |
+|---|---|---|
+| `chat.message.created` | Nuevo mensaje | `{ conversationCode, messageCode, senderCredentialCode, content, createdAt }` |
+| `chat.message.updated` | Mensaje editado | `{ conversationCode, messageCode, content, editedAt }` |
+| `chat.message.deleted` | Mensaje eliminado | `{ conversationCode, messageCode, deletedBy, deletedAt }` |
+| `chat.message.delivered` | Acuse de entrega | `{ conversationCode, messageCode, credentialCode, deliveredAt }` |
+| `chat.message.read` | Acuse de lectura | `{ conversationCode, messageCode, credentialCode, readAt }` |
+| `chat.conversation.created` | Conversación creada | `{ conversationCode, type, title, createdBy, participantCredentialCodes }` |
+| `chat.conversation.renamed` | Conversación renombrada | `{ conversationCode, title }` |
+| `chat.conversation.deleted` | Conversación eliminada | `{ conversationCode }` |
+| `chat.conversation.participant.added` | Participante añadido | `{ conversationCode, participantCredentialCode, role }` |
+| `chat.conversation.participant.removed` | Participante eliminado por un admin | `{ conversationCode, participantCredentialCode }` |
+| `chat.conversation.participant.left` | Participante salió | `{ conversationCode, participantCredentialCode }` |
+| `chat.presence.online` | Un usuario se conecta | `{ credentialCode, conversationCode, since }` |
+| `chat.presence.offline` | Un usuario se desconecta | `{ credentialCode, conversationCode, at }` |
+| `chat.typing` | Un usuario está escribiendo | `{ conversationCode, credentialCode, isTyping }` |
+| `chat.typing.stopped` | Se agota el indicador de escritura (5 s) | `{ conversationCode, credentialCode, isTyping }` |
+
+**Eventos que el cliente puede enviar** (solo uno, y no altera el dominio):
+
+| Evento | Payload | Efecto |
+|---|---|---|
+| `chat:typing` | `{ conversationCode }` | Emite `chat.typing` al resto de la conversación (se ignora si el socket no está en la sala) |
+
+**Rooms internas**: `user:<credentialCode>` (todas las conexiones de un usuario) y `conversation:<conversationCode>`. Al conectar, el servidor mete al socket en las salas de todas las conversaciones del usuario; cuando se crea una conversación o se añade un participante, sus sockets entran automáticamente en la sala correspondiente.
+
+**Origen de los eventos**: los agregados registran eventos de dominio (`MessageCreatedEvent`, `ConversationCreatedEvent`, `ParticipantLeftEvent`…) con el patrón de `auth-service`; la aplicación los publica en un `DomainEventPublisher` (adapter en memoria) y un `DomainEventListener` los traduce a emisiones de socket. Ese seam es el punto donde se enchufa Kafka cuando haya balanceador de carga.
+
 ### Catálogo de errores - chat-service
 
 | Código HTTP | Códigos de error |
@@ -1000,7 +1054,8 @@ messageCode   = (desde POST /api/chat/conversations/:code/messages -> data.code)
 - **No hay OpenAPI/Swagger** en `auth-service`, `profile-service` ni `file-service`. Este README es la única especificación disponible.
 - **Los microservicios no exponen puertos al host**; el único punto de entrada público es el gateway nginx (`http://localhost`). Para depurar un servicio aislado hay que levantar el contenedor con `docker compose exec` o agregar un mapeo `ports:`.
 - `GET /api/health` **no funciona a través del gateway**: la regla de nginx lo enviaría a `health-service`, que no existe. Usar `GET /api/auth/health`, `/api/profile/health` o `/api/file/health`.
-- **`chat-service` es solo REST + polling**: no hay WebSocket ni eventos de dominio (Kafka), por lo que el cliente debe consultar `GET /api/chat/conversations/:code/messages` periódicamente.
+- **`chat-service` expone realtime con socket.io** (push de mensajes, acuses, participantes, presencia e indicador de escritura). La entrega es **una sola instancia**: el fan-out entre réplicas todavía no existe, así que antes de añadir un balanceador hay que sustituir el `InMemoryDomainEventPublisherAdapter` por el de Kafka.
 - **`chat-service` no soporta adjuntos**: los mensajes son solo texto. La integración con `file-service` (imágenes, audio, documentos) queda pendiente.
 - **El borrado de mensajes es "para todos"**: no existe el borrado "solo para mí", que requeriría visibilidad por participante.
+- La presencia y el indicador de escritura son **efímeros y en memoria**: no se persisten y se pierden al reiniciar el servicio.
 - Las tablas del chat (`conversations`, `conversation_participants`, `messages`, `message_receipts`) se crean automáticamente porque el datasource usa `synchronize: true`.

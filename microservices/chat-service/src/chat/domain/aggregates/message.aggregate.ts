@@ -6,15 +6,23 @@ import { CredentialCode } from "../value-objects/credential-code.value-object";
 import { MessageCode } from "../value-objects/message-code.value-object";
 import { MessageContent } from "../value-objects/message-content.value-object";
 import { MessageStatusValue } from "../value-objects/message-status.value-object";
+import { DomainEvent } from "../../../shared/domain/events/domain-event";
 import { CreateMessageProps, MessagePrimitives, MessageProps, RehydrateMessageProps } from "../interfaces/message.interface";
+import { MessageCreatedEvent } from "../events/message-created.event";
+import { MessageDeletedEvent } from "../events/message-deleted.event";
+import { MessageDeliveredEvent } from "../events/message-delivered.event";
+import { MessageReadEvent } from "../events/message-read.event";
+import { MessageUpdatedEvent } from "../events/message-updated.event";
 
 export class Message {
+  private readonly events: DomainEvent[] = [];
+
   private constructor(private readonly props: MessageProps) {}
 
   public static create(props: CreateMessageProps): Message {
     const now = new Date();
 
-    return new Message({
+    const message = new Message({
       code: MessageCode.generate(),
       conversationCode: ConversationCode.create(props.conversationCode),
       senderCredentialCode: CredentialCode.create(props.senderCredentialCode),
@@ -28,6 +36,19 @@ export class Message {
       createdAt: now,
       updatedAt: now,
     });
+
+    message.recordEvent(
+      new MessageCreatedEvent({
+        conversationCode: message.props.conversationCode.value,
+        messageCode: message.props.code.value,
+        senderCredentialCode: message.props.senderCredentialCode.value,
+        content: message.props.content.value,
+        createdAt: now,
+        occurredAt: now,
+      }),
+    );
+
+    return message;
   }
 
   public static rehydrate(props: RehydrateMessageProps): Message {
@@ -103,7 +124,7 @@ export class Message {
     return this.props.editedAt !== undefined;
   }
 
-  public markDelivered(at: Date = new Date()): void {
+  public markDelivered(by: CredentialCode, at: Date = new Date()): void {
     if (this.props.status.isDelivered() || this.props.status.isRead()) {
       return;
     }
@@ -111,9 +132,19 @@ export class Message {
     this.props.status = MessageStatusValue.delivered();
     this.props.deliveredAt = new Date(at.getTime());
     this.props.updatedAt = new Date();
+
+    this.recordEvent(
+      new MessageDeliveredEvent({
+        conversationCode: this.props.conversationCode.value,
+        messageCode: this.props.code.value,
+        credentialCode: by.value,
+        deliveredAt: at,
+        occurredAt: new Date(),
+      }),
+    );
   }
 
-  public markRead(at: Date = new Date()): void {
+  public markRead(by: CredentialCode, at: Date = new Date()): void {
     if (this.props.status.isRead()) {
       return;
     }
@@ -126,6 +157,16 @@ export class Message {
     this.props.status = MessageStatusValue.read();
     this.props.readAt = new Date(at.getTime());
     this.props.updatedAt = new Date();
+
+    this.recordEvent(
+      new MessageReadEvent({
+        conversationCode: this.props.conversationCode.value,
+        messageCode: this.props.code.value,
+        credentialCode: by.value,
+        readAt: at,
+        occurredAt: new Date(),
+      }),
+    );
   }
 
   public edit(content: string, at: Date = new Date()): void {
@@ -142,16 +183,46 @@ export class Message {
     this.props.content = nextContent;
     this.props.editedAt = new Date(at.getTime());
     this.props.updatedAt = new Date();
+
+    this.recordEvent(
+      new MessageUpdatedEvent({
+        conversationCode: this.props.conversationCode.value,
+        messageCode: this.props.code.value,
+        content: nextContent.value,
+        editedAt: at,
+        occurredAt: new Date(),
+      }),
+    );
   }
 
-  public softDelete(by: string, at: Date = new Date()): void {
+  public softDelete(by: CredentialCode, at: Date = new Date()): void {
     if (this.isDeleted()) {
       throw new MessageAlreadyDeletedException();
     }
 
     this.props.deletedAt = new Date(at.getTime());
-    this.props.deletedBy = CredentialCode.create(by);
+    this.props.deletedBy = by;
     this.props.updatedAt = new Date();
+
+    this.recordEvent(
+      new MessageDeletedEvent({
+        conversationCode: this.props.conversationCode.value,
+        messageCode: this.props.code.value,
+        deletedBy: by.value,
+        deletedAt: at,
+        occurredAt: new Date(),
+      }),
+    );
+  }
+
+  public hasEvents(): boolean {
+    return this.events.length > 0;
+  }
+
+  public pullEvents(): DomainEvent[] {
+    const pending = [...this.events];
+    this.events.length = 0;
+    return pending;
   }
 
   public equals(other: Message): boolean {
@@ -173,5 +244,9 @@ export class Message {
       createdAt: this.props.createdAt.toISOString(),
       updatedAt: this.props.updatedAt.toISOString(),
     };
+  }
+
+  private recordEvent(event: DomainEvent): void {
+    this.events.push(event);
   }
 }

@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { MessageRepository } from "../../domain/repositories/message.repository";
 import { CredentialCode } from "../../domain/value-objects/credential-code.value-object";
 import { EditMessageUseCase } from "../../domain/use-cases/edit-message.use-case";
@@ -17,7 +18,7 @@ export class EditMessageUseCaseImpl extends EditMessageUseCase {
     super();
   }
 
-  public async execute(input: EditMessageInput): Promise<MessageOutput> {
+  public async execute(input: EditMessageInput): Promise<DomainEventResult<MessageOutput>> {
     const message = await this.messageLoader.load(input.code);
     const conversation = await this.conversationLoader.load(message.conversationCode.value);
     const actor = CredentialCode.create(input.actorCredentialCode);
@@ -28,6 +29,9 @@ export class EditMessageUseCaseImpl extends EditMessageUseCase {
 
     await this.messageRepository.save(message);
 
-    return ChatOutputMapper.toMessageOutput(message.toPrimitives());
+    return {
+      output: ChatOutputMapper.toMessageOutput(message.toPrimitives()),
+      events: message.pullEvents(),
+    };
   }
 }

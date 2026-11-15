@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { CredentialCode } from "../../domain/value-objects/credential-code.value-object";
 import { RemoveParticipantUseCase } from "../../domain/use-cases/remove-participant.use-case";
 import { ConversationOutput, RemoveParticipantInput } from "../../domain/use-cases/dtos/conversation.dto";
@@ -15,7 +16,7 @@ export class RemoveParticipantUseCaseImpl extends RemoveParticipantUseCase {
     super();
   }
 
-  public async execute(input: RemoveParticipantInput): Promise<ConversationOutput> {
+  public async execute(input: RemoveParticipantInput): Promise<DomainEventResult<ConversationOutput>> {
     const conversation = await this.conversationLoader.load(input.conversationCode);
     const actor = CredentialCode.create(input.actorCredentialCode);
 
@@ -25,6 +26,9 @@ export class RemoveParticipantUseCaseImpl extends RemoveParticipantUseCase {
 
     await this.conversationRepository.save(conversation);
 
-    return ChatOutputMapper.toConversationOutput(conversation.toPrimitives());
+    return {
+      output: ChatOutputMapper.toConversationOutput(conversation.toPrimitives()),
+      events: conversation.pullEvents(),
+    };
   }
 }

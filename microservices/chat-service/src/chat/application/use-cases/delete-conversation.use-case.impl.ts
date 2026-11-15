@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { CredentialCode } from "../../domain/value-objects/credential-code.value-object";
 import { DeleteConversationUseCase } from "../../domain/use-cases/delete-conversation.use-case";
 import { ConversationOutput, DeleteConversationInput } from "../../domain/use-cases/dtos/conversation.dto";
@@ -15,7 +16,7 @@ export class DeleteConversationUseCaseImpl extends DeleteConversationUseCase {
     super();
   }
 
-  public async execute(input: DeleteConversationInput): Promise<ConversationOutput> {
+  public async execute(input: DeleteConversationInput): Promise<DomainEventResult<ConversationOutput>> {
     const conversation = await this.conversationLoader.load(input.conversationCode);
     const actor = CredentialCode.create(input.actorCredentialCode);
 
@@ -29,6 +30,9 @@ export class DeleteConversationUseCaseImpl extends DeleteConversationUseCase {
 
     await this.conversationRepository.save(conversation);
 
-    return ChatOutputMapper.toConversationOutput(conversation.toPrimitives());
+    return {
+      output: ChatOutputMapper.toConversationOutput(conversation.toPrimitives()),
+      events: conversation.pullEvents(),
+    };
   }
 }

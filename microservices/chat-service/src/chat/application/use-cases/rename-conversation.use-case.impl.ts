@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { CredentialCode } from "../../domain/value-objects/credential-code.value-object";
 import { RenameConversationUseCase } from "../../domain/use-cases/rename-conversation.use-case";
 import { ConversationOutput, RenameConversationInput } from "../../domain/use-cases/dtos/conversation.dto";
@@ -15,7 +16,7 @@ export class RenameConversationUseCaseImpl extends RenameConversationUseCase {
     super();
   }
 
-  public async execute(input: RenameConversationInput): Promise<ConversationOutput> {
+  public async execute(input: RenameConversationInput): Promise<DomainEventResult<ConversationOutput>> {
     const conversation = await this.conversationLoader.load(input.conversationCode);
     const actor = CredentialCode.create(input.actorCredentialCode);
 
@@ -25,6 +26,9 @@ export class RenameConversationUseCaseImpl extends RenameConversationUseCase {
 
     await this.conversationRepository.save(conversation);
 
-    return ChatOutputMapper.toConversationOutput(conversation.toPrimitives());
+    return {
+      output: ChatOutputMapper.toConversationOutput(conversation.toPrimitives()),
+      events: conversation.pullEvents(),
+    };
   }
 }

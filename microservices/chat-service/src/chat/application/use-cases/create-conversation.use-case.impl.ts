@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { Conversation } from "../../domain/aggregates/conversation.aggregate";
 import { ConversationRepository } from "../../domain/repositories/conversation.repository";
 import { ConversationTypeValue } from "../../domain/value-objects/conversation-type.value-object";
@@ -11,7 +12,7 @@ export class CreateConversationUseCaseImpl extends CreateConversationUseCase {
     super();
   }
 
-  public async execute(input: CreateConversationInput): Promise<ConversationOutput> {
+  public async execute(input: CreateConversationInput): Promise<DomainEventResult<ConversationOutput>> {
     const type = ConversationTypeValue.create(input.type);
 
     if (type.isDirect()) {
@@ -19,7 +20,10 @@ export class CreateConversationUseCaseImpl extends CreateConversationUseCase {
       const existing = await this.conversationRepository.findByDirectKey(directKey);
 
       if (existing !== null) {
-        return ChatOutputMapper.toConversationOutput(existing.toPrimitives());
+        return {
+          output: ChatOutputMapper.toConversationOutput(existing.toPrimitives()),
+          events: [],
+        };
       }
     }
 
@@ -32,6 +36,9 @@ export class CreateConversationUseCaseImpl extends CreateConversationUseCase {
 
     await this.conversationRepository.save(conversation);
 
-    return ChatOutputMapper.toConversationOutput(conversation.toPrimitives());
+    return {
+      output: ChatOutputMapper.toConversationOutput(conversation.toPrimitives()),
+      events: conversation.pullEvents(),
+    };
   }
 }

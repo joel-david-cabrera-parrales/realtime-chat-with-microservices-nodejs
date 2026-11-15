@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from "../../domain/constants/pagination.constants";
 import { MessageRepository } from "../../domain/repositories/message.repository";
 import { CredentialCode } from "../../domain/value-objects/credential-code.value-object";
@@ -17,7 +18,7 @@ export class ListMessagesUseCaseImpl extends ListMessagesUseCase {
     super();
   }
 
-  public async execute(input: ListMessagesInput): Promise<MessageListOutput> {
+  public async execute(input: ListMessagesInput): Promise<DomainEventResult<MessageListOutput>> {
     const limit = Math.min(Math.max(input.limit ?? DEFAULT_PAGE_SIZE, 1), MAX_PAGE_SIZE);
     const cursor = input.cursor === undefined ? undefined : PaginationCursor.decode(input.cursor);
 
@@ -32,8 +33,11 @@ export class ListMessagesUseCaseImpl extends ListMessagesUseCase {
       messages.length === limit && last !== undefined ? PaginationCursor.create(last.createdAt, last.code.value).encode() : null;
 
     return {
-      messages: messages.map((message) => ChatOutputMapper.toMessageOutput(message.toPrimitives())),
-      nextCursor,
+      output: {
+        messages: messages.map((message) => ChatOutputMapper.toMessageOutput(message.toPrimitives())),
+        nextCursor,
+      },
+      events: [],
     };
   }
 }

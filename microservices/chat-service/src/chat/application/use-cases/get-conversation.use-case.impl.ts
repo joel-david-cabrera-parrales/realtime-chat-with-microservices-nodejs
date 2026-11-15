@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { CredentialCode } from "../../domain/value-objects/credential-code.value-object";
 import { GetConversationUseCase } from "../../domain/use-cases/get-conversation.use-case";
 import { ConversationOutput, GetConversationInput } from "../../domain/use-cases/dtos/conversation.dto";
@@ -13,11 +14,14 @@ export class GetConversationUseCaseImpl extends GetConversationUseCase {
     super();
   }
 
-  public async execute(input: GetConversationInput): Promise<ConversationOutput | null> {
+  public async execute(input: GetConversationInput): Promise<DomainEventResult<ConversationOutput | null>> {
     const conversation = await this.conversationLoader.load(input.code);
 
     this.accessPolicy.assertIsParticipant(conversation, CredentialCode.create(input.actorCredentialCode));
 
-    return ChatOutputMapper.toConversationOutput(conversation.toPrimitives());
+    return {
+      output: ChatOutputMapper.toConversationOutput(conversation.toPrimitives()),
+      events: [],
+    };
   }
 }

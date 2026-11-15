@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { Message } from "../../domain/aggregates/message.aggregate";
 import { ConversationRepository } from "../../domain/repositories/conversation.repository";
 import { MessageRepository } from "../../domain/repositories/message.repository";
@@ -18,7 +19,7 @@ export class SendMessageUseCaseImpl extends SendMessageUseCase {
     super();
   }
 
-  public async execute(input: SendMessageInput): Promise<MessageOutput> {
+  public async execute(input: SendMessageInput): Promise<DomainEventResult<MessageOutput>> {
     const conversation = await this.conversationLoader.load(input.conversationCode);
     const sender = CredentialCode.create(input.senderCredentialCode);
 
@@ -35,6 +36,9 @@ export class SendMessageUseCaseImpl extends SendMessageUseCase {
     conversation.touchLastMessage(message.createdAt);
     await this.conversationRepository.save(conversation);
 
-    return ChatOutputMapper.toMessageOutput(message.toPrimitives());
+    return {
+      output: ChatOutputMapper.toMessageOutput(message.toPrimitives()),
+      events: message.pullEvents(),
+    };
   }
 }

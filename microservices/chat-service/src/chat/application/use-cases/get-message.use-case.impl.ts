@@ -1,3 +1,4 @@
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 import { CredentialCode } from "../../domain/value-objects/credential-code.value-object";
 import { GetMessageUseCase } from "../../domain/use-cases/get-message.use-case";
 import { GetMessageInput, MessageOutput } from "../../domain/use-cases/dtos/message.dto";
@@ -15,12 +16,15 @@ export class GetMessageUseCaseImpl extends GetMessageUseCase {
     super();
   }
 
-  public async execute(input: GetMessageInput): Promise<MessageOutput | null> {
+  public async execute(input: GetMessageInput): Promise<DomainEventResult<MessageOutput | null>> {
     const message = await this.messageLoader.load(input.code);
     const conversation = await this.conversationLoader.load(message.conversationCode.value);
 
     this.accessPolicy.assertIsParticipant(conversation, CredentialCode.create(input.actorCredentialCode));
 
-    return ChatOutputMapper.toMessageOutput(message.toPrimitives());
+    return {
+      output: ChatOutputMapper.toMessageOutput(message.toPrimitives()),
+      events: [],
+    };
   }
 }

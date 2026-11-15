@@ -1,6 +1,7 @@
 import { ServerProps } from "../shared/interfaces/server-props.interface";
 import { Server } from "../shared/classes/server.class";
 import express, { Application } from "express";
+import { Server as HttpServer } from "node:http";
 import cors from "cors";
 import helmet from "helmet";
 import { buildHealthRouter } from "../health/infrastructure/routes/health.router";
@@ -41,9 +42,11 @@ export class ExpressServer extends Server {
     this.app.use(errorHandler);
   }
 
-  public start(): void {
-    this.app.listen(this.port, () => {
+  public start(): HttpServer {
+    const httpServer = this.app.listen(this.port, () => {
       console.log(`Server on port ${this.port}`);
     });
+
+    return httpServer;
   }
 }
