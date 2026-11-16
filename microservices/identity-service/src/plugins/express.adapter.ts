@@ -3,6 +3,8 @@ import { Server } from "../shared/classes/server.class";
 import express, { Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import passport from "passport";
+import session from "express-session";
 import { buildHealthRouter } from "../health/infrastructure/routes/health.router";
 import { sessionFactory } from "../session/infrastructure/session.factory";
 import { errorHandler } from "../shared/middlewares/error-handler.middleware";
@@ -35,12 +37,27 @@ export class ExpressServer extends Server {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cors({ origin: allowedOrigins ?? "*" }));
     this.app.use(helmet());
+
+    this.app.use(
+      session({
+        secret: process.env.SESSION_SECRET ?? "change-me-insecure-session-secret",
+        resave: false,
+        saveUninitialized: true,
+        cookie: {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+        },
+      }),
+    );
+    this.app.use(passport.initialize());
   }
 
   protected configRoutes(): void {
     this.app.use("/api/health", buildHealthRouter());
     this.app.use("/api/auth/health", buildHealthRouter());
     this.app.use("/api/auth", sessionFactory.createRouter(appDatasource));
+    this.app.use("/api/v1/auth", sessionFactory.createOAuthRouter(appDatasource));
     this.app.use(errorHandler);
   }
 

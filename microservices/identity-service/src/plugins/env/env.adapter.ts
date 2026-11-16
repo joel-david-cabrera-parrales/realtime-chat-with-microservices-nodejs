@@ -19,7 +19,10 @@ export class EnvAdapter extends EnvService {
   }
 
   public getBool(key: string, defaultValue: boolean): boolean {
-    return env.get(key).default(defaultValue ? "true" : "false").asBool();
+    return env
+      .get(key)
+      .default(defaultValue ? "true" : "false")
+      .asBool();
   }
 
   public getOptional(key: string): string | undefined {

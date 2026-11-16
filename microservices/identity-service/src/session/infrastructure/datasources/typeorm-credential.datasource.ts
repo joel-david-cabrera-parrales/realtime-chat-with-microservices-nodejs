@@ -1,9 +1,10 @@
 import { DataSource, Repository } from "typeorm";
 import { Credential } from "../../domain/aggregates/credential.aggregate";
+import { AuthenticationTypeCode } from "../../domain/constants/authentication-type.constants";
 import { CredentialDataSource } from "../../domain/datasources/credential.datasource";
 import { CredentialId } from "../../domain/value-objects/credential-id.value-object";
 import { Username } from "../../domain/value-objects/username.value-object";
-import { AuthenticationTypeCode, AuthenticationTypeEntity } from "../../../plugins/typorm/entities/authentication-type.entity";
+import { AuthenticationTypeEntity } from "../../../plugins/typorm/entities/authentication-type.entity";
 import { CredentialEntity } from "../../../plugins/typorm/entities/credential.entity";
 import { CredentialMapper } from "../mappers/credential.mapper";
 
@@ -24,7 +25,7 @@ export class TypeOrmCredentialDataSource implements CredentialDataSource {
       entity.id = existing.id;
       entity.authenticationTypeId = existing.authenticationTypeId;
     } else {
-      entity.authenticationTypeId = await this.resolveDefaultAuthenticationTypeId();
+      entity.authenticationTypeId = await this.resolveAuthenticationTypeId(credential.authenticationType);
     }
 
     await this.repository.save(entity);
@@ -33,6 +34,7 @@ export class TypeOrmCredentialDataSource implements CredentialDataSource {
   public async findById(id: CredentialId): Promise<Credential | null> {
     const entity = await this.repository.findOne({
       where: { id: id.value },
+      relations: { authenticationType: true },
     });
 
     return entity === null ? null : CredentialMapper.toDomain(entity);
@@ -41,6 +43,7 @@ export class TypeOrmCredentialDataSource implements CredentialDataSource {
   public async findByUsername(username: Username): Promise<Credential | null> {
     const entity = await this.repository.findOne({
       where: { username: username.value },
+      relations: { authenticationType: true },
     });
 
     return entity === null ? null : CredentialMapper.toDomain(entity);
@@ -57,14 +60,14 @@ export class TypeOrmCredentialDataSource implements CredentialDataSource {
     await this.repository.softDelete({ id: id.value });
   }
 
-  private async resolveDefaultAuthenticationTypeId(): Promise<number> {
+  private async resolveAuthenticationTypeId(code: AuthenticationTypeCode): Promise<number> {
     const repository = this.dataSource.getRepository(AuthenticationTypeEntity);
     const authenticationType = await repository.findOne({
-      where: { code: AuthenticationTypeCode.default },
+      where: { code },
     });
 
     if (authenticationType === null) {
-      throw new Error("El tipo de autenticación 'default' no está configurado");
+      throw new Error(`El tipo de autenticación "${code}" no está configurado`);
     }
 
     return authenticationType.id;

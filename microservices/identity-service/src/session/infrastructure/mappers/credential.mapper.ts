@@ -1,4 +1,5 @@
 import { Credential } from "../../domain/aggregates/credential.aggregate";
+import { AuthenticationTypeCode } from "../../domain/constants/authentication-type.constants";
 import { CredentialEntity } from "../../../plugins/typorm/entities/credential.entity";
 
 export class CredentialMapper {
@@ -21,6 +22,7 @@ export class CredentialMapper {
       username: entity.username,
       passwordHash: entity.passwordHash,
       profileCode: entity.profileCode,
+      authenticationType: (entity.authenticationType?.code as AuthenticationTypeCode) ?? AuthenticationTypeCode.default,
       isAuthenticated: false,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,

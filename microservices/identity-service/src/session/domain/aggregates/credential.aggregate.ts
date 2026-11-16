@@ -1,4 +1,5 @@
 import { HashService } from "../../../shared/domain/hash.service";
+import { AuthenticationTypeCode } from "../constants/authentication-type.constants";
 import { CreateCredentialProps, CredentialPrimitives, CredentialProps, RehydrateCredentialProps } from "../interfaces/credential.interface";
 import { CredentialCode } from "../value-objects/credential-code.value-object";
 import { CredentialId } from "../value-objects/credential-id.value-object";
@@ -19,6 +20,7 @@ export class Credential {
       username: Username.create(props.username),
       passwordHash: props.passwordHash === undefined ? undefined : PasswordHash.create(props.passwordHash),
       profileCode: ProfileCode.create(props.profileCode),
+      authenticationType: props.authenticationType ?? AuthenticationTypeCode.default,
       isAuthenticated: false,
       createdAt: now,
       updatedAt: now,
@@ -32,6 +34,7 @@ export class Credential {
       username: Username.create(props.username),
       passwordHash: props.passwordHash === null ? undefined : PasswordHash.create(props.passwordHash),
       profileCode: ProfileCode.create(props.profileCode),
+      authenticationType: props.authenticationType ?? AuthenticationTypeCode.default,
       isAuthenticated: props.isAuthenticated,
       createdAt: new Date(props.createdAt.getTime()),
       updatedAt: new Date(props.updatedAt.getTime()),
@@ -60,6 +63,10 @@ export class Credential {
 
   public get passwordHash(): PasswordHash | undefined {
     return this.props.passwordHash;
+  }
+
+  public get authenticationType(): AuthenticationTypeCode {
+    return this.props.authenticationType;
   }
 
   public get createdAt(): Date {
@@ -95,6 +102,7 @@ export class Credential {
       credentialCode: this.props.code.value,
       username: this.props.username.value,
       profileCode: this.props.profileCode.value,
+      authenticationType: this.props.authenticationType,
       isAuthenticated: this.props.isAuthenticated,
       createdAt: this.props.createdAt.toISOString(),
       updatedAt: this.props.updatedAt.toISOString(),
