@@ -171,11 +171,21 @@ for s in identity user-profile media messaging notification; do
   cp microservices/$s-service/.env.example microservices/$s-service/.env
 done
 
-# 3. Levantar todo
+# 3. Levantar todo (desarrollo)
 docker compose up --build -d
 ```
 
 El gateway publica el puerto **80**: todas las llamadas van a `http://localhost/api/<servicio>`.
+
+### Ejecución en producción
+
+Para construir las imágenes con el `Dockerfile` de producción (multi-stage, sin volúmenes de desarrollo) y levantar el stack:
+
+```bash
+docker compose -f docker-compose.prod.yml up --build -d
+```
+
+El punto de entrada es el mismo gateway de nginx en el puerto **80**: `http://localhost/api/<servicio>`.
 
 > Las contraseñas de base de datos se declaran en el `.env` raíz (`*_DB_PASSWORD`) y se inyectan en
 > `init-scripts/01-init-databases.sh`, que crea un usuario y una base por servicio. Deben coincidir
