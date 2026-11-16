@@ -1,0 +1,496 @@
+{
+  "common": {
+    "brand": "Zenith UI",
+    "search": "Rechercher..."
+  },
+  "shell": {
+    "topbar": {
+      "themeToggle": "Changer de thème",
+      "language": "Langue",
+      "notifications": "Notifications",
+      "profile": "Profil",
+      "searchPlaceholder": "Rechercher événements, salles, commandes..."
+    },
+    "sidebar": {
+      "navigation": "Navigation",
+      "documentation": "Documentation"
+    }
+  },
+  "nav": {
+    "paginators": "Paginateurs",
+    "tables": "Tableaux",
+    "forms": "Formulaires",
+    "datePicker": "Sélecteur de dates",
+    "richTextEditor": "Éditeur de texte enrichi",
+    "fileUpload": "Téléversement de fichiers",
+    "modals": "Modales",
+    "drawers": "Tiroirs",
+    "cards": "Cartes",
+    "hero": "Sections Hero",
+    "headings": "Typographie",
+    "buttons": "Boutons",
+    "dropdowns": "Menus déroulants",
+    "badges": "Badges",
+    "progress": "Progression",
+    "charts": "Graphiques",
+    "toasts": "Toasts",
+    "avatars": "Avatars",
+    "accordions": "Accordéons",
+    "skeletons": "Squelettes",
+    "loading": "Chargement",
+    "diffs": "Diff",
+    "carousels": "Carrousels",
+    "steps": "Étapes",
+    "breadcrumbs": "Fil d'Ariane",
+    "tabs": "Onglets",
+    "tooltips": "Infobulles",
+    "landing": "Page d'accueil",
+    "auth": "Connexion",
+    "register": "Inscription",
+    "forgot": "Mot de passe oublié",
+    "reset": "Réinitialiser mot de passe",
+    "notFound": "404",
+    "serverError": "500",
+    "changelog": "Journal des modifications",
+    "github": "GitHub"
+  },
+  "profile": {
+    "myAccount": "Mon Compte et Profil",
+    "preferences": "Préférences d'espace",
+    "apiKeys": "Clés API & Tokens",
+    "darkMode": "Mode Sombre",
+    "logout": "Déconnexion",
+    "activeWorkspace": "Actif dans l'espace central"
+  },
+  "language": {
+    "es": "Español",
+    "en": "English",
+    "fr": "Français",
+    "de": "Deutsch"
+  },
+  "deep": {
+    "home": "Accueil",
+    "areas": {
+      "catalogo": "Catalogue",
+      "navegacion": "Navigation",
+      "ejemplos": "Exemples"
+    },
+    "groups": {
+      "display": "Affichage",
+      "feedback": "Retour",
+      "acciones": "Actions",
+      "estructuras": "Structures",
+      "herramientas": "Outils",
+      "autenticacion": "Authentification",
+      "landingPage": "Page d'accueil",
+      "chat": "Chat"
+    },
+    "sections": {
+      "componentes": "Composants",
+      "accordeones": "Accordéons",
+      "avisos": "Avis",
+      "estados": "États",
+      "formularios": "Formulaires",
+      "botones": "Boutons",
+      "overlay": "Overlay",
+      "general": "Général",
+      "rutas": "Routes",
+      "helper": "Assistant"
+    },
+    "links": {
+      "cards": "Cartes",
+      "hero": "Sections Hero",
+      "headings": "Typographie",
+      "badges": "Badges",
+      "avatars": "Avatars",
+      "progress": "Progression",
+      "charts": "Graphiques",
+      "diffs": "Diff",
+      "carousels": "Carrousels",
+      "steps": "Étapes",
+      "accordions": "Accordéons",
+      "modals": "Modales",
+      "drawers": "Tiroirs",
+      "toasts": "Toasts",
+      "countdowns": "Compte à rebours",
+      "loading": "Chargement",
+      "skeletons": "Squelettes",
+      "forms": "Formulaires",
+      "datePicker": "Sélecteur de dates",
+      "richTextEditor": "Éditeur de texte enrichi",
+      "fileUpload": "Téléversement de fichiers",
+      "buttons": "Boutons",
+      "dropdowns": "Menus déroulants",
+      "tooltips": "Infobulles",
+      "paginators": "Paginateurs",
+      "tables": "Tableaux",
+      "breadcrumbs": "Fil d'Ariane",
+      "tabs": "Onglets",
+      "notFound": "404",
+      "serverError": "500",
+      "login": "Connexion",
+      "signup": "Inscription",
+      "forgot": "Mot de passe oublié",
+      "reset": "Réinitialiser mot de passe",
+      "about": "À propos",
+      "contact": "Contact",
+      "home": "Accueil",
+      "chatExample": "Chat Example",
+      "shop": "Boutique"
+    }
+  },
+  "pages": {
+    "home": {
+      "eyebrow": "Bibliothèque de composants · React",
+      "title": "Créez de meilleures interfaces, élément par élément",
+      "description": "Une bibliothèque de composants React à explorer, combiner et intégrer à vos interfaces. Retrouvez motifs, variantes et exemples au même endroit.",
+      "exploreAction": "Explorer les composants",
+      "heroAction": "Voir les sections Hero",
+      "previewBadge": "Prêt à essayer",
+      "previewEyebrow": "Aperçu du composant",
+      "previewTitle": "Partez sur des bases solides",
+      "previewDescription": "Un aperçu des contrôles du catalogue.",
+      "projectLabel": "Nom du projet",
+      "projectValue": "zenith-workspace",
+      "previewPrimary": "Créer un projet",
+      "previewSecondary": "Enregistrer le brouillon",
+      "categoriesEyebrow": "Catalogue de composants",
+      "categoriesTitle": "Trouvez ce qu'il vous faut",
+      "categoriesDescription": "Parcourez les catégories d'interface et ouvrez des exemples prêts à adapter.",
+      "displayTitle": "Hero et affichage",
+      "displayDescription": "Sections Hero, titres, cartes et éléments visuels pour structurer vos pages.",
+      "formsTitle": "Formulaires",
+      "formsDescription": "Champs de saisie, dates, téléversement de fichiers et contrôles.",
+      "actionsTitle": "Actions",
+      "actionsDescription": "Boutons, menus déroulants et contrôles pour chaque interaction.",
+      "feedbackTitle": "Retour utilisateur",
+      "feedbackDescription": "Modales, tiroirs, notifications et états pour informer vos utilisateurs.",
+      "categoryAction": "Explorer la section",
+      "examplesEyebrow": "EXEMPLES À LA UNE",
+      "examplesTitle": "Découvrez les composants en contexte",
+      "examplesDescription": "Découvrez les composants en situation et ouvrez les pages complètes Landing et Authentification.",
+      "exampleLandingTitle": "Page d'accueil",
+      "exampleLandingDescription": "Un exemple de page produit avec une section hero, des fonctionnalités, des tarifs et des témoignages.",
+      "exampleLandingAction": "Voir la page d'accueil",
+      "exampleAuthBrand": "La console que votre équipe va adorer",
+      "exampleAuthTitle": "Authentification",
+      "exampleAuthDescription": "Des parcours de connexion, d'inscription et de récupération avec des formulaires adaptables.",
+      "exampleAuthAction": "Voir l'authentification",
+      "closingEyebrow": "VOTRE PROCHAINE INTERFACE COMMENCE ICI",
+      "closingTitle": "Essayez un motif et adaptez-le à votre produit.",
+      "closingDescription": "Explorez les exemples et trouvez un point de départ pour votre prochain projet.",
+      "closingAction": "Explorer les sections Hero"
+    },
+    "buttons": {
+      "title": "Boutons",
+      "subtitle": "8 variantes de boutons"
+    },
+    "breadcrumbs": {
+      "title": "Fil d'Ariane",
+      "subtitle": "Navigation hiérarchique"
+    },
+    "badges": {
+      "title": "Badges",
+      "subtitle": "Étiquettes et compteurs"
+    },
+    "avatars": {
+      "title": "Avatars",
+      "subtitle": "Avatars et identifiants visuels"
+    },
+    "accordions": {
+      "title": "Accordéons",
+      "subtitle": "Panneaux pliables"
+    },
+    "carousels": {
+      "title": "Carrousels",
+      "subtitle": "Carrousels de contenu"
+    },
+    "countdowns": {
+      "title": "Compte à rebours",
+      "subtitle": "Minuteries et comptes à rebours"
+    },
+    "drawers": {
+      "title": "Tiroirs",
+      "subtitle": "Panneaux latéraux coulissants"
+    },
+    "dropdowns": {
+      "title": "Menus déroulants",
+      "subtitle": "Menus déroulants et sélecteurs"
+    },
+    "diffs": {
+      "title": "Diff",
+      "subtitle": "Comparaison visuelle des changements"
+    },
+    "forms": {
+      "title": "Formulaires",
+      "subtitle": "Champs, validation et mises en page"
+    },
+    "richTextEditor": {
+      "title": "Éditeur de texte enrichi",
+      "subtitle": "Mise en forme, listes et liens pour le contenu enrichi",
+      "description": "Un éditeur visuel pour créer du contenu HTML structuré. Il permet de formater le texte, de l'organiser avec des titres, des listes et des citations, et d'ajouter des liens. Le résultat peut alimenter des formulaires ou des pages; les variantes complète et compacte incluent les états erreur, désactivé et lecture seule.",
+      "terminal": "Terminal",
+      "copyCommand": "Copier la commande d'installation",
+      "copied": "Commande copiée"
+    },
+    "charts": {
+      "title": "Graphiques",
+      "subtitle": "Visualisation des données pour les tableaux de bord et rapports",
+      "description": "Visualisez les métriques et tendances avec des graphiques à barres, en courbes et circulaires/anneaux. Inclut des info-bulles interactives, les états de chargement et sans données, des palettes personnalisables, des tailles adaptatives et les thèmes clair et sombre.",
+      "terminal": "Terminal",
+      "copyCommand": "Copier la commande d'installation",
+      "copied": "Commande copiée"
+    },
+    "datePicker": {
+      "title": "Sélecteur de dates / période",
+      "subtitle": "Sélection de dates individuelles et de périodes",
+      "description": "Sélecteurs de date et de période avec calendrier interactif, états visuels, limites et dates désactivées. Configurez la langue et le format avec Intl.DateTimeFormat ; les deux composants s'adaptent aux thèmes clair et sombre et fournissent des valeurs ISO pour les formulaires, filtres et tableaux de bord."
+    },
+    "fileUpload": {
+      "title": "Téléversement de fichiers",
+      "subtitle": "Sélection, validation et aperçu des fichiers",
+      "description": "Sélectionnez ou déposez des fichiers avec validation du type, de la taille et du nombre. Les variantes simple, multiple et avec aperçu présentent les états inactif, traitement local, erreur et réussite. Les exemples conservent les fichiers dans le navigateur sans les envoyer à un serveur."
+    },
+    "feedback": {
+      "title": "Retour",
+      "subtitle": "Modales, tiroirs, toasts et plus"
+    },
+    "loading": {
+      "title": "Chargement",
+      "subtitle": "États de chargement et squelettes"
+    },
+    "modals": {
+      "title": "Modales",
+      "subtitle": "Dialogues modaux et overlays"
+    },
+    "paginators": {
+      "title": "Paginateurs",
+      "subtitle": "Contrôles de pagination et chargement"
+    },
+    "progress": {
+      "title": "Progression",
+      "subtitle": "Barres et indicateurs de progression"
+    },
+    "skeletons": {
+      "title": "Squelettes",
+      "subtitle": "Placeholders de chargement"
+    },
+    "steps": {
+      "title": "Étapes",
+      "subtitle": "Indicateurs d'étapes et flux"
+    },
+    "tables": {
+      "title": "Tableaux",
+      "subtitle": "Tableaux de données avancés"
+    },
+    "tabs": {
+      "title": "Onglets",
+      "subtitle": "Panneaux à onglets"
+    },
+    "tooltips": {
+      "title": "Infobulles",
+      "subtitle": "Information contextuelle au survol"
+    },
+    "toasts": {
+      "title": "Toasts",
+      "subtitle": "Notifications temporaires"
+    },
+    "layout": {
+      "title": "Layout",
+      "subtitle": "Structures de page et conteneurs"
+    },
+    "action": {
+      "title": "Action",
+      "subtitle": "Boutons et actions"
+    },
+    "display": {
+      "cards": {
+        "title": "Cartes",
+        "subtitle": "Cartes de contenu"
+      },
+      "hero": {
+        "title": "Sections Hero",
+        "subtitle": "Sections hero et bannières"
+      },
+      "headings": {
+        "title": "Typographie",
+        "subtitle": "Échelles typographiques et textes"
+      }
+    },
+    "landing": {
+      "home": {
+        "badge": "Nouvelle plateforme · v2.4",
+        "heroTitle": "Infrastructure en temps réel, sans friction",
+        "heroDesc": "Ingestion, télémétrie et déploiements dans une seule plateforme construite avec les composants Zenith UI. Du premier événement à la production en minutes.",
+        "ctaPrimary": "Commencer gratuitement",
+        "ctaSecondary": "Voir les services",
+        "statsLabel": "événements",
+        "statsValue": "2.4M/s",
+        "replicasLabel": "réplicas",
+        "replicasValue": "48",
+        "incidentsLabel": "incidents",
+        "incidentsValue": "0",
+        "featuresBadge": "Tout en un",
+        "featuresTitle": "Une plateforme, six superpouvoirs",
+        "featuresDesc": "Chaque carte est un FeatureService du catalogue avec des données d'exemple fictives.",
+        "pricingBadge": "Tarifs",
+        "pricingTitle": "Commencez gratuit, évoluez quand vous voulez",
+        "testimonialsBadge": "Clients",
+        "testimonialsTitle": "Équipes qui opèrent déjà avec Zenith",
+        "ctaBannerTitle": "Déployez votre premier cluster aujourd'hui",
+        "ctaBannerDesc": "14 jours gratuits, sans carte. Annulez quand vous voulez.",
+        "ctaBannerPrimary": "Créer un compte",
+        "ctaBannerSecondary": "Rencontrer l'équipe"
+      },
+      "about": {
+        "badge": "Notre histoire",
+        "title": "Construire l'avenir de l'infrastructure",
+        "subtitle": "Zenith UI est né du besoin réel des équipes de plateforme qui gèrent des milliers d'événements par seconde.",
+        "missionTitle": "Notre mission",
+        "missionDesc": "Démocratiser l'accès à des composants de haute qualité pour que toute équipe puisse construire des interfaces d'infrastructure de classe mondiale sans réinventer la roue.",
+        "valuesTitle": "Valeurs qui nous guident",
+        "values": [
+          { "title": "Qualité avant tout", "desc": "Chaque composant passe par des tests exhaustifs d'accessibilité, de performance et de cas limites." },
+          { "title": "Expérience développeur", "desc": "APIs intuitives, TypeScript strict, documentation vivante et exemples réels." },
+          { "title": "Performance native", "desc": "Zéro dépendance lourde, tree-shaking réel, taille de bundle minimale." },
+          { "title": "Design systématique", "desc": "Tokens de design, thèmes sombre/clair, mise à l'échelle responsive intégrée." }
+        ],
+        "teamTitle": "L'équipe",
+        "teamDesc": "Un petit groupe ciblé d'ingénieurs et de designers qui ont construit des plateformes chez des entreprises comme Vercel, Stripe et GitHub.",
+        "ctaTitle": "Rejoins l'aventure ?",
+        "ctaDesc": "Nous recrutons. Travaille sur le cœur de l'infrastructure moderne.",
+        "ctaButton": "Voir les postes ouverts"
+      },
+      "services": {
+        "badge": "Ce que nous faisons",
+        "title": "Services de plateforme",
+        "subtitle": "De l'ingestion à l'observabilité, nous couvrons tout le cycle de vie de votre infrastructure.",
+        "ctaPrimary": "Voir les offres",
+        "ctaSecondary": "Rencontrer l'équipe",
+        "processBadge": "Comment ça marche",
+        "processTitle": "De l'idée à la production en trois étapes",
+        "pricingTitle": "Des offres pour chaque étape",
+        "testimonialsTitle": "Les équipes font confiance à Zenith",
+        "services": [
+          { "title": "Ingestion d'événements", "desc": "Pipeline à haut débit pour millions d'événements/sec avec backpressure automatique." },
+          { "title": "Télémétrie unifiée", "desc": "Métriques, logs et traces dans une vue unique avec corrélation automatique." },
+          { "title": "Déploiements progressifs", "desc": "Canary, blue-green et feature flags avec rollback automatique par SLO." },
+          { "title": "Gestion des incidents", "desc": "Alertes intelligentes, on-call automatique et postmortems générés par IA." },
+          { "title": "Configuration as Code", "desc": "GitOps natif avec validation de schémas et détection de dérive." },
+          { "title": "Portail développeurs", "desc": "Catalogue de services, docs auto et scorecards de maturité." }
+        ]
+      },
+      "contact": {
+        "badge": "Contact",
+        "title": "Parlons-en",
+        "subtitle": "Des questions ? Notre équipe est prête à vous aider.",
+        "formTitle": "Envoyez-nous un message",
+        "nameLabel": "Nom",
+        "emailLabel": "Email professionnel",
+        "topicLabel": "Sujet",
+        "topicOptions": ["Ventes", "Support technique", "Partenariat", "Autre"],
+        "messageLabel": "Message",
+        "submitButton": "Envoyer",
+        "sendingButton": "Envoi…",
+        "successTitle": "Message envoyé !",
+        "successDesc": "Nous vous répondrons sous 24 heures.",
+        "sendAnother": "Envoyer un autre message",
+        "infoTitle": "Autres façons de nous contacter",
+        "infoItems": [
+          { "label": "Email", "value": "hello@zenith-ui.dev" },
+          { "label": "Discord", "value": "discord.gg/zenith-ui" },
+          { "label": "Twitter", "value": "@zenith_ui" },
+          { "label": "GitHub", "value": "github.com/zenith-ui" }
+        ]
+      }
+    },
+    "auth": {
+      "login": {
+        "badge": "Bienvenue à nouveau",
+        "title": "Se connecter",
+        "subtitle": "Utilisez n'importe quel email de démo. Nous vous mènerons au catalogue.",
+        "emailLabel": "Email",
+        "emailPlaceholder": "ada@exemple.com",
+        "passwordLabel": "Mot de passe",
+        "passwordPlaceholder": "••••••••",
+        "rememberMe": "Se souvenir de moi",
+        "forgotLink": "Mot de passe oublié ?",
+        "submitButton": "Se connecter",
+        "loadingButton": "Connexion…",
+        "divider": "ou continuez avec",
+        "googleButton": "Google",
+        "githubButton": "GitHub",
+        "noAccount": "Pas de compte ?",
+        "signupLink": "Créez-en un gratuit"
+      },
+      "register": {
+        "badge": "Créez votre compte",
+        "title": "Inscription gratuite",
+        "subtitle": "Accès immédiat au catalogue complet. Sans carte de crédit.",
+        "nameLabel": "Nom complet",
+        "namePlaceholder": "Ada Lovelace",
+        "emailLabel": "Email professionnel",
+        "emailPlaceholder": "ada@entreprise.com",
+        "passwordLabel": "Mot de passe",
+        "passwordPlaceholder": "Minimum 8 caractères",
+        "confirmLabel": "Confirmer le mot de passe",
+        "confirmPlaceholder": "Répétez le mot de passe",
+        "termsText": "En continuant, vous acceptez nos",
+        "termsDesc": "Acceptez les conditions d'utilisation et la politique de confidentialité pour créer votre compte.",
+        "termsLink": "Conditions d'utilisation",
+        "and": "et",
+        "privacyLink": "Politique de confidentialité",
+        "submitButton": "Créer un compte",
+        "loadingButton": "Création…",
+        "hasAccount": "Déjà un compte ?",
+        "loginLink": "Se connecter"
+      },
+      "forgot": {
+        "badge": "Récupérer l'accès",
+        "title": "Mot de passe oublié ?",
+        "subtitle": "Entrez votre email et nous vous enverrons un lien de réinitialisation.",
+        "emailLabel": "Email",
+        "emailPlaceholder": "ada@entreprise.com",
+        "submitButton": "Envoyer le lien",
+        "loadingButton": "Envoi…",
+        "successTitle": "Vérifiez votre boîte de réception !",
+        "successDesc": "Nous avons envoyé un lien de récupération à {{email}}. Il expire dans 1 heure.",
+        "useOtherEmail": "Utiliser un autre email",
+        "remembered": "Vous vous souvenez de votre mot de passe ?",
+        "backLink": "Retour à la connexion"
+      },
+      "reset": {
+        "badge": "Réinitialiser le mot de passe",
+        "title": "Nouveau mot de passe",
+        "subtitle": "Votre lien a été vérifié. Définissez votre nouveau mot de passe ci-dessous.",
+        "passwordLabel": "Nouveau mot de passe",
+        "passwordPlaceholder": "Minimum 8 caractères",
+        "confirmLabel": "Confirmer le mot de passe",
+        "confirmPlaceholder": "Répétez le mot de passe",
+        "submitButton": "Mettre à jour le mot de passe",
+        "loadingButton": "Mise à jour…",
+        "successTitle": "Mot de passe mis à jour !",
+        "successDesc": "Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+        "loginButton": "Aller à la connexion",
+        "notRequested": "Vous n'avez pas demandé ce changement ?",
+        "backLink": "Retour à la connexion"
+      }
+    },
+    "helper": {
+      "notFound": {
+        "title": "404",
+        "subtitle": "Page non trouvée",
+        "desc": "La page que vous cherchez n'existe pas ou a été déplacée.",
+        "homeButton": "Accueil",
+        "catalogButton": "Aller au catalogue"
+      },
+      "serverError": {
+        "title": "500",
+        "subtitle": "Erreur serveur",
+        "desc": "Quelque chose s'est mal passé de notre côté. Notre équipe a été notifiée.",
+        "retryButton": "Réessayer",
+        "homeButton": "Accueil"
+      }
+    }
+  }
+}

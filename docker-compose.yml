@@ -213,6 +213,21 @@ services:
       start_period: 20s
     networks:
       - messaging-platform-network
+  
+  zenith-react:
+    build:
+      context: ./frontend-zenith-ui/zenith-react
+      dockerfile: Dockerfile.dev
+    container_name: zenith-react
+    ports:
+      - "5181:5173"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - messaging-platform-network
+    volumes:
+      - ./frontend-zenith-ui/zenith-react:/app
+      - /app/node_modules
 
   # pgadmin:
   #   image: dpage/pgadmin4:9.19.0

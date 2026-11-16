@@ -1,0 +1,497 @@
+{
+  "common": {
+    "brand": "Zenith UI",
+    "search": "Suchen..."
+  },
+  "shell": {
+    "topbar": {
+      "themeToggle": "Thema wechseln",
+      "language": "Sprache",
+      "notifications": "Benachrichtigungen",
+      "profile": "Profil",
+      "searchPlaceholder": "Ereignisse, Räume, Befehle suchen..."
+    },
+    "sidebar": {
+      "navigation": "Navigation",
+      "documentation": "Dokumentation"
+    }
+  },
+  "nav": {
+    "paginators": "Paginierer",
+    "tables": "Tabellen",
+    "forms": "Formulare",
+    "datePicker": "Datumsauswahl",
+    "richTextEditor": "Rich-Text-Editor",
+    "fileUpload": "Datei-Upload",
+    "modals": "Modale",
+    "drawers": "Drawers",
+    "cards": "Karten",
+    "hero": "Hero-Sektionen",
+    "headings": "Typografie",
+    "buttons": "Schaltflächen",
+    "dropdowns": "Dropdowns",
+    "badges": "Badges",
+    "progress": "Fortschritt",
+    "charts": "Diagramme",
+    "toasts": "Toasts",
+    "avatars": "Avatare",
+    "accordions": "Akkordeons",
+    "skeletons": "Skelette",
+    "loading": "Laden",
+    "diffs": "Diff",
+    "carousels": "Karussells",
+    "steps": "Schritte",
+    "breadcrumbs": "Brotkrumen",
+    "tabs": "Tabs",
+    "tooltips": "Tooltips",
+    "landing": "Landingpage",
+    "auth": "Anmeldung",
+    "register": "Registrierung",
+    "forgot": "Passwort vergessen",
+    "reset": "Passwort zurücksetzen",
+    "notFound": "404",
+    "serverError": "500",
+    "changelog": "Änderungsprotokoll",
+    "github": "GitHub"
+  },
+  "profile": {
+    "myAccount": "Mein Konto & Profil",
+    "preferences": "Workspace-Einstellungen",
+    "apiKeys": "API-Schlüssel & Tokens",
+    "darkMode": "Dunkler Modus",
+    "logout": "Abmelden",
+    "activeWorkspace": "Aktiv im zentralen Workspace"
+  },
+  "language": {
+    "es": "Español",
+    "en": "English",
+    "fr": "Français",
+    "de": "Deutsch"
+  },
+  "deep": {
+    "home": "Startseite",
+    "areas": {
+      "catalogo": "Katalog",
+      "navegacion": "Navigation",
+      "ejemplos": "Beispiele"
+    },
+    "groups": {
+      "display": "Anzeige",
+      "feedback": "Feedback",
+      "acciones": "Aktionen",
+      "estructuras": "Strukturen",
+      "herramientas": "Werkzeuge",
+      "autenticacion": "Authentifizierung",
+      "landingPage": "Landingpage",
+      "chat": "Chat"
+    },
+    "sections": {
+      "componentes": "Komponenten",
+      "accordeones": "Akkordeons",
+      "avisos": "Hinweise",
+      "estados": "Zustände",
+      "formularios": "Formulare",
+      "botones": "Schaltflächen",
+      "overlay": "Overlay",
+      "general": "Allgemein",
+      "rutas": "Routen",
+      "helper": "Hilfe"
+    },
+    "links": {
+      "cards": "Karten",
+      "hero": "Hero-Sektionen",
+      "headings": "Typografie",
+      "badges": "Badges",
+      "avatars": "Avatare",
+      "progress": "Fortschritt",
+      "charts": "Diagramme",
+      "diffs": "Diff",
+      "carousels": "Karussells",
+      "steps": "Schritte",
+      "accordions": "Akkordeons",
+      "modals": "Modale",
+      "drawers": "Drawers",
+      "toasts": "Toasts",
+      "countdowns": "Countdowns",
+      "loading": "Laden",
+      "skeletons": "Skelette",
+      "forms": "Formulare",
+      "datePicker": "Datumsauswahl",
+      "richTextEditor": "Rich-Text-Editor",
+      "fileUpload": "Datei-Upload",
+      "buttons": "Schaltflächen",
+      "dropdowns": "Dropdowns",
+      "tooltips": "Tooltips",
+      "paginators": "Paginierer",
+      "tables": "Tabellen",
+      "breadcrumbs": "Brotkrumen",
+      "tabs": "Tabs",
+      "notFound": "404",
+      "serverError": "500",
+      "login": "Anmeldung",
+      "signup": "Registrierung",
+      "forgot": "Passwort vergessen",
+      "reset": "Passwort zurücksetzen",
+      "about": "Über",
+      "contact": "Kontakt",
+      "home": "Start",
+      "chatExample": "Chat Example",
+      "shop": "Shop"
+    }
+  },
+  "pages": {
+    "home": {
+      "eyebrow": "Komponentenbibliothek · React",
+      "title": "Bessere Benutzeroberflächen, Baustein für Baustein",
+      "description": "Eine React-Komponentenbibliothek zum Entdecken, Kombinieren und Integrieren. Finde Muster, Varianten und Beispiele an einem Ort.",
+      "exploreAction": "Komponenten entdecken",
+      "heroAction": "Hero-Bereiche ansehen",
+      "previewBadge": "Bereit zum Testen",
+      "previewEyebrow": "Komponentenvorschau",
+      "previewTitle": "Mit einem soliden Fundament starten",
+      "previewDescription": "Eine Vorschau auf die Steuerelemente im Katalog.",
+      "projectLabel": "Projektname",
+      "projectValue": "zenith-workspace",
+      "previewPrimary": "Projekt erstellen",
+      "previewSecondary": "Entwurf speichern",
+      "categoriesEyebrow": "Komponentenkatalog",
+      "categoriesTitle": "Finde, was du brauchst",
+      "categoriesDescription": "Durchsuche die Kategorien und öffne Beispiele, die du direkt anpassen kannst.",
+      "displayTitle": "Hero & Anzeige",
+      "displayDescription": "Hero-Bereiche, Überschriften, Karten und visuelle Elemente für klare Hierarchien.",
+      "formsTitle": "Formulare",
+      "formsDescription": "Eingabefelder, Datumsfelder, Datei-Uploads und weitere Eingabesteuerungen.",
+      "actionsTitle": "Aktionen",
+      "actionsDescription": "Buttons, Dropdowns und Steuerelemente für jede Interaktion.",
+      "feedbackTitle": "Feedback",
+      "feedbackDescription": "Modale, Drawer, Toasts und Statusanzeigen für klares Nutzerfeedback.",
+      "categoryAction": "Bereich entdecken",
+      "examplesEyebrow": "AUSGEWÄHLTE BEISPIELE",
+      "examplesTitle": "Komponenten im Einsatz erleben",
+      "examplesDescription": "Sieh die Komponenten im Einsatz und öffne die vollständigen Landingpage- und Authentifizierungsseiten.",
+      "exampleLandingTitle": "Landingpage",
+      "exampleLandingDescription": "Ein Produktseiten-Beispiel mit Hero, Funktionen, Preisen und Kundenstimmen.",
+      "exampleLandingAction": "Landingpage ansehen",
+      "exampleAuthBrand": "Die Konsole, die dein Team lieben wird",
+      "exampleAuthTitle": "Authentifizierung",
+      "exampleAuthDescription": "Anmelde-, Registrierungs- und Wiederherstellungsabläufe mit anpassbaren Formularen.",
+      "exampleAuthAction": "Authentifizierung ansehen",
+      "closingEyebrow": "DEINE NÄCHSTE OBERFLÄCHE BEGINNT HIER",
+      "closingTitle": "Probiere ein Muster aus und passe es an dein Produkt an.",
+      "closingDescription": "Entdecke Beispiele und finde einen Startpunkt für dein nächstes Projekt.",
+      "closingAction": "Hero-Bereiche entdecken"
+    },
+    "buttons": {
+      "title": "Schaltflächen",
+      "subtitle": "8 Schaltflächen-Varianten"
+    },
+    "breadcrumbs": {
+      "title": "Brotkrumen",
+      "subtitle": "Hierarchische Navigation"
+    },
+    "badges": {
+      "title": "Badges",
+      "subtitle": "Labels und Zähler"
+    },
+    "avatars": {
+      "title": "Avatare",
+      "subtitle": "Avatare und visuelle Identifikatoren"
+    },
+    "accordions": {
+      "title": "Akkordeons",
+      "subtitle": "Einklappbare Bereiche"
+    },
+    "carousels": {
+      "title": "Karussells",
+      "subtitle": "Inhalts-Karussells"
+    },
+    "countdowns": {
+      "title": "Countdowns",
+      "subtitle": "Timer und Countdowns"
+    },
+    "drawers": {
+      "title": "Drawers",
+      "subtitle": "Seitliche Schiebe-Panels"
+    },
+    "dropdowns": {
+      "title": "Dropdowns",
+      "subtitle": "Dropdown-Menüs und Selektoren"
+    },
+    "diffs": {
+      "title": "Diff",
+      "subtitle": "Visueller Änderungsvergleich"
+    },
+    "forms": {
+      "title": "Formulare",
+      "subtitle": "Felder, Validierung und Layouts"
+    },
+    "richTextEditor": {
+      "title": "Rich-Text-Editor",
+      "subtitle": "Formatierung, Listen und Links für reichhaltige Inhalte",
+      "description": "Ein visueller Editor für strukturierte HTML-Inhalte. Text lässt sich formatieren, mit Überschriften, Listen und Zitaten gliedern und mit Links ergänzen. Die Ausgabe eignet sich für Formulare und Seiten; die vollständige und kompakte Variante unterstützen Fehler-, Deaktiviert- und Nur-Lesen-Zustände.",
+      "terminal": "Terminal",
+      "copyCommand": "Installationsbefehl kopieren",
+      "copied": "Befehl kopiert"
+    },
+    "charts": {
+      "title": "Diagramme",
+      "subtitle": "Datenvisualisierung für Dashboards und Berichte",
+      "description": "Visualisieren Sie Kennzahlen und Trends mit Balken-, Linien- und Kreis-/Ringdiagrammen. Enthält interaktive Tooltips, Lade- und Leerzustände, anpassbare Farbpaletten, responsive Größen sowie Unterstützung für helle und dunkle Designs.",
+      "terminal": "Terminal",
+      "copyCommand": "Installationsbefehl kopieren",
+      "copied": "Befehl kopiert"
+    },
+    "datePicker": {
+      "title": "Datumsauswahl / Zeitraum",
+      "subtitle": "Einzelne Daten und Zeiträume auswählen",
+      "description": "Datum- und Zeitraum-Auswahl mit interaktivem Kalender, visuellen Zuständen, Grenzen und deaktivierten Tagen. Sprache und Format lassen sich mit Intl.DateTimeFormat konfigurieren; beide Komponenten passen sich hellen und dunklen Themes an und liefern ISO-Werte für Formulare, Filter und Dashboards."
+    },
+    "fileUpload": {
+      "title": "Datei-Upload",
+      "subtitle": "Dateiauswahl, Validierung und Vorschau",
+      "description": "Dateien auswählen oder ablegen und Typ, Größe sowie Anzahl validieren. Enthält einfache, mehrfache und Vorschau-Varianten mit den Zuständen inaktiv, lokale Verarbeitung, Fehler und Erfolg. Die Beispiele behalten Dateien im Browser und senden sie nicht an einen Server."
+    },
+    "feedback": {
+      "title": "Feedback",
+      "subtitle": "Modale, Drawers, Toasts und mehr"
+    },
+    "loading": {
+      "title": "Laden",
+      "subtitle": "Ladezustände und Skelette"
+    },
+    "modals": {
+      "title": "Modale",
+      "subtitle": "Modale Dialoge und Overlays"
+    },
+    "paginators": {
+      "title": "Paginierer",
+      "subtitle": "Paginierungs- und Lade-Steuerelemente"
+    },
+    "progress": {
+      "title": "Fortschritt",
+      "subtitle": "Fortschrittsbalken und Indikatoren"
+    },
+    "skeletons": {
+      "title": "Skelette",
+      "subtitle": "Lade-Platzhalter"
+    },
+    "steps": {
+      "title": "Schritte",
+      "subtitle": "Schritt-Indikatoren und Flüsse"
+    },
+    "tables": {
+      "title": "Tabellen",
+      "subtitle": "Erweiterte Datentabellen"
+    },
+    "tabs": {
+      "title": "Tabs",
+      "subtitle": "Tab-Panels"
+    },
+    "tooltips": {
+      "title": "Tooltips",
+      "subtitle": "Kontextuelle Hover-Informationen"
+    },
+    "toasts": {
+      "title": "Toasts",
+      "subtitle": "Temporäre Benachrichtigungen"
+    },
+    "layout": {
+      "title": "Layout",
+      "subtitle": "Seitenstrukturen und Container"
+    },
+    "action": {
+      "title": "Action",
+      "subtitle": "Schaltflächen und Aktionen"
+    },
+    "display": {
+      "cards": {
+        "title": "Karten",
+        "subtitle": "Inhaltskarten"
+      },
+      "hero": {
+        "title": "Hero-Sektionen",
+        "subtitle": "Hero-Sektionen und Banner"
+      },
+      "headings": {
+        "title": "Typografie",
+        "subtitle": "Typografische Skalen und Texte"
+      }
+    },
+    "landing": {
+      "home": {
+        "badge": "Neue Plattform · v2.4",
+        "heroTitle": "Echtzeit-Infrastruktur, reibungslos",
+        "heroDesc": "Ingestion, Telemetrie und Deployments in einer einzigen Plattform, gebaut mit Zenith UI Komponenten. Vom ersten Event bis Production in Minuten.",
+        "ctaPrimary": "Kostenlos starten",
+        "ctaSecondary": "Services ansehen",
+        "statsLabel": "Events",
+        "statsValue": "2.4M/s",
+        "replicasLabel": "Replikate",
+        "replicasValue": "48",
+        "incidentsLabel": "Incidents",
+        "incidentsValue": "0",
+        "featuresBadge": "Alles in einem",
+        "featuresTitle": "Eine Plattform, sechs Superkräfte",
+        "featuresDesc": "Jede Karte ist ein FeatureService aus dem Katalog mit fiktiven Beispieldaten.",
+        "pricingBadge": "Preise",
+        "pricingTitle": "Kostenlos starten, skalieren wann du willst",
+        "testimonialsBadge": "Kunden",
+        "testimonialsTitle": "Teams, die bereits mit Zenith arbeiten",
+        "ctaBannerTitle": "Deploye deinen ersten Cluster heute",
+        "ctaBannerDesc": "14 Tage kostenlos, keine Karte. Jederzeit kündbar.",
+        "ctaBannerPrimary": "Konto erstellen",
+        "ctaBannerSecondary": "Team kennenlernen"
+      },
+      "about": {
+        "badge": "Unsere Geschichte",
+        "title": "Die Zukunft der Infrastruktur bauen",
+        "subtitle": "Zenith UI entstand aus dem echten Bedarf von Platform-Teams, die Tausende Events pro Sekunde verwalten.",
+        "missionTitle": "Unsere Mission",
+        "missionDesc": "Demokratisierung des Zugangs zu hochwertigen Komponenten, damit jedes Team weltklasse Infrastructure-Interfaces bauen kann, ohne das Rad neu zu erfinden.",
+        "valuesTitle": "Werte, die uns leiten",
+        "values": [
+          { "title": "Qualität zuerst", "desc": "Jede Komponente durchläuft exhaustive Accessibility-, Performance- und Edge-Case-Tests." },
+          { "title": "Developer Experience", "desc": "Intuitive APIs, striktes TypeScript, lebende Dokumentation und echte Beispiele." },
+          { "title": "Native Performance", "desc": "Null schwere Dependencies, echtes Tree-Shaking, minimale Bundle-Größe." },
+          { "title": "Systematisches Design", "desc": "Design Tokens, Dark/Light Themes, responsives Scaling eingebaut." }
+        ],
+        "teamTitle": "Das Team",
+        "teamDesc": "Eine kleine, fokussierte Gruppe von Engineers und Designern, die Platforms bei Firmen wie Vercel, Stripe und GitHub gebaut haben.",
+        "ctaTitle": "Möchtest du dich uns anschließen?",
+        "ctaDesc": "Wir stellen ein. Arbeite am Kern moderner Infrastructure.",
+        "ctaButton": "Offene Stellen ansehen"
+      },
+      "services": {
+        "badge": "Was wir tun",
+        "title": "Platform Services",
+        "subtitle": "Von Ingestion bis Observability decken wir den gesamten Infrastructure-Lebenszyklus ab.",
+        "ctaPrimary": "Pläne ansehen",
+        "ctaSecondary": "Team kennenlernen",
+        "processBadge": "So funktioniert's",
+        "processTitle": "In drei Schritten von der Idee zur Produktion",
+        "pricingTitle": "Pläne für jede Phase",
+        "testimonialsTitle": "Teams, die Zenith vertrauen",
+        "services": [
+          { "title": "Event Ingestion", "desc": "High-Throughput Pipeline für Millionen Events/Sek mit automatischem Backpressure." },
+          { "title": "Unified Telemetry", "desc": "Metriken, Logs und Traces in einer View mit automatischer Korrelation." },
+          { "title": "Progressive Deployments", "desc": "Canary, Blue-Green und Feature Flags mit automatischem SLO-basiertem Rollback." },
+          { "title": "Incident Management", "desc": "Smarte Alerts, automatisiertes On-Call und KI-generierte Postmortems." },
+          { "title": "Configuration as Code", "desc": "Natives GitOps mit Schema-Validierung und Drift-Detection." },
+          { "title": "Developer Portal", "desc": "Service-Katalog, Auto-Docs und Maturity-Scorecards." }
+        ]
+      },
+      "contact": {
+        "badge": "Kontakt",
+        "title": "Lass uns reden",
+        "subtitle": "Fragen? Unser Team hilft gerne.",
+        "formTitle": "Schick uns eine Nachricht",
+        "nameLabel": "Name",
+        "emailLabel": "Geschäfts-E-Mail",
+        "topicLabel": "Thema",
+        "topicOptions": ["Vertrieb", "Technischer Support", "Partnerschaft", "Sonstiges"],
+        "messageLabel": "Nachricht",
+        "submitButton": "Senden",
+        "sendingButton": "Wird gesendet…",
+        "successTitle": "Nachricht gesendet!",
+        "successDesc": "Wir melden uns innerhalb von 24 Stunden.",
+        "sendAnother": "Weitere Nachricht senden",
+        "infoTitle": "Andere Wege, uns zu erreichen",
+        "infoItems": [
+          { "label": "Email", "value": "hello@zenith-ui.dev" },
+          { "label": "Discord", "value": "discord.gg/zenith-ui" },
+          { "label": "Twitter", "value": "@zenith_ui" },
+          { "label": "GitHub", "value": "github.com/zenith-ui" }
+        ]
+      }
+    },
+    "auth": {
+      "login": {
+        "badge": "Willkommen zurück",
+        "title": "Anmelden",
+        "subtitle": "Nutze jede Demo-E-Mail. Wir leiten dich zum Katalog weiter.",
+        "emailLabel": "E-Mail",
+        "emailPlaceholder": "ada@beispiel.de",
+        "passwordLabel": "Passwort",
+        "passwordPlaceholder": "••••••••",
+        "rememberMe": "Angemeldet bleiben",
+        "forgotLink": "Zugang vergessen?",
+        "submitButton": "Anmelden",
+        "loadingButton": "Anmeldung…",
+        "divider": "oder fortfahren mit",
+        "googleButton": "Google",
+        "githubButton": "GitHub",
+        "noAccount": "Kein Konto?",
+        "signupLink": "Kostenlos erstellen"
+      },
+      "register": {
+        "badge": "Konto erstellen",
+        "title": "Kostenlos registrieren",
+        "subtitle": "Sofortiger Zugriff auf den vollständigen Katalog. Keine Kreditkarte.",
+        "nameLabel": "Vollständiger Name",
+        "namePlaceholder": "Ada Lovelace",
+        "emailLabel": "Geschäfts-E-Mail",
+        "emailPlaceholder": "ada@firma.de",
+        "passwordLabel": "Passwort",
+        "passwordPlaceholder": "Mindestens 8 Zeichen",
+        "confirmLabel": "Passwort bestätigen",
+        "confirmPlaceholder": "Passwort wiederholen",
+        "termsText": "Durch Fortfahren stimmst du unseren",
+        "termsDesc": "Akzeptiere die Nutzungsbedingungen und Datenschutzrichtlinie, um dein Konto zu erstellen.",
+        "termsLink": "Nutzungsbedingungen",
+        "and": "und",
+        "privacyLink": "Datenschutzrichtlinie",
+        "to": "zu",
+        "submitButton": "Konto erstellen",
+        "loadingButton": "Wird erstellt…",
+        "hasAccount": "Schon ein Konto?",
+        "loginLink": "Anmelden"
+      },
+      "forgot": {
+        "badge": "Zugang wiederherstellen",
+        "title": "Passwort vergessen?",
+        "subtitle": "E-Mail eingeben und wir senden einen Reset-Link.",
+        "emailLabel": "E-Mail",
+        "emailPlaceholder": "ada@firma.de",
+        "submitButton": "Link senden",
+        "loadingButton": "Wird gesendet…",
+        "successTitle": "Posteingang prüfen!",
+        "successDesc": "Wir haben einen Wiederherstellungslink an {{email}} gesendet. Er läuft in 1 Stunde ab.",
+        "useOtherEmail": "Andere E-Mail verwenden",
+        "remembered": "Passwort wieder eingefallen?",
+        "backLink": "Zurück zur Anmeldung"
+      },
+      "reset": {
+        "badge": "Passwort zurücksetzen",
+        "title": "Neues Passwort",
+        "subtitle": "Dein Link wurde verifiziert. Lege dein neues Passwort fest.",
+        "passwordLabel": "Neues Passwort",
+        "passwordPlaceholder": "Mindestens 8 Zeichen",
+        "confirmLabel": "Passwort bestätigen",
+        "confirmPlaceholder": "Passwort wiederholen",
+        "submitButton": "Passwort aktualisieren",
+        "loadingButton": "Aktualisiere…",
+        "successTitle": "Passwort aktualisiert!",
+        "successDesc": "Du kannst dich jetzt mit deinem neuen Passwort anmelden.",
+        "loginButton": "Zur Anmeldung",
+        "notRequested": "Hast du diese Änderung nicht angefordert?",
+        "backLink": "Zurück zur Anmeldung"
+      }
+    },
+    "helper": {
+      "notFound": {
+        "title": "404",
+        "subtitle": "Seite nicht gefunden",
+        "desc": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
+        "homeButton": "Startseite",
+        "catalogButton": "Zum Katalog"
+      },
+      "serverError": {
+        "title": "500",
+        "subtitle": "Serverfehler",
+        "desc": "Etwas ist auf unserer Seite schiefgelaufen. Unser Team wurde benachrichtigt.",
+        "retryButton": "Erneut versuchen",
+        "homeButton": "Startseite"
+      }
+    }
+  }
+}
