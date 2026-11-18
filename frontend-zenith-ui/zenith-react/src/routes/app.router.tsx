@@ -1,7 +1,6 @@
 import { lazy } from 'react';
 import { createBrowserRouter } from 'react-router';
 import { LandingHomePage, AboutPage, ServicesPage } from '@/examples/landing/pages';
-import { AuthLayout, LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage } from '@/examples/auth';
 import { HelperLayout, NotFoundPage, ServerErrorPage } from '@/helper';
 import {
   HomePage,
@@ -42,9 +41,11 @@ import { CheckoutPage } from '@/examples/shop/pages/CheckoutPage';
 import { SeachProductPage } from '@/examples/shop/pages/SeachProductPage';
 import { ShoppingCartPage } from '@/examples/shop/pages/ShoppingCartPage';
 import { ProfilePage } from '@/examples/shop/pages/ProfilePage';
+import { ForgotPasswordPage, LoginPage, RegisterPage, ResetPasswordPage } from '@/auth/pages';
 
 const ShopLayout = lazy(() => import('@/examples/shop/layout/ShopLayout'));
-const ChatLayout = lazy(() => import('@/examples/chat/layout/ChatLayout'));
+const ChatLayout = lazy(() => import('@/chat/layout/ChatLayout'));
+const AuthLayout = lazy(() => import('@/auth/layout/AuthLayout'));
 const FeaturesLayout = lazy(() => import('@/features/layout/FeaturesLayout'));
 const LandingLayout = lazy(() => import('@/examples/landing/layout/LandingLayout'));
 
@@ -85,7 +86,7 @@ export const appRouter = createBrowserRouter([
     ],
   },
   {
-    path: 'examples/chat',
+    path: '/chat',
     element: <ChatLayout />,
     children: [
       {
