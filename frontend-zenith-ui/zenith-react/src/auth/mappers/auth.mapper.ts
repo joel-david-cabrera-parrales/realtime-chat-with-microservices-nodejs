@@ -29,7 +29,7 @@ export class AuthMapper {
    */
   static signinOutputToUser(data: SigninOutput): AuthUser {
     return {
-      id: data.session.id,
+      id: data.credentialCode,
       credentialId: data.credentialId,
       credentialCode: data.credentialCode,
       profileCode: data.profileCode,
@@ -41,7 +41,7 @@ export class AuthMapper {
    */
   static signupOutputToUser(data: SignupOutput): AuthUser {
     return {
-      id: data.session.id,
+      id: data.credentialCode,
       credentialId: data.credentialId,
       credentialCode: data.credentialCode,
       profileCode: data.profileCode,

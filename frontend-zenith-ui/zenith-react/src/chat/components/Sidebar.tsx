@@ -8,15 +8,17 @@ interface ConversationItemProps {
   conversation: Conversation;
   isActive: boolean;
   onSelect: (id: string) => void;
+  currentUserId: string;
 }
 
 export function ConversationItem({
   conversation,
   isActive,
   onSelect,
+  currentUserId,
 }: ConversationItemProps) {
   const otherParticipants = conversation.participants.filter(
-    (p) => p.id !== 'user-me',
+    (p) => p.id !== currentUserId,
   );
   const primaryUser = otherParticipants[0];
 
@@ -61,7 +63,9 @@ export function ConversationItem({
           )}
         </div>
         <p className="line-clamp-1 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-          {conversation.lastMessage?.text ?? 'Start a new conversation'}
+          {conversation.lastMessage
+            ? `${conversation.lastMessage.senderId === currentUserId ? 'Tú: ' : ''}${conversation.lastMessage.text}`
+            : 'Start a new conversation'}
         </p>
       </div>
 
@@ -88,6 +92,8 @@ interface SidebarProps {
   activeConversationId: string | null;
   onSelect: (id: string) => void;
   currentUser: User;
+  currentUserId: string;
+  onNewConversation?: () => void;
 }
 
 export function Sidebar({
@@ -95,6 +101,8 @@ export function Sidebar({
   activeConversationId,
   onSelect,
   currentUser,
+  currentUserId,
+  onNewConversation,
 }: SidebarProps) {
   return (
     <aside className="flex flex-col h-full border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
@@ -111,7 +119,11 @@ export function Sidebar({
         <button
           type="button"
           aria-label="New conversation"
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          onClick={onNewConversation}
+          className={cx(
+            'flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors',
+            !onNewConversation && 'opacity-50 cursor-not-allowed',
+          )}
         >
           <span className="material-symbols-outlined text-base">add_circle</span>
         </button>
@@ -137,6 +149,7 @@ export function Sidebar({
             conversation={conv}
             isActive={conv.id === activeConversationId}
             onSelect={onSelect}
+            currentUserId={currentUserId}
           />
         ))}
         {conversations.length === 0 && (

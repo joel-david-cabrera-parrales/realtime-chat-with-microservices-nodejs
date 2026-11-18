@@ -135,6 +135,23 @@ export class SessionController extends SessionControllerContract {
     }
   }
 
+  public async listContacts(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const credentialCode = String(res.locals.credentialCode ?? "");
+      const search = typeof req.query.search === "string" ? req.query.search : undefined;
+      const requestedLimit = Number(req.query.limit ?? 50);
+      const contacts = await this.sessionService.listContacts(credentialCode, search, requestedLimit);
+
+      sendSuccess(res, {
+        statusCode: 200,
+        message: "Contactos encontrados",
+        data: { contacts },
+      });
+    } catch (error) {
+      this.handleError(error, res, next);
+    }
+  }
+
   public async refresh(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const input = req.body as RefreshTokenPairInput;

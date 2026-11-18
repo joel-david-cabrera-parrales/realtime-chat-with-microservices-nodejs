@@ -2,6 +2,7 @@ import { DataSource, Repository } from "typeorm";
 import { Credential } from "../../domain/aggregates/credential.aggregate";
 import { AuthenticationTypeCode } from "../../domain/constants/authentication-type.constants";
 import { CredentialDataSource } from "../../domain/datasources/credential.datasource";
+import type { CredentialContact } from "../../domain/datasources/credential.datasource";
 import { CredentialId } from "../../domain/value-objects/credential-id.value-object";
 import { Username } from "../../domain/value-objects/username.value-object";
 import { AuthenticationTypeEntity } from "../../../plugins/typorm/entities/authentication-type.entity";
@@ -58,6 +59,27 @@ export class TypeOrmCredentialDataSource implements CredentialDataSource {
 
   public async delete(id: CredentialId): Promise<void> {
     await this.repository.softDelete({ id: id.value });
+  }
+
+  public async findContacts(
+    excludeCredentialCode: string,
+    search = "",
+    limit = 50,
+  ): Promise<CredentialContact[]> {
+    const query = this.repository
+      .createQueryBuilder("credential")
+      .select("credential.credentialCode", "credentialCode")
+      .addSelect("credential.profileCode", "profileCode")
+      .where("credential.deletedAt IS NULL")
+      .andWhere("credential.credentialCode != :excludeCredentialCode", { excludeCredentialCode })
+      .orderBy("credential.username", "ASC")
+      .take(Math.min(Math.max(limit, 1), 100));
+
+    if (search.trim()) {
+      query.andWhere("credential.username ILIKE :search", { search: `%${search.trim()}%` });
+    }
+
+    return query.getRawMany<CredentialContact>();
   }
 
   private async resolveAuthenticationTypeId(code: AuthenticationTypeCode): Promise<number> {

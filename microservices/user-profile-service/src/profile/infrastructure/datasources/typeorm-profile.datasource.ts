@@ -50,4 +50,11 @@ export class TypeOrmProfileDataSource implements ProfileDataSource {
   public async delete(id: ProfileId): Promise<void> {
     await this.repository.softDelete({ profileCode: id.value });
   }
+
+  public async findAll(): Promise<Profile[]> {
+    const entities = await this.repository.find({
+      order: { createdAt: 'DESC' },
+    });
+    return entities.map((entity) => ProfileMapper.toDomain(entity));
+  }
 }

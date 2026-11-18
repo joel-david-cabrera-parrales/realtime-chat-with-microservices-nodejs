@@ -52,6 +52,13 @@ export interface ParticipantOutput {
   leftAt: string | null;
 }
 
+export interface ConversationLastMessageOutput {
+  code: string;
+  senderCredentialCode: string;
+  content: string;
+  createdAt: string;
+}
+
 export interface ConversationOutput {
   code: string;
   type: string;
@@ -59,6 +66,8 @@ export interface ConversationOutput {
   participants: ParticipantOutput[];
   createdBy: string;
   lastMessageAt: string | null;
+  lastMessage: ConversationLastMessageOutput | null;
+  unreadCount: number;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;

@@ -7,7 +7,9 @@ import { ExistsProfileUseCase } from "../../domain/use-cases/exists-profile.use-
 import { GetProfileUseCase } from "../../domain/use-cases/get-profile.use-case";
 import { UpdateProfileUseCase } from "../../domain/use-cases/update-profile.use-case";
 import { UploadAvatarInput, UploadAvatarUseCase } from "../../domain/use-cases/upload-avatar.use-case";
+import type { ListProfilesOutput } from "../../domain/use-cases/dtos/list-profiles-output.dto";
 import { CreateProfileInput } from "../../domain/use-cases/dtos/create-profile.dto";
+import { ListProfilesUseCase } from "../../domain/use-cases/list-profiles.use-case";
 import { ProfileOutput } from "../../domain/use-cases/dtos/profile-output.dto";
 import { UpdateProfileInput } from "../../domain/use-cases/dtos/update-profile.dto";
 import { ProfileApplicationServiceContract } from "../contracts/profile.application.service.contract";
@@ -21,6 +23,7 @@ export class ProfileApplicationService extends ProfileApplicationServiceContract
     private readonly updateProfileUseCase: UpdateProfileUseCase,
     private readonly uploadAvatarUseCase: UploadAvatarUseCase,
     private readonly deleteProfileUseCase: DeleteProfileUseCase,
+    private readonly listProfilesUseCase: ListProfilesUseCase,
   ) {
     super();
   }
@@ -39,6 +42,10 @@ export class ProfileApplicationService extends ProfileApplicationServiceContract
 
   public exists(id: string): Promise<boolean> {
     return this.existsProfileUseCase.execute(id);
+  }
+
+  public async list(): Promise<ListProfilesOutput> {
+    return this.listProfilesUseCase.execute();
   }
 
   public async update(input: UpdateProfileInput): Promise<ProfileOutput> {

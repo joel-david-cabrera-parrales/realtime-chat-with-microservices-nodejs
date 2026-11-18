@@ -9,6 +9,7 @@ import { RefreshTokenPairInput, RefreshTokenPairOutput } from "../../domain/use-
 import { SessionOutput } from "../../domain/use-cases/dtos/session-output.dto";
 import { SigninInput, SigninOutput } from "../../domain/use-cases/dtos/signin.dto";
 import { DomainEventPublisher } from "../../../shared/domain/events/domain-event-publisher";
+import { CredentialRepository } from "../../domain/repositories/credential.repository";
 import { SessionApplicationServiceContract } from "../contracts/session.application.service.contract";
 
 export class SessionApplicationService extends SessionApplicationServiceContract {
@@ -21,6 +22,7 @@ export class SessionApplicationService extends SessionApplicationServiceContract
     private readonly revokeSessionUseCase: RevokeSessionUseCase,
     private readonly updateSessionActivityUseCase: UpdateSessionActivityUseCase,
     private readonly domainEventPublisher: DomainEventPublisher,
+    private readonly credentialRepository: CredentialRepository,
   ) {
     super();
   }
@@ -64,6 +66,10 @@ export class SessionApplicationService extends SessionApplicationServiceContract
     await this.domainEventPublisher.publish(events);
 
     return output;
+  }
+
+  public listContacts(credentialCode: string, search?: string, limit?: number) {
+    return this.credentialRepository.findContacts(credentialCode, search, limit);
   }
 
   public async refresh(input: RefreshTokenPairInput): Promise<RefreshTokenPairOutput> {

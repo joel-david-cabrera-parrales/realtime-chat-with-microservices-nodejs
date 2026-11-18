@@ -1,5 +1,6 @@
 import { Credential } from "../../domain/aggregates/credential.aggregate";
 import { CredentialDataSource } from "../../domain/datasources/credential.datasource";
+import type { CredentialContact } from "../../domain/datasources/credential.datasource";
 import { CredentialRepository } from "../../domain/repositories/credential.repository";
 import { CredentialId } from "../../domain/value-objects/credential-id.value-object";
 import { Username } from "../../domain/value-objects/username.value-object";
@@ -25,5 +26,9 @@ export class CredentialRepositoryImpl implements CredentialRepository {
 
   public delete(id: CredentialId): Promise<void> {
     return this.credentialDataSource.delete(id);
+  }
+
+  public findContacts(excludeCredentialCode: string, search?: string, limit?: number): Promise<CredentialContact[]> {
+    return this.credentialDataSource.findContacts(excludeCredentialCode, search, limit);
   }
 }

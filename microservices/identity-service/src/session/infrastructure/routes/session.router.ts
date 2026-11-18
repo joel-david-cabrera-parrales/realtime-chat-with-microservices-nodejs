@@ -42,6 +42,11 @@ const signupBodyValidation: ValidationChain[] = [
 
 const listQueryValidation: ValidationChain[] = [query("credentialId").isInt({ min: 1 }).withMessage("credentialId debe ser un entero positivo")];
 
+const contactsQueryValidation: ValidationChain[] = [
+  query("search").optional().isString().trim().isLength({ max: 254 }),
+  query("limit").optional().isInt({ min: 1, max: 100 }),
+];
+
 const refreshBodyValidation: ValidationChain[] = [
   body("refreshToken")
     .isString()
@@ -85,6 +90,10 @@ export class SessionRouter {
 
     this.router.get("/sessions", listQueryValidation, validateRequest, (req: Request, res: Response, next: NextFunction) => {
       this.controller.list(req, res, next).catch(next);
+    });
+
+    this.router.get("/contacts", contactsQueryValidation, validateRequest, (req: Request, res: Response, next: NextFunction) => {
+      this.controller.listContacts(req, res, next).catch(next);
     });
 
     this.router.get("/sessions/:id", idValidation, validateRequest, (req: Request, res: Response, next: NextFunction) => {

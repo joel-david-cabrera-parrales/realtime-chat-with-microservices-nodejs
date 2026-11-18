@@ -20,6 +20,8 @@ export class ChatOutputMapper {
       })),
       createdBy: primitives.createdBy,
       lastMessageAt: primitives.lastMessageAt,
+      lastMessage: null,
+      unreadCount: 0,
       createdAt: primitives.createdAt,
       updatedAt: primitives.updatedAt,
       deletedAt: primitives.deletedAt,

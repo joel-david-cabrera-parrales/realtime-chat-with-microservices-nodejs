@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/shared/api/api-client';
 import type { ApiResponse, Profile } from '@/auth/types';
+import { queryKeys } from '@/shared/api/queryKeys';
 
 export interface UseProfileReturn {
   profile: Profile | null;
@@ -19,38 +21,24 @@ export interface UseProfileReturn {
  *                    Si no se provee, no se hace la petición.
  */
 export function useProfile(profileId?: string): UseProfileReturn {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const query = useQuery({
+    queryKey: queryKeys.profile(profileId ?? ''),
+    queryFn: async () => {
+      const response = await apiClient.get<ApiResponse<Profile>>(`/api/profile/${profileId}`);
+      return response.data;
+    },
+    enabled: Boolean(profileId),
+  });
 
-  const fetchProfile = useCallback(async () => {
-    if (!profileId) {
-      setProfile(null);
-      setError(null);
-      setLoading(false);
-      return;
-    }
+  const refetch = useCallback(async () => {
+    if (!profileId) return;
+    await query.refetch();
+  }, [profileId, query.refetch]);
 
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiClient.get<ApiResponse<Profile>>(
-        `/api/profile/${profileId}`,
-      );
-      setProfile(response.data);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Error al cargar el perfil',
-      );
-      setProfile(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [profileId]);
-
-  useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
-
-  return { profile, loading, error, refetch: fetchProfile };
+  return {
+    profile: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error instanceof Error ? query.error.message : null,
+    refetch,
+  };
 }

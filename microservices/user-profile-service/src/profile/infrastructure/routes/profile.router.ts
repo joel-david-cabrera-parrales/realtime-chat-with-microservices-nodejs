@@ -95,6 +95,10 @@ export class ProfileRouter {
   private configure(): void {
     this.router.use(this.validateToken);
 
+    this.router.get("/", validateRequest, (req: Request, res: Response, next: NextFunction) => {
+      this.controller.list(req, res, next).catch(next);
+    });
+
     this.router.post("/", createBodyValidation, validateRequest, (req: Request, res: Response, next: NextFunction) => {
       this.controller.create(req, res, next).catch(next);
     });

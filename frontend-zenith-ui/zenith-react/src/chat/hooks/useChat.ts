@@ -1,5 +1,13 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo, type RefObject } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/shared/hooks/useAuth';
+import { useProfile } from '@/shared/hooks/useProfile';
+import { useChatSocket } from './useChatSocket';
+import { chatApi } from '@/shared/api/chat-api';
+import { queryKeys } from '@/shared/api/queryKeys';
 import type { Conversation, Message, User } from '../types';
+import type { ConversationDTO, ConversationListDTO, MessageDTO, MessageListDTO } from '../dto';
+import type { ProfileDirectoryEntry, UserContact } from '@/auth/types';
 
 interface UseChatOptions {
   currentUser?: User;
@@ -13,389 +21,364 @@ const DEFAULT_CURRENT_USER: User = {
   color: 'blue',
 };
 
-export function useChat(options: UseChatOptions = {}) {
-  const CURRENT_USER: User = options.currentUser ?? DEFAULT_CURRENT_USER;
-
-  const MOCK_USERS: User[] = [
-    CURRENT_USER,
-  {
-    id: 'user-1',
-    name: 'Maya Chen',
-    initials: 'MC',
-    status: 'online',
-    color: 'emerald',
-  },
-  {
-    id: 'user-2',
-    name: 'Diego Morales',
-    initials: 'DM',
-    status: 'away',
-    color: 'amber',
-  },
-  {
-    id: 'user-3',
-    name: 'Sophie Laurent',
-    initials: 'SL',
-    status: 'online',
-    color: 'violet',
-  },
-  {
-    id: 'user-4',
-    name: 'Jamal Okoro',
-    initials: 'JO',
-    status: 'offline',
-    color: 'rose',
-  },
-  {
-    id: 'user-5',
-    name: 'Lina Park',
-    initials: 'LP',
-    status: 'online',
-    color: 'cyan',
-  },
+const USER_COLORS: string[] = [
+  'blue', 'emerald', 'amber', 'violet', 'rose', 'cyan',
 ];
 
-const INITIAL_TIME = new Date();
+function initialsFromName(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'U';
+}
 
-function createMessage(
-  conversationId: string,
-  senderId: string,
-  senderName: string,
-  senderAvatar: string | undefined,
-  senderInitials: string,
-  text: string,
-  status: Message['status'] = 'read',
-  repliesTo?: Message,
-): Message {
+function colorFor(credentialCode: string): string {
+  let hash = 0;
+  for (let i = 0; i < credentialCode.length; i++) {
+    hash = credentialCode.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return USER_COLORS[Math.abs(hash) % USER_COLORS.length];
+}
+
+function mapParticipantToUser(
+  p: { credentialCode: string },
+  name: string,
+  onlineCredentialCodes: Set<string>,
+): User {
   return {
-    id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    conversationId,
-    senderId,
-    senderName,
-    senderAvatar,
-    senderInitials,
-    text,
-    createdAt: new Date(),
-    status,
-    repliedTo: repliesTo,
+    id: p.credentialCode,
+    name,
+    avatar: undefined,
+    initials: initialsFromName(name),
+    status: onlineCredentialCodes.has(p.credentialCode) ? 'online' : 'offline',
+    color: colorFor(p.credentialCode),
   };
 }
 
-function createConversationMessages(conversation?: Conversation): Message[] {
-  if (!conversation?.lastMessage) return [];
+function mapConversationDTOtoConversation(
+  dto: ConversationDTO,
+  currentUserId: string,
+  contactByCredential: Map<string, UserContact>,
+  profileByCode: Map<string, ProfileDirectoryEntry>,
+  onlineCredentialCodes: Set<string>,
+): Conversation {
+  const participants = dto.participants.map((participant) => {
+    const contact = contactByCredential.get(participant.credentialCode);
+    const profile = contact ? profileByCode.get(contact.profileCode) : undefined;
+    return mapParticipantToUser(
+      participant,
+      profile?.fullName ?? participant.credentialCode,
+      onlineCredentialCodes,
+    );
+  });
+  const otherParticipants = participants.filter((p) => p.id !== currentUserId);
+  const primaryUser = otherParticipants[0] ?? participants[0];
+  const lastMessage = dto.lastMessage
+    ? mapMessageDTOtoMessage({
+        code: dto.lastMessage.code,
+        conversationCode: dto.code,
+        senderCredentialCode: dto.lastMessage.senderCredentialCode,
+        content: dto.lastMessage.content,
+        createdAt: dto.lastMessage.createdAt,
+        status: 'sent',
+        deliveredAt: null,
+        readAt: null,
+        editedAt: null,
+        deletedAt: null,
+        deletedBy: null,
+        updatedAt: dto.lastMessage.createdAt,
+      }, contactByCredential, profileByCode)
+    : undefined;
 
-  const otherUser =
-    conversation.participants.find((participant) => participant.id !== CURRENT_USER.id) ??
-    MOCK_USERS[1];
-
-  return [
-    createMessage(
-      conversation.id,
-      conversation.lastMessage.senderId,
-      conversation.lastMessage.senderName,
-      conversation.lastMessage.senderAvatar,
-      conversation.lastMessage.senderInitials,
-      conversation.lastMessage.text,
-      conversation.lastMessage.status,
-    ),
-    createMessage(
-      conversation.id,
-      CURRENT_USER.id,
-      CURRENT_USER.name,
-      CURRENT_USER.avatar,
-      CURRENT_USER.initials,
-      "Not yet, I'm reviewing them now. Looks promising so far.",
-    ),
-    createMessage(
-      conversation.id,
-      otherUser.id,
-      otherUser.name,
-      otherUser.avatar,
-      otherUser.initials,
-      'Awesome! The new card components have some really nice hover states.',
-    ),
-    createMessage(
-      conversation.id,
-      CURRENT_USER.id,
-      CURRENT_USER.name,
-      CURRENT_USER.avatar,
-      CURRENT_USER.initials,
-      'Yeah, I especially like the toast notifications. Very clean.',
-    ),
-  ];
+  return {
+    id: dto.code,
+    type: dto.type === 'group' ? 'group' : 'direct',
+    name: dto.title ?? primaryUser.name ?? 'Sin nombre',
+    avatar: undefined,
+    initials: dto.title
+      ? dto.title
+          .split(' ')
+          .map((n) => n[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2)
+      : primaryUser.initials,
+    participants,
+    lastMessage,
+    unreadCount: dto.unreadCount ?? 0,
+    muted: false,
+    updatedAt: new Date(dto.updatedAt),
+  };
 }
 
-  const [conversations, setConversations] = useState<Conversation[]>([
-    {
-      id: 'conv-1',
-      type: 'direct',
-      name: 'Maya Chen',
-      initials: 'MC',
-      avatar: undefined,
-      participants: [CURRENT_USER, MOCK_USERS[1]],
-      lastMessage: createMessage(
-        'conv-1',
-        'user-1',
-        'Maya Chen',
-        undefined,
-        'MC',
-        "Hey! Did you see the new design system docs?",
-        'read',
-      ),
-      unreadCount: 2,
-      muted: false,
-      updatedAt: new Date(INITIAL_TIME.getTime() - 2 * 60 * 1000),
-    },
-    {
-      id: 'conv-2',
-      type: 'direct',
-      name: 'Diego Morales',
-      initials: 'DM',
-      avatar: undefined,
-      participants: [CURRENT_USER, MOCK_USERS[2]],
-      lastMessage: createMessage(
-        'conv-2',
-        'user-me',
-        'Alex Rivera',
-        undefined,
-        'AR',
-        "I'll send you the Figma link in a moment.",
-        'read',
-      ),
-      unreadCount: 0,
-      muted: false,
-      updatedAt: new Date(INITIAL_TIME.getTime() - 5 * 60 * 1000),
-    },
-    {
-      id: 'conv-3',
-      type: 'group',
-      name: 'Product Team',
-      initials: 'PT',
-      avatar: undefined,
-      participants: [CURRENT_USER, MOCK_USERS[3], MOCK_USERS[4], MOCK_USERS[1]],
-      lastMessage: createMessage(
-        'conv-3',
-        'user-5',
-        'Lina Park',
-        undefined,
-        'LP',
-        'Meeting notes are up on Notion. 📝',
-        'read',
-      ),
-      unreadCount: 5,
-      muted: false,
-      updatedAt: new Date(INITIAL_TIME.getTime() - 15 * 60 * 1000),
-    },
-    {
-      id: 'conv-4',
-      type: 'direct',
-      name: 'Sophie Laurent',
-      initials: 'SL',
-      avatar: undefined,
-      participants: [CURRENT_USER, MOCK_USERS[3]],
-      lastMessage: createMessage(
-        'conv-4',
-        'user-me',
-        'Alex Rivera',
-        undefined,
-        'AR',
-        'Thanks for the review!',
-        'read',
-      ),
-      unreadCount: 0,
-      muted: false,
-      updatedAt: new Date(INITIAL_TIME.getTime() - 2 * 60 * 60 * 1000),
-    },
-    {
-      id: 'conv-5',
-      type: 'direct',
-      name: 'Jamal Okoro',
-      initials: 'JO',
-      avatar: undefined,
-      participants: [CURRENT_USER, MOCK_USERS[4]],
-      lastMessage: createMessage(
-        'conv-5',
-        'user-4',
-        'Jamal Okoro',
-        undefined,
-        'JO',
-        'Are we still on for the demo tomorrow?',
-        'read',
-      ),
-      unreadCount: 1,
-      muted: false,
-      updatedAt: new Date(INITIAL_TIME.getTime() - 24 * 60 * 60 * 1000),
-    },
-  ]);
+function mapMessageDTOtoMessage(
+  dto: MessageDTO | { messageCode: string; conversationCode: string; senderCredentialCode: string; content: string; createdAt: string },
+  contactByCredential: Map<string, UserContact>,
+  profileByCode: Map<string, ProfileDirectoryEntry>,
+): Message {
+  const contact = contactByCredential.get(dto.senderCredentialCode);
+  const profile = contact ? profileByCode.get(contact.profileCode) : undefined;
+  const senderName = profile?.fullName ?? dto.senderCredentialCode;
+  return {
+    id: 'code' in dto ? dto.code : dto.messageCode,
+    conversationId: dto.conversationCode,
+    senderId: dto.senderCredentialCode,
+    senderName,
+    senderAvatar: undefined,
+    senderInitials: initialsFromName(senderName),
+    text: dto.content,
+    createdAt: new Date(dto.createdAt),
+    status: (dto.status as Message['status']) ?? 'sent',
+    attachments: [],
+  };
+}
 
-  const [activeConversationId, setActiveConversationId] = useState<string | null>('conv-1');
-  const [messages, setMessages] = useState<Message[]>(() =>
-    createConversationMessages(conversations[0]),
+export function useChat(options: UseChatOptions = {}) {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { profile } = useProfile(user?.profileCode ?? undefined);
+
+  const currentUser: User = {
+    id: user?.credentialCode ?? options.currentUser?.id ?? DEFAULT_CURRENT_USER.id,
+    name: profile?.fullName ?? options.currentUser?.name ?? DEFAULT_CURRENT_USER.name,
+    avatar: undefined,
+    initials: initialsFromName(profile?.fullName ?? options.currentUser?.name ?? DEFAULT_CURRENT_USER.name),
+    status: 'online',
+    color: 'blue',
+  };
+
+  const { data: contacts = [] } = useQuery({
+    queryKey: queryKeys.contacts(),
+    queryFn: () => chatApi.listContacts(),
+    enabled: !!user?.credentialCode,
+  });
+  const { data: profileDirectory = [] } = useQuery({
+    queryKey: queryKeys.profiles,
+    queryFn: chatApi.listProfiles,
+    enabled: !!user?.credentialCode,
+  });
+  const contactByCredential = useMemo(
+    () => new Map(contacts.map((contact) => [contact.credentialCode, contact])),
+    [contacts],
   );
-  const [typingUsers, setTypingUsers] = useState<string[]>([]);
-  const [inputValue, setInputValue] = useState('');
-  const [isSending, setIsSending] = useState(false);
+  const profileByCode = useMemo(
+    () => new Map(profileDirectory.map((entry) => [entry.id, entry])),
+    [profileDirectory],
+  );
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Consultar conversaciones vía TanStack Query
+  const {
+    data: dtoConversations,
+    isLoading: convLoading,
+    refetch: refetchConversations,
+  } = useQuery<ConversationListDTO>({
+    queryKey: queryKeys.conversations,
+    queryFn: () => chatApi.listConversations({ limit: 50 }),
+  });
+
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+
+  // Consultar mensajes de la conversación activa
+  const {
+    data: apiMessages,
+    isLoading: msgLoading,
+  } = useQuery<MessageListDTO>({
+    queryKey: queryKeys.messages(activeConversationId ?? ''),
+    queryFn: () => chatApi.listMessages(activeConversationId ?? '', { limit: 50 }),
+    enabled: !!activeConversationId,
+  });
+
+  // Mutación para enviar mensajes
+  const sendMessageMutation = useMutation({
+    mutationFn: ({ conversationCode, content }: { conversationCode: string; content: string }) =>
+      chatApi.sendMessage(conversationCode, { content }),
+    onSuccess: (_message, variables) => {
+      // Invalidar conversaciones y mensajes para refetch
+      queryClient.invalidateQueries({ queryKey: queryKeys.conversations });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.messages(variables.conversationCode),
+      });
+    },
+  });
+
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [onlineCredentialCodes, setOnlineCredentialCodes] = useState<Set<string>>(() => new Set());
+  const [inputValue, setInputValue] = useState('');
+  const [isSending, setIsSending] = useState(sendMessageMutation.isPending);
+  const [localMessages, setLocalMessages] = useState<Message[]>([]);
+  const receiptRequestsRef = useRef(new Set<string>());
+
+  const updateReceipt = useCallback((conversationCode: string, messageCode: string) => {
+    const timestamp = new Date().toISOString();
+    queryClient.setQueryData<MessageListDTO>(queryKeys.messages(conversationCode), (current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        messages: current.messages.map((message) => message.code === messageCode
+          ? {
+              ...message,
+              status: 'read',
+              deliveredAt: message.deliveredAt ?? timestamp,
+              readAt: timestamp,
+            }
+          : message),
+      };
+    });
+  }, [queryClient]);
+
+  const markReadMutation = useMutation({
+    mutationFn: ({ messageCode }: { conversationCode: string; messageCode: string }) => chatApi.markMessageRead(messageCode),
+    onSuccess: async (_result, variables) => {
+      updateReceipt(variables.conversationCode, variables.messageCode);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.conversations });
+    },
+    onError: (_error, variables) => receiptRequestsRef.current.delete(`${variables.messageCode}:read`),
+  });
+
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const conversations = (dtoConversations?.conversations ?? []).map((dto) =>
+    mapConversationDTOtoConversation(dto, currentUser.id, contactByCredential, profileByCode, onlineCredentialCodes),
+  );
 
   const activeConversation = conversations.find((c) => c.id === activeConversationId);
+
+  // Socket.io para tiempo real
+  const { emitTyping } = useChatSocket({
+    onTyping: (payload) => {
+      if (payload.isTyping) {
+        setTypingUsers((prev) => prev.includes(payload.credentialCode) ? prev : [...prev, payload.credentialCode]);
+      } else {
+        setTypingUsers((prev) => prev.filter((id) => id !== payload.credentialCode));
+      }
+    },
+    onPresenceOnline: (payload) => {
+      setOnlineCredentialCodes((prev) => new Set(prev).add(payload.credentialCode));
+    },
+    onPresenceOffline: (payload) => {
+      setOnlineCredentialCodes((prev) => {
+        const next = new Set(prev);
+        next.delete(payload.credentialCode);
+        return next;
+      });
+    },
+    onMessageReceived: (message) => {
+      const event = message as MessageDTO | { messageCode: string; conversationCode: string; senderCredentialCode: string; content: string; createdAt: string };
+      if (event.conversationCode === activeConversationId) {
+        const mapped = mapMessageDTOtoMessage(event, contactByCredential, profileByCode);
+        setLocalMessages((prev) => prev.some((item) => item.id === mapped.id)
+          ? prev.map((item) => item.id === mapped.id ? { ...item, ...mapped } : item)
+          : [...prev, mapped]);
+      }
+    },
+    onRealtimeEvent: (eventName, payload) => {
+      if (!eventName.startsWith('chat.message.') && !eventName.startsWith('chat.conversation.')) return;
+      const event = payload as { conversationCode?: string } | null;
+      queryClient.invalidateQueries({ queryKey: queryKeys.conversations });
+      if (activeConversationId && (!event?.conversationCode || event.conversationCode === activeConversationId)) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.messages(activeConversationId) });
+      }
+    },
+  });
 
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [localMessages]);
 
-  const markAsRead = useCallback((id: string) => {
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.id === id ? { ...c, unreadCount: 0 } : c,
-      ),
-    );
-  }, []);
+  // Sincronizar mensajes de la API con el estado local
+  useEffect(() => {
+    setLocalMessages((apiMessages?.messages ?? []).map((m) => mapMessageDTOtoMessage(m, contactByCredential, profileByCode)));
+  }, [apiMessages, contacts, profileDirectory]);
+
+  useEffect(() => {
+    for (const message of apiMessages?.messages ?? []) {
+      if (message.senderCredentialCode === currentUser.id) continue;
+      if (!receiptRequestsRef.current.has(`${message.code}:read`)) {
+        receiptRequestsRef.current.add(`${message.code}:read`);
+        markReadMutation.mutate({ conversationCode: message.conversationCode, messageCode: message.code });
+      }
+    }
+  }, [apiMessages, currentUser.id]);
 
   const selectConversation = useCallback(
     (id: string) => {
       setActiveConversationId(id);
-      setMessages(
-        createConversationMessages(conversations.find((conversation) => conversation.id === id)),
-      );
-      markAsRead(id);
     },
-    [conversations, markAsRead],
+    [],
   );
 
   const sendMessage = useCallback(
     (text: string) => {
       if (!text.trim() || !activeConversationId) return;
 
-      const tempMessage = createMessage(
-        activeConversationId,
-        CURRENT_USER.id,
-        CURRENT_USER.name,
-        CURRENT_USER.avatar,
-        CURRENT_USER.initials,
+      const tempMessage: Message = {
+        id: `msg-temp-${Date.now()}`,
+        conversationId: activeConversationId,
+        senderId: currentUser.id,
+        senderName: currentUser.name,
+        senderAvatar: currentUser.avatar,
+        senderInitials: currentUser.initials,
         text,
-        'sending',
-      );
+        createdAt: new Date(),
+        status: 'sending',
+        attachments: [],
+      };
 
-      setMessages((prev) => [...prev, tempMessage]);
+      setLocalMessages((prev) => [...prev, tempMessage]);
       setInputValue('');
-
-      const optimisticId = tempMessage.id;
-
       setIsSending(true);
 
-      // Simulate network delay
-      const timer = setTimeout(() => {
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === optimisticId ? { ...m, status: 'sent' } : m,
-          ),
-        );
-
-        // Simulate delivery/read
-        const timer2 = setTimeout(() => {
-          setMessages((prev) =>
+      sendMessageMutation
+        .mutateAsync({ conversationCode: activeConversationId, content: text })
+        .then((saved) => {
+          setLocalMessages((prev) =>
             prev.map((m) =>
-              m.id === optimisticId ? { ...m, status: 'read' } : m,
+              m.id === tempMessage.id && saved
+                ? mapMessageDTOtoMessage(saved, contactByCredential, profileByCode)
+                : m,
             ),
           );
           setIsSending(false);
-
-          // Auto-reply simulation after a short delay
-          const timer3 = setTimeout(() => {
-            const autoReplies: Record<string, string[]> = {
-              'conv-1': [
-                'Yes, the hover states use the new design tokens.',
-                'Want me to share the Figma file with you?',
-                'Let me know what you think! 😊',
-              ],
-              'conv-2': [
-                'Thanks! Looking forward to it.',
-                'The Figma link is on its way.',
-              ],
-              'conv-3': [
-                'Great, I will check them out.',
-                'See you at the meeting!',
-              ],
-              'conv-4': [
-                'Youre welcome! Let me know if you need anything else.',
-              ],
-              'conv-5': [
-                'Yes, 11 AM sharp. See you then!',
-                'Ill bring the prototype.',
-              ],
-            };
-            const replies = autoReplies[activeConversationId] || [
-              'Got it, thanks!',
-            ];
-            const randomReply =
-              replies[Math.floor(Math.random() * replies.length)];
-
-            const otherUser =
-              activeConversation?.participants.find(
-                (p) => p.id !== CURRENT_USER.id,
-              ) || MOCK_USERS[1];
-
-            const reply = createMessage(
-              activeConversationId,
-              otherUser.id,
-              otherUser.name,
-              otherUser.avatar,
-              otherUser.initials,
-              randomReply,
-              'read',
-            );
-
-            setMessages((prev) => [...prev, reply]);
-
-            setConversations((prev) =>
-              prev.map((c) =>
-                c.id === activeConversationId
-                  ? {
-                      ...c,
-                      lastMessage: reply,
-                      updatedAt: reply.createdAt,
-                    }
-                  : c,
-              ),
-            );
-          }, 1800 + Math.random() * 1200);
-
-          return () => clearTimeout(timer3);
-        }, 800);
-
-        return () => clearTimeout(timer2);
-      }, 600);
-
-      return () => clearTimeout(timer);
+        })
+        .catch(() => {
+          setLocalMessages((prev) => prev.filter((message) => message.id !== tempMessage.id));
+          setIsSending(false);
+        });
     },
-    [activeConversationId, activeConversation],
+    [activeConversationId, currentUser, sendMessageMutation, contactByCredential, profileByCode],
   );
 
   const setTyping = useCallback((userId: string, isTyping: boolean) => {
+    if (activeConversationId) {
+      emitTyping(activeConversationId, isTyping);
+    }
     setTypingUsers((prev) => {
       if (isTyping) {
         return prev.includes(userId) ? prev : [...prev, userId];
       }
       return prev.filter((id) => id !== userId);
     });
-  }, []);
+  }, [activeConversationId, emitTyping]);
 
   return {
-    currentUser: CURRENT_USER,
+    currentUser,
     conversations,
     activeConversation,
     activeConversationId,
-    messages,
+    messages: localMessages,
     typingUsers,
     inputValue,
-    isSending,
+    isSending: isSending || convLoading || msgLoading,
     setInputValue,
     selectConversation,
     sendMessage,
     setTyping,
-    messagesEndRef,
+    messagesEndRef: messagesEndRef as RefObject<HTMLDivElement | null>,
+    refetchConversations,
   };
 }

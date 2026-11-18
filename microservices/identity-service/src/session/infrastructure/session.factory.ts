@@ -71,6 +71,7 @@ export const sessionFactory = {
       revokeSessionUseCase,
       updateSessionActivityUseCase,
       domainEventPublisher,
+      credentialRepository,
     );
 
     const signupService = new SignupApplicationService(

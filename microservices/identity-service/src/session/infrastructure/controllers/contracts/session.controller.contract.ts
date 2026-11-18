@@ -9,6 +9,8 @@ export abstract class SessionControllerContract {
 
   public abstract list(req: Request, res: Response, next: NextFunction): Promise<void>;
 
+  public abstract listContacts(req: Request, res: Response, next: NextFunction): Promise<void>;
+
   public abstract refresh(req: Request, res: Response, next: NextFunction): Promise<void>;
 
   public abstract revoke(req: Request, res: Response, next: NextFunction): Promise<void>;

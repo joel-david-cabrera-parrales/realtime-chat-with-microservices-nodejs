@@ -1,5 +1,6 @@
 import { Message } from "../../domain/aggregates/message.aggregate";
 import { MessageDataSource } from "../../domain/datasources/message.datasource";
+import type { ConversationMessageSummary } from "../../domain/datasources/message.datasource";
 import { MessageRepository } from "../../domain/repositories/message.repository";
 import { ConversationCode } from "../../domain/value-objects/conversation-code.value-object";
 import { MessageCode } from "../../domain/value-objects/message-code.value-object";
@@ -26,6 +27,10 @@ export class MessageRepositoryImpl implements MessageRepository {
 
   public findLatestByConversation(conversationCode: ConversationCode): Promise<Message | null> {
     return this.messageDataSource.findLatestByConversation(conversationCode);
+  }
+
+  public findConversationSummaries(conversationCodes: string[], credentialCode: string): Promise<ConversationMessageSummary[]> {
+    return this.messageDataSource.findConversationSummaries(conversationCodes, credentialCode);
   }
 
   public delete(code: MessageCode): Promise<void> {

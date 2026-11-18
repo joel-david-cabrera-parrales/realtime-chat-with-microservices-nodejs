@@ -46,7 +46,7 @@ export const chatFactory = {
     const accessPolicy = new ChatAccessPolicy();
 
     const createConversationUseCase = new CreateConversationUseCaseImpl(conversationRepository);
-    const listConversationsUseCase = new ListConversationsUseCaseImpl(conversationRepository);
+    const listConversationsUseCase = new ListConversationsUseCaseImpl(conversationRepository, messageRepository);
     const getConversationUseCase = new GetConversationUseCaseImpl(conversationLoader, accessPolicy);
     const addParticipantUseCase = new AddParticipantUseCaseImpl(conversationRepository, conversationLoader, accessPolicy);
     const removeParticipantUseCase = new RemoveParticipantUseCaseImpl(conversationRepository, conversationLoader, accessPolicy);

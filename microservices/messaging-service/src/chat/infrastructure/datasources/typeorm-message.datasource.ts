@@ -1,6 +1,7 @@
 import { DataSource, IsNull, Repository } from "typeorm";
 import { Message } from "../../domain/aggregates/message.aggregate";
 import { MessageDataSource } from "../../domain/datasources/message.datasource";
+import type { ConversationMessageSummary } from "../../domain/datasources/message.datasource";
 import { ConversationCode } from "../../domain/value-objects/conversation-code.value-object";
 import { MessageCode } from "../../domain/value-objects/message-code.value-object";
 import { PaginationCursor } from "../../domain/value-objects/pagination-cursor.value-object";
@@ -73,6 +74,82 @@ export class TypeOrmMessageDataSource implements MessageDataSource {
     });
 
     return entity === null ? null : MessageMapper.toDomain(entity);
+  }
+
+  public async findConversationSummaries(
+    conversationCodes: string[],
+    credentialCode: string,
+  ): Promise<ConversationMessageSummary[]> {
+    if (conversationCodes.length === 0) return [];
+
+    const rows = await this.dataSource.query(
+      `
+        WITH requested AS (
+          SELECT unnest($1::uuid[]) AS conversation_code
+        ), latest AS (
+          SELECT DISTINCT ON (message.conversation_code)
+            message.conversation_code,
+            message.code,
+            message.sender_credential_code,
+            message.content,
+            message.created_at
+          FROM messages message
+          INNER JOIN requested ON requested.conversation_code = message.conversation_code
+          WHERE message.deleted_at IS NULL
+          ORDER BY message.conversation_code, message.created_at DESC, message.code DESC
+        ), unread AS (
+          SELECT message.conversation_code, COUNT(*)::int AS unread_count
+          FROM messages message
+          INNER JOIN requested ON requested.conversation_code = message.conversation_code
+          INNER JOIN conversation_participants participant
+            ON participant.conversation_code = message.conversation_code
+            AND participant.credential_code = $2
+            AND participant.status = 'active'
+            AND message.created_at >= participant.joined_at
+          WHERE message.deleted_at IS NULL
+            AND message.sender_credential_code <> $2
+            AND NOT EXISTS (
+              SELECT 1
+              FROM message_receipts receipt
+              WHERE receipt.message_code = message.code
+                AND receipt.credential_code = $2
+                AND receipt.read_at IS NOT NULL
+            )
+          GROUP BY message.conversation_code
+        )
+        SELECT
+          requested.conversation_code AS "conversationCode",
+          latest.code AS "lastMessageCode",
+          latest.sender_credential_code AS "lastMessageSenderCredentialCode",
+          latest.content AS "lastMessageContent",
+          latest.created_at AS "lastMessageCreatedAt",
+          COALESCE(unread.unread_count, 0)::int AS "unreadCount"
+        FROM requested
+        LEFT JOIN latest ON latest.conversation_code = requested.conversation_code
+        LEFT JOIN unread ON unread.conversation_code = requested.conversation_code
+      `,
+      [conversationCodes, credentialCode],
+    ) as Array<{
+      conversationCode: string;
+      lastMessageCode: string | null;
+      lastMessageSenderCredentialCode: string | null;
+      lastMessageContent: string | null;
+      lastMessageCreatedAt: Date | string | null;
+      unreadCount: number | string;
+    }>;
+
+    return rows.map((row) => ({
+      conversationCode: row.conversationCode,
+      lastMessage: row.lastMessageCode === null ? null : {
+        code: row.lastMessageCode,
+        senderCredentialCode: row.lastMessageSenderCredentialCode ?? "",
+        content: row.lastMessageContent ?? "",
+        createdAt: row.lastMessageCreatedAt instanceof Date
+          ? row.lastMessageCreatedAt.toISOString()
+          : String(row.lastMessageCreatedAt),
+      },
+      unreadCount: Number(row.unreadCount),
+    }));
   }
 
   public async delete(code: MessageCode): Promise<void> {

@@ -8,4 +8,5 @@ export abstract class ProfileDataSource {
   abstract existsById(id: ProfileId): Promise<boolean>;
   abstract existsByEmail(email: Email): Promise<boolean>;
   abstract delete(id: ProfileId): Promise<void>;
+  abstract findAll(): Promise<Profile[]>;
 }

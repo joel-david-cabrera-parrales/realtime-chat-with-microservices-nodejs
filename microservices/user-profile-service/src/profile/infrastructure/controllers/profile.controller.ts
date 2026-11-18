@@ -28,6 +28,20 @@ export class ProfileController extends ProfileControllerContract {
     }
   }
 
+  public async list(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await this.profileService.list();
+
+      sendSuccess(res, {
+        statusCode: 200,
+        message: "Perfiles listados",
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const id = this.getId(req);

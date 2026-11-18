@@ -82,6 +82,18 @@ export interface Profile {
   updatedAt: string;
 }
 
+export interface ProfileDirectoryEntry {
+  id: string;
+  fullName: string;
+  avatarFileCode: string | null;
+}
+
+export interface UserContact {
+  credentialCode: string;
+  profileCode: string;
+  username: string;
+}
+
 // Cuerpo de petición de login
 export interface SigninRequestBody {
   username: string;

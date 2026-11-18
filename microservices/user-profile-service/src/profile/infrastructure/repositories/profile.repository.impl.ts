@@ -26,4 +26,8 @@ export class ProfileRepositoryImpl implements ProfileRepository {
   public delete(id: ProfileId): Promise<void> {
     return this.profileDataSource.delete(id);
   }
+
+  public findAll(): Promise<Profile[]> {
+    return this.profileDataSource.findAll();
+  }
 }

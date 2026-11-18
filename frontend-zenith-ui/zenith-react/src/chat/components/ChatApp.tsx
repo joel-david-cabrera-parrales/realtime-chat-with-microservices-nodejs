@@ -21,6 +21,7 @@ interface ChatAppProps {
   sendMessage: (text: string) => void;
   setTyping: (userId: string, isTyping: boolean) => void;
   messagesEndRef: RefObject<HTMLDivElement | null>;
+  onNewConversation?: () => void;
 }
 
 export function ChatApp({
@@ -37,6 +38,7 @@ export function ChatApp({
   sendMessage,
   setTyping,
   messagesEndRef,
+  onNewConversation,
 }: ChatAppProps) {
   const [showConversations, setShowConversations] = useState(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -96,6 +98,8 @@ export function ChatApp({
             activeConversationId={activeConversationId}
             onSelect={handleSelectConversation}
             currentUser={currentUser}
+            currentUserId={currentUser.id}
+            onNewConversation={onNewConversation}
           />
         </div>
       )}
@@ -124,7 +128,11 @@ export function ChatApp({
             <button
               type="button"
               aria-label="New conversation"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              onClick={onNewConversation}
+              className={cx(
+                'flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors',
+                !onNewConversation && 'opacity-50 cursor-not-allowed',
+              )}
             >
               <span className="material-symbols-outlined text-base">add_circle</span>
             </button>
@@ -194,7 +202,9 @@ export function ChatApp({
                     )}
                   </div>
                   <p className="line-clamp-1 mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                    {conv.lastMessage?.text ?? 'Start a new conversation'}
+                    {conv.lastMessage
+                      ? `${conv.lastMessage.senderId === currentUser.id ? 'Tú: ' : ''}${conv.lastMessage.text}`
+                      : 'Start a new conversation'}
                   </p>
                 </div>
                 {conv.unreadCount > 0 && (
@@ -284,7 +294,11 @@ export function ChatApp({
                   <button
                     type="button"
                     aria-label="More"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors md:flex"
+                    onClick={onNewConversation}
+                    className={cx(
+                      'flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors md:flex',
+                      !onNewConversation && 'opacity-50 cursor-not-allowed',
+                    )}
                   >
                     <span className="material-symbols-outlined text-lg">more_vert</span>
                   </button>
