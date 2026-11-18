@@ -1,2 +1,2 @@
-export { AuthLayout } from "./components";
+export { AuthLayout } from "./layout/AuthLayout";
 export { ForgotPasswordPage, LoginPage, RegisterPage, ResetPasswordPage } from "./pages";

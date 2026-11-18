@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router";
 import { useTranslation } from "@/shared/hooks/useTranslation";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { apiClient } from "@/shared/api/api-client";
-import { AuthMapper } from "@/auth/mappers/auth.mapper";
 import type { SigninOutput } from "../types";
 import { Button } from "@/features/botones/components/Button";
 import { Heading } from "@/features/headings/components/Heading";

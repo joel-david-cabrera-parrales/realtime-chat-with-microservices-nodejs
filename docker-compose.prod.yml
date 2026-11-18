@@ -21,6 +21,8 @@ services:
         condition: service_healthy
       media-service:
         condition: service_healthy
+      frontend:
+        condition: service_healthy
     networks:
       - messaging-platform-network
   aws-local-s3:
@@ -138,6 +140,21 @@ services:
       timeout: 5s
       retries: 10
       start_period: 40s
+    networks:
+      - messaging-platform-network
+  frontend:
+    container_name: chat-frontend
+    build:
+      context: ./frontend-zenith-ui/zenith-react
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - messaging-platform-network
 

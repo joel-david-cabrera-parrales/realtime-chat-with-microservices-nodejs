@@ -114,7 +114,7 @@ function mapConversationDTOtoConversation(
 }
 
 function mapMessageDTOtoMessage(
-  dto: MessageDTO | { messageCode: string; conversationCode: string; senderCredentialCode: string; content: string; createdAt: string },
+  dto: MessageDTO | { messageCode: string; conversationCode: string; senderCredentialCode: string; content: string; createdAt: string; status?: string },
   contactByCredential: Map<string, UserContact>,
   profileByCode: Map<string, ProfileDirectoryEntry>,
 ): Message {
@@ -266,7 +266,7 @@ export function useChat(options: UseChatOptions = {}) {
       });
     },
     onMessageReceived: (message) => {
-      const event = message as MessageDTO | { messageCode: string; conversationCode: string; senderCredentialCode: string; content: string; createdAt: string };
+      const event = message as MessageDTO | { messageCode: string; conversationCode: string; senderCredentialCode: string; content: string; createdAt: string; status?: string };
       if (event.conversationCode === activeConversationId) {
         const mapped = mapMessageDTOtoMessage(event, contactByCredential, profileByCode);
         setLocalMessages((prev) => prev.some((item) => item.id === mapped.id)
