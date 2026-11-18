@@ -1,7 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Conversation, Message, User } from '../types';
 
-const CURRENT_USER: User = {
+interface UseChatOptions {
+  currentUser?: User;
+}
+
+const DEFAULT_CURRENT_USER: User = {
   id: 'user-me',
   name: 'Alex Rivera',
   initials: 'AR',
@@ -9,8 +13,11 @@ const CURRENT_USER: User = {
   color: 'blue',
 };
 
-const MOCK_USERS: User[] = [
-  CURRENT_USER,
+export function useChat(options: UseChatOptions = {}) {
+  const CURRENT_USER: User = options.currentUser ?? DEFAULT_CURRENT_USER;
+
+  const MOCK_USERS: User[] = [
+    CURRENT_USER,
   {
     id: 'user-1',
     name: 'Maya Chen',
@@ -118,7 +125,6 @@ function createConversationMessages(conversation?: Conversation): Message[] {
   ];
 }
 
-export function useChat() {
   const [conversations, setConversations] = useState<Conversation[]>([
     {
       id: 'conv-1',
