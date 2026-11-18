@@ -1,0 +1,6 @@
+# Forzar saltos de línea Unix (LF) en scripts de shell
+*.sh text eol=lf
+
+# Forzar LF en archivos de entorno y compose
+.env* text eol=lf
+docker-compose*.yml text eol=lf

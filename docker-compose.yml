@@ -54,10 +54,10 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 30s
-      timeout: 5s
-      retries: 10
-      start_period: 40s
+      # interval: 30s
+      # timeout: 5s
+      # retries: 10
+      # start_period: 40s
     networks:
       - messaging-platform-network
     volumes:
@@ -77,10 +77,10 @@ services:
         condition: service_started
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 30s
-      timeout: 5s
-      retries: 10
-      start_period: 40s
+      # interval: 30s
+      # timeout: 5s
+      # retries: 10
+      # start_period: 40s
     networks:
       - messaging-platform-network
     volumes:
@@ -100,10 +100,10 @@ services:
         condition: service_started
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 30s
-      timeout: 5s
-      retries: 10
-      start_period: 40s
+      # interval: 30s
+      # timeout: 5s
+      # retries: 10
+      # start_period: 40s
     networks:
       - messaging-platform-network
     volumes:
@@ -123,10 +123,10 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 30s
-      timeout: 5s
-      retries: 10
-      start_period: 40s
+      # interval: 30s
+      # timeout: 5s
+      # retries: 10
+      # start_period: 40s
     networks:
       - messaging-platform-network
     volumes:
@@ -146,10 +146,10 @@ services:
         condition: service_started
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 30s
-      timeout: 5s
-      retries: 10
-      start_period: 40s
+      # interval: 30s
+      # timeout: 5s
+      # retries: 10
+      # start_period: 40s
     networks:
       - messaging-platform-network
     volumes:
@@ -181,10 +181,10 @@ services:
           - messaging-db
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_DATABASE}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
+      # interval: 5s
+      # timeout: 5s
+      # retries: 10
+      # start_period: 10s
   kafka:
     image: apache/kafka:4.1.0
     container_name: chat-kafka
@@ -207,10 +207,10 @@ services:
       - ./volumes/kafka_data:/var/lib/kafka/data
     healthcheck:
       test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1 || exit 1"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 20s
+      # interval: 10s
+      # timeout: 10s
+      # retries: 10
+      # start_period: 20s
     networks:
       - messaging-platform-network
   
@@ -229,21 +229,21 @@ services:
       - ./frontend-zenith-ui/zenith-react:/app
       - /app/node_modules
 
-  # pgadmin:
-  #   image: dpage/pgadmin4:9.19.0
-  #   container_name: messaging-pgadmin4
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_EMAIL}
-  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-  #   ports:
-  #     - '8088:80'
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   networks:
-  #     - messaging-platform-network
-  #   volumes:
-  #     - ./volumes/pgadmin_data:/var/lib/pgadmin
+  pgadmin:
+    image: dpage/pgadmin4:9.19.0
+    container_name: messaging-pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - '8088:80'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - messaging-platform-network
+    volumes:
+      - ./volumes/pgadmin_data:/var/lib/pgadmin
 
 networks:
   messaging-platform-network:

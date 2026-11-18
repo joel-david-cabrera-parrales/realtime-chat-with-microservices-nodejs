@@ -2,6 +2,10 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { useTranslation } from "@/shared/hooks/useTranslation";
+import { useAuth } from "@/shared/hooks/useAuth";
+import { apiClient } from "@/shared/api/api-client";
+import { AuthMapper } from "@/auth/mappers/auth.mapper";
+import type { SigninOutput } from "../types";
 import { Button } from "@/features/botones/components/Button";
 import { Heading } from "@/features/headings/components/Heading";
 import { TextInput } from "@/features/forms/components/TextInput";
@@ -11,22 +15,38 @@ import { Switch } from "@/features/forms/components/Switch";
 export const LoginPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!email.includes("@")) {
       setError("Escribe un email válido para continuar.");
       return;
     }
+    if (!password) {
+      setError("Escribe tu contraseña.");
+      return;
+    }
     setError(undefined);
     setLoading(true);
-    window.setTimeout(() => {
+    try {
+      const response = await apiClient.post<{ data: SigninOutput }>(
+        "/api/auth/signin",
+        { username: email, password }
+      );
+      login(response.data);
+      navigate("/chat");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Error al iniciar sesión.";
+      setError(message);
+    } finally {
       setLoading(false);
-      navigate("/");
-    }, 800);
+    }
   };
 
   return (
@@ -52,7 +72,13 @@ export const LoginPage = () => {
           message={error}
           onChange={(event) => setEmail(event.target.value)}
         />
-        <PasswordInput label={t('pages.auth.login.passwordLabel')} placeholder={t('pages.auth.login.passwordPlaceholder')} autoComplete="current-password" />
+        <PasswordInput
+          label={t('pages.auth.login.passwordLabel')}
+          placeholder={t('pages.auth.login.passwordPlaceholder')}
+          autoComplete="current-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        />
         <div className="flex items-center justify-between gap-4">
           <Switch label={t('pages.auth.login.rememberMe')} />
           <Link to="/auth/forgot" className="shrink-0 text-sm font-semibold text-blue-600 hover:text-blue-700">
