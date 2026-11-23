@@ -1,5 +1,5 @@
 import jwt, { SignOptions } from "jsonwebtoken";
-import { TokenService } from "../../shared/domain/token.generator.service";
+import { TokenService } from "../../shared/domain/services/token.generator.service";
 
 export interface JwtAdapterOptions {
   accessSecret: string;

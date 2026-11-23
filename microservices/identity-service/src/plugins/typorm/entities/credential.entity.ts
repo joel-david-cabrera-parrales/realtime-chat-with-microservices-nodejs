@@ -5,11 +5,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { AuthenticationTypeEntity } from "./authentication-type.entity";
+import { ProfileEntity } from "./profile.entity";
 import { RefreshTokenEntity } from "./refresh-token.entity";
 import { SessionEntity } from "./session.entity";
 
@@ -38,6 +40,10 @@ export class CredentialEntity {
   @ManyToOne(() => AuthenticationTypeEntity, (authenticationType) => authenticationType.credentials, { onDelete: "RESTRICT" })
   @JoinColumn({ name: "authentication_type_id" })
   public authenticationType!: AuthenticationTypeEntity;
+
+  @OneToOne(() => ProfileEntity, (profile) => profile.credential, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "profile_code", referencedColumnName: "profileCode" })
+  public profile!: ProfileEntity;
 
   @Column({ name: "profile_code", type: "uuid", unique: true })
   public profileCode!: string;

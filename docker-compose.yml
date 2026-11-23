@@ -15,8 +15,6 @@ services:
         condition: service_healthy
       identity-service:
         condition: service_healthy
-      user-profile-service:
-        condition: service_healthy
       postgres:
         condition: service_healthy
       media-service:
@@ -40,29 +38,6 @@ services:
       - "./microservices/media-service/aws/localstack-init:/etc/localstack/init/ready.d:ro"
     networks:
       - messaging-platform-network
-  user-profile-service:
-    container_name: user-profile-service
-    build:
-      context: ./microservices/user-profile-service
-      dockerfile: Dockerfile.dev
-    env_file:
-      - ./microservices/user-profile-service/.env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      media-service:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      # interval: 30s
-      # timeout: 5s
-      # retries: 10
-      # start_period: 40s
-    networks:
-      - messaging-platform-network
-    volumes:
-      - ./microservices/user-profile-service:/app
-      - /app/node_modules/
   identity-service:
     container_name: identity-service
     build:
@@ -75,6 +50,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_started
+      media-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
       # interval: 30s
@@ -116,7 +93,11 @@ services:
       dockerfile: Dockerfile.dev
     env_file:
       - ./microservices/notification-service/.env
+    environment:
+      HTTP_CLIENT_BASE_URL: http://identity-service:3000/api/profile
     depends_on:
+      identity-service:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       kafka:
@@ -214,15 +195,16 @@ services:
     networks:
       - messaging-platform-network
   
-  zenith-react:
+  frontend:
     build:
       context: ./frontend-zenith-ui/zenith-react
       dockerfile: Dockerfile.dev
     container_name: zenith-react
     ports:
-      - "5181:5173"
+      - "5181:80"
     environment:
       - NODE_ENV=development
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "80"]
     networks:
       - messaging-platform-network
     volumes:

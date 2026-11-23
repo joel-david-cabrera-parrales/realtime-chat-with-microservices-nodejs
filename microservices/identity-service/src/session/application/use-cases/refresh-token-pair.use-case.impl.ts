@@ -13,8 +13,8 @@ import { RefreshTokenPairInput, RefreshTokenPairOutput } from "../../domain/use-
 import { RefreshTokenPairUseCase } from "../../domain/use-cases/refresh-token-pair.use-case";
 import { SessionId } from "../../domain/value-objects/session-id.value-object";
 import { TokenStatus } from "../../domain/value-objects/token-status.value-object";
-import { HashService } from "../../../shared/domain/hash.service";
-import { TokenService } from "../../../shared/domain/token.generator.service";
+import { HashService } from "../../../shared/domain/services/hash.service";
+import { TokenService } from "../../../shared/domain/services/token.generator.service";
 import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 
 export class RefreshTokenPairUseCaseImpl extends RefreshTokenPairUseCase {

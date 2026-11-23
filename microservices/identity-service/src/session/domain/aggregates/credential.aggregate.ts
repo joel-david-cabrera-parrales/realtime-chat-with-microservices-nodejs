@@ -1,4 +1,4 @@
-import { HashService } from "../../../shared/domain/hash.service";
+import { HashService } from "../../../shared/domain/services/hash.service";
 import { AuthenticationTypeCode } from "../constants/authentication-type.constants";
 import { CreateCredentialProps, CredentialPrimitives, CredentialProps, RehydrateCredentialProps } from "../interfaces/credential.interface";
 import { CredentialCode } from "../value-objects/credential-code.value-object";

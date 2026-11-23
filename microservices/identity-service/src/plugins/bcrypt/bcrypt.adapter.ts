@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { createHash } from "node:crypto";
-import { HashService } from "../../shared/domain/hash.service";
+import { HashService } from "../../shared/domain/services/hash.service";
 
 export class BcryptAdapter extends HashService {
   constructor(private readonly saltRounds: number = 10) {

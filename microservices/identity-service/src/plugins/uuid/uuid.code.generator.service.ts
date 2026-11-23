@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { CodeGeneratorService } from "../../shared/domain/code.generator.service";
+import { CodeGeneratorService } from "../../shared/domain/services/code.generator.service";
 
 export class UuidCodeGeneratorService extends CodeGeneratorService {
   public generateCode(): string {

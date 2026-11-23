@@ -5,8 +5,8 @@ import { IssueTokenPairInput, TokenPair } from "../../domain/use-cases/dtos/issu
 import { IssueTokenPairUseCase } from "../../domain/use-cases/issue-token-pair.use-case";
 import { AccessToken } from "../../domain/value-objects/access-token.value-object";
 import { RefreshToken } from "../../domain/value-objects/refresh-token.value-object";
-import { HashService } from "../../../shared/domain/hash.service";
-import { TokenService } from "../../../shared/domain/token.generator.service";
+import { HashService } from "../../../shared/domain/services/hash.service";
+import { TokenService } from "../../../shared/domain/services/token.generator.service";
 
 export class IssueTokenPairUseCaseImpl extends IssueTokenPairUseCase {
   constructor(

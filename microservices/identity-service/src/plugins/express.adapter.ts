@@ -10,6 +10,7 @@ import { sessionFactory } from "../session/infrastructure/session.factory";
 import { errorHandler } from "../shared/middlewares/error-handler.middleware";
 import { createRequestLoggerMiddleware } from "../shared/middlewares/request-logger.middleware";
 import { appDatasource } from "./typorm/datasource.provider";
+import { profileFactory } from "../profile/infrastructure/profile.factory";
 
 export class ExpressServer extends Server {
   private readonly app: Application;
@@ -54,10 +55,15 @@ export class ExpressServer extends Server {
   }
 
   protected configRoutes(): void {
+    const profileRouter = profileFactory.createRouter(appDatasource);
+
     this.app.use("/api/health", buildHealthRouter());
     this.app.use("/api/auth/health", buildHealthRouter());
+    this.app.use("/api/profile/health", buildHealthRouter());
+
     this.app.use("/api/auth", sessionFactory.createRouter(appDatasource));
     this.app.use("/api/v1/auth", sessionFactory.createOAuthRouter(appDatasource));
+    this.app.use("/api/profile", profileRouter);
     this.app.use(errorHandler);
   }
 

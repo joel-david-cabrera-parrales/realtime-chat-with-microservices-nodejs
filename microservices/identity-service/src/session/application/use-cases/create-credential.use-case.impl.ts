@@ -6,7 +6,7 @@ import { CreateCredentialInput } from "../../domain/use-cases/dtos/create-creden
 import { Password } from "../../domain/value-objects/password.value-object";
 import { ProfileCode } from "../../domain/value-objects/profile-code.value-object";
 import { Username } from "../../domain/value-objects/username.value-object";
-import { HashService } from "../../../shared/domain/hash.service";
+import { HashService } from "../../../shared/domain/services/hash.service";
 
 export class CreateCredentialUseCaseImpl extends CreateCredentialUseCase {
   constructor(

@@ -5,12 +5,14 @@ import { SessionId } from "../../domain/value-objects/session-id.value-object";
 import { SessionStatus } from "../../domain/value-objects/session-status.value-object";
 import { SessionEntity } from "../../../plugins/typorm/entities/session.entity";
 import { SessionMapper } from "../mappers/session.mapper";
+import { TransactionContext } from "../../../shared/infrastructure/persistence/transaction-context";
 
 export class TypeOrmSessionDataSource implements SessionDataSource {
   constructor(private readonly dataSource: DataSource) {}
 
   private get repository(): Repository<SessionEntity> {
-    return this.dataSource.getRepository(SessionEntity);
+    const manager = TransactionContext.getManager() ?? this.dataSource.manager;
+    return manager.getRepository(SessionEntity);
   }
 
   public async save(session: Session): Promise<void> {

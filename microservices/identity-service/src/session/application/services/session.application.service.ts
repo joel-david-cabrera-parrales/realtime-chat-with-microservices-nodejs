@@ -11,6 +11,8 @@ import { SigninInput, SigninOutput } from "../../domain/use-cases/dtos/signin.dt
 import { DomainEventPublisher } from "../../../shared/domain/events/domain-event-publisher";
 import { CredentialRepository } from "../../domain/repositories/credential.repository";
 import { SessionApplicationServiceContract } from "../contracts/session.application.service.contract";
+import { UnitOfWork } from "../../../shared/domain/services/unit-of-work";
+import { DomainEventResult } from "../../../shared/domain/events/domain-event-result";
 
 export class SessionApplicationService extends SessionApplicationServiceContract {
   constructor(
@@ -23,49 +25,47 @@ export class SessionApplicationService extends SessionApplicationServiceContract
     private readonly updateSessionActivityUseCase: UpdateSessionActivityUseCase,
     private readonly domainEventPublisher: DomainEventPublisher,
     private readonly credentialRepository: CredentialRepository,
+    private readonly unitOfWork: UnitOfWork,
   ) {
     super();
   }
 
   public async signin(input: SigninInput): Promise<SigninOutput> {
-    const credential = await this.authenticateCredentialUseCase.authenticate({
-      username: input.username,
-      password: input.password,
-    });
+    const { result, events } = await this.unitOfWork.execute(async () => {
+      const credential = await this.authenticateCredentialUseCase.authenticate({
+        username: input.username,
+        password: input.password,
+      });
 
-    const { output, events } = await this.createSessionUseCase.execute({
-      credential,
-      expiresAt: input.expiresAt,
-      ipAddress: input.ipAddress,
-      userAgent: input.userAgent,
-    });
+      const { output, events } = await this.createSessionUseCase.execute({
+        credential,
+        expiresAt: input.expiresAt,
+        ipAddress: input.ipAddress,
+        userAgent: input.userAgent,
+      });
 
+      return {
+        events,
+        result: {
+          authenticated: true as const,
+          credentialId: credential.id.value,
+          credentialCode: credential.code.value,
+          profileCode: credential.profileCode.value,
+          session: output.session,
+          tokens: output.tokens,
+        },
+      };
+    });
     await this.domainEventPublisher.publish(events);
-
-    return {
-      authenticated: true,
-      credentialId: credential.id.value,
-      credentialCode: credential.code.value,
-      profileCode: credential.profileCode.value,
-      session: output.session,
-      tokens: output.tokens,
-    };
+    return result;
   }
 
   public async getById(id: string): Promise<SessionOutput | null> {
-    const { output, events } = await this.getSessionUseCase.execute(id);
-
-    await this.domainEventPublisher.publish(events);
-
-    return output;
+    return this.executeAndPublish(() => this.getSessionUseCase.execute(id));
   }
 
   public async list(credentialId: number): Promise<SessionOutput[]> {
-    const { output, events } = await this.listSessionsUseCase.execute(credentialId);
-
-    await this.domainEventPublisher.publish(events);
-
-    return output;
+    return this.executeAndPublish(() => this.listSessionsUseCase.execute(credentialId));
   }
 
   public listContacts(credentialCode: string, search?: string, limit?: number) {
@@ -73,26 +73,20 @@ export class SessionApplicationService extends SessionApplicationServiceContract
   }
 
   public async refresh(input: RefreshTokenPairInput): Promise<RefreshTokenPairOutput> {
-    const { output, events } = await this.refreshTokenPairUseCase.execute(input);
-
-    await this.domainEventPublisher.publish(events);
-
-    return output;
+    return this.executeAndPublish(() => this.refreshTokenPairUseCase.execute(input));
   }
 
   public async revoke(id: string): Promise<SessionOutput> {
-    const { output, events } = await this.revokeSessionUseCase.execute(id);
-
-    await this.domainEventPublisher.publish(events);
-
-    return output;
+    return this.executeAndPublish(() => this.revokeSessionUseCase.execute(id));
   }
 
   public async updateActivity(id: string): Promise<SessionOutput> {
-    const { output, events } = await this.updateSessionActivityUseCase.execute(id);
+    return this.executeAndPublish(() => this.updateSessionActivityUseCase.execute(id));
+  }
 
+  private async executeAndPublish<T>(work: () => Promise<DomainEventResult<T>>): Promise<T> {
+    const { output, events } = await this.unitOfWork.execute(work);
     await this.domainEventPublisher.publish(events);
-
     return output;
   }
 }

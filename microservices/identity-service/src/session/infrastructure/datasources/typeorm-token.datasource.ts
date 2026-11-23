@@ -6,12 +6,14 @@ import { TokenCode } from "../../domain/value-objects/token-code.value-object";
 import { TokenStatus } from "../../domain/value-objects/token-status.value-object";
 import { RefreshTokenEntity } from "../../../plugins/typorm/entities/refresh-token.entity";
 import { TokenMapper } from "../mappers/token.mapper";
+import { TransactionContext } from "../../../shared/infrastructure/persistence/transaction-context";
 
 export class TypeOrmTokenDataSource implements TokenDataSource {
   constructor(private readonly dataSource: DataSource) {}
 
   private get repository(): Repository<RefreshTokenEntity> {
-    return this.dataSource.getRepository(RefreshTokenEntity);
+    const manager = TransactionContext.getManager() ?? this.dataSource.manager;
+    return manager.getRepository(RefreshTokenEntity);
   }
 
   public async save(token: Token): Promise<void> {

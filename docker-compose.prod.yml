@@ -15,8 +15,6 @@ services:
         condition: service_healthy
       identity-service:
         condition: service_healthy
-      user-profile-service:
-        condition: service_healthy
       postgres:
         condition: service_healthy
       media-service:
@@ -42,26 +40,6 @@ services:
       - "./microservices/media-service/aws/localstack-init:/etc/localstack/init/ready.d:ro"
     networks:
       - messaging-platform-network
-  user-profile-service:
-    container_name: user-profile-service
-    build:
-      context: ./microservices/user-profile-service
-      dockerfile: Dockerfile
-    env_file:
-      - ./microservices/user-profile-service/.env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      media-service:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 30s
-      timeout: 5s
-      retries: 10
-      start_period: 40s
-    networks:
-      - messaging-platform-network
   identity-service:
     container_name: identity-service
     build:
@@ -74,6 +52,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_started
+      media-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 30s
@@ -109,7 +89,11 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./microservices/notification-service/.env
+    environment:
+      HTTP_CLIENT_BASE_URL: http://identity-service:3000/api/profile
     depends_on:
+      identity-service:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       kafka:

@@ -6,7 +6,7 @@ import { AuthenticateCredentialUseCase } from "../../domain/use-cases/authentica
 import { AuthenticateCredentialInput } from "../../domain/use-cases/dtos/authenticate-credential.dto";
 import { Password } from "../../domain/value-objects/password.value-object";
 import { Username } from "../../domain/value-objects/username.value-object";
-import { HashService } from "../../../shared/domain/hash.service";
+import { HashService } from "../../../shared/domain/services/hash.service";
 
 export class AuthenticateCredentialUseCaseImpl extends AuthenticateCredentialUseCase {
   constructor(

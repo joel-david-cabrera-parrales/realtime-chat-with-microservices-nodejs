@@ -1,5 +1,5 @@
 import * as env from "env-var";
-import { EnvService } from "../../shared/domain/env.service";
+import { EnvService } from "../../shared/domain/services/env.service";
 
 export class EnvAdapter extends EnvService {
   public get(key: string): string {

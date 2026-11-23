@@ -1,0 +1,22 @@
+export const GENDER_VALUES = ["male", "female", "other", "prefer_not_to_say"] as const;
+export type GenderValue = (typeof GENDER_VALUES)[number];
+
+export class Gender {
+  private constructor(private readonly gender: GenderValue) {}
+
+  public static create(value: string): Gender {
+    const normalized = value.trim().toLowerCase();
+    if (!GENDER_VALUES.includes(normalized as GenderValue)) {
+      throw new Error(`El género debe ser uno de: ${GENDER_VALUES.join(", ")}`);
+    }
+    return new Gender(normalized as GenderValue);
+  }
+
+  public get value(): GenderValue {
+    return this.gender;
+  }
+
+  public equals(other: Gender): boolean {
+    return this.gender === other.value;
+  }
+}

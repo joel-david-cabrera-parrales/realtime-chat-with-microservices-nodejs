@@ -8,12 +8,14 @@ import { Username } from "../../domain/value-objects/username.value-object";
 import { AuthenticationTypeEntity } from "../../../plugins/typorm/entities/authentication-type.entity";
 import { CredentialEntity } from "../../../plugins/typorm/entities/credential.entity";
 import { CredentialMapper } from "../mappers/credential.mapper";
+import { TransactionContext } from "../../../shared/infrastructure/persistence/transaction-context";
 
 export class TypeOrmCredentialDataSource implements CredentialDataSource {
   constructor(private readonly dataSource: DataSource) {}
 
   private get repository(): Repository<CredentialEntity> {
-    return this.dataSource.getRepository(CredentialEntity);
+    const manager = TransactionContext.getManager() ?? this.dataSource.manager;
+    return manager.getRepository(CredentialEntity);
   }
 
   public async save(credential: Credential): Promise<void> {
@@ -83,7 +85,8 @@ export class TypeOrmCredentialDataSource implements CredentialDataSource {
   }
 
   private async resolveAuthenticationTypeId(code: AuthenticationTypeCode): Promise<number> {
-    const repository = this.dataSource.getRepository(AuthenticationTypeEntity);
+    const manager = TransactionContext.getManager() ?? this.dataSource.manager;
+    const repository = manager.getRepository(AuthenticationTypeEntity);
     const authenticationType = await repository.findOne({
       where: { code },
     });
