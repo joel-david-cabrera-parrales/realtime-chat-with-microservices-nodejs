@@ -14,3 +14,9 @@ export interface SessionRevokedEmailData {
   revokedAt: string;
   reason: string | null;
 }
+
+export interface WelcomeEmailData {
+  credentialCode: string;
+  profileCode: string;
+  loginUrl: string;
+}

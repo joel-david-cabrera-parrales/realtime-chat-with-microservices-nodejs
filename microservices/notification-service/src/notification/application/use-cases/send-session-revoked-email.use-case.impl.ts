@@ -2,6 +2,7 @@ import { EmailService } from "../../../shared/domain/email.service";
 import { TypeOrmUserCredentialDataSource } from "../../infrastructure/datasources/typeorm-user-credential.datasource";
 import { SessionRevokedEmailData } from "../../domain/use-cases/dtos/session-email.dto";
 import { SendSessionRevokedEmailUseCase } from "../../domain/use-cases/send-session-revoked-email.use-case";
+import { renderSessionRevokedEmail } from "../../infrastructure/utils/email-templates";
 
 export class SendSessionRevokedEmailUseCaseImpl extends SendSessionRevokedEmailUseCase {
   constructor(
@@ -19,20 +20,16 @@ export class SendSessionRevokedEmailUseCaseImpl extends SendSessionRevokedEmailU
       return;
     }
 
+    const { html, text } = renderSessionRevokedEmail(
+      { fullName: userCredential.fullName, username: userCredential.username, email: userCredential.email },
+      data
+    );
+
     await this.emailService.send({
-      to: userCredential.email,
+      to: userCredential.email!,
       subject: "Sesión revocada",
-      text: [
-        `Hola ${userCredential.fullName ?? userCredential.username},`,
-        "",
-        "Se ha revocado una sesión de tu cuenta.",
-        "",
-        `Id de sesión: ${data.sessionId}`,
-        `Revocada: ${data.revokedAt}`,
-        `Motivo: ${data.reason ?? "no especificado"}`,
-        "",
-        "Si no fuiste tú, cambia tu contraseña de inmediato.",
-      ].join("\n"),
+      html,
+      text,
     });
   }
 }

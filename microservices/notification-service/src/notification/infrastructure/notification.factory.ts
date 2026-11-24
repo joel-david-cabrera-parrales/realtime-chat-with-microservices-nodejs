@@ -4,6 +4,7 @@ import { DomainEventListener } from "../../shared/domain/events/domain-event-lis
 import { EventConsumerService, ConsumedEvent } from "../../shared/domain/events/event-consumer.service";
 import { SendSessionRevokedEmailUseCaseImpl } from "../application/use-cases/send-session-revoked-email.use-case.impl";
 import { SendSessionStartedEmailUseCaseImpl } from "../application/use-cases/send-session-started-email.use-case.impl";
+import { SendWelcomeEmailUseCaseImpl } from "../application/use-cases/send-welcome-email.use-case.impl";
 import { SessionRevokedListener } from "./listeners/session-revoked.listener";
 import { SessionStartedListener } from "./listeners/session-started.listener";
 import { CredentialCreatedListener } from "./listeners/credential-created.listener";
@@ -12,16 +13,19 @@ import { CredentialDeletedListener } from "./listeners/credential-deleted.listen
 import { TypeOrmUserCredentialDataSource } from "./datasources/typeorm-user-credential.datasource";
 
 export const notificationFactory = {
-  registerListeners(eventConsumer: EventConsumerService, dataSource: DataSource): void {
+  registerListeners(eventConsumer: EventConsumerService, dataSource: DataSource): {
+    sendWelcomeEmail: SendWelcomeEmailUseCaseImpl;
+  } {
     const userCredentialDataSource = new TypeOrmUserCredentialDataSource(dataSource);
 
     const sendSessionStartedEmail = new SendSessionStartedEmailUseCaseImpl(userCredentialDataSource, emailService);
     const sendSessionRevokedEmail = new SendSessionRevokedEmailUseCaseImpl(userCredentialDataSource, emailService);
+    const sendWelcomeEmail = new SendWelcomeEmailUseCaseImpl(userCredentialDataSource, emailService);
 
     const listeners: DomainEventListener[] = [
       new SessionStartedListener(sendSessionStartedEmail),
       new SessionRevokedListener(sendSessionRevokedEmail),
-      new CredentialCreatedListener(userCredentialDataSource),
+      new CredentialCreatedListener(userCredentialDataSource, sendWelcomeEmail),
       new CredentialUpdatedListener(userCredentialDataSource),
       new CredentialDeletedListener(userCredentialDataSource),
     ];
@@ -39,5 +43,7 @@ export const notificationFactory = {
         }
       }
     });
+
+    return { sendWelcomeEmail };
   },
 };

@@ -21,6 +21,10 @@ export class ExpressServer extends Server {
     this.configRoutes();
   }
 
+  public get expressApp(): Application {
+    return this.app;
+  }
+
   protected configServer(): void {
     this.app.set("port", this.port);
     this.app.set("json spaces", this.serverOptions.jsonSpaces);

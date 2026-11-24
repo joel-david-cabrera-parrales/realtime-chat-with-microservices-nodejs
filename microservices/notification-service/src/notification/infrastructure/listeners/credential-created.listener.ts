@@ -1,6 +1,8 @@
 import { ConsumedEvent } from "../../../shared/domain/events/event-consumer.service";
 import { DomainEventListener } from "../../../shared/domain/events/domain-event-listener";
 import { TypeOrmUserCredentialDataSource } from "../datasources/typeorm-user-credential.datasource";
+import { SendWelcomeEmailUseCase } from "../../domain/use-cases/send-welcome-email.use-case";
+import { envService } from "../../../plugins/env/env.provider";
 
 export interface CredentialCreatedEventData {
   credentialCode: string;
@@ -26,7 +28,10 @@ export interface UserCreatedEventData {
 }
 
 export class CredentialCreatedListener extends DomainEventListener {
-  constructor(private readonly userCredentialDataSource: TypeOrmUserCredentialDataSource) {
+  constructor(
+    private readonly userCredentialDataSource: TypeOrmUserCredentialDataSource,
+    private readonly sendWelcomeEmail: SendWelcomeEmailUseCase,
+  ) {
     super();
   }
 
@@ -43,6 +48,19 @@ export class CredentialCreatedListener extends DomainEventListener {
       const data = event.envelope.data as UserCreatedEventData;
       await this.userCredentialDataSource.upsert(data.credentialCode, data.username, true, data.fullName, data.email);
       console.log(`[notification] User created locally: ${data.credentialCode}`);
+
+      // Enviar email de bienvenida de forma asíncrona via evento
+      const loginUrl = envService.getString("FRONTEND_LOGIN_URL", "http://localhost:5181/login");
+      try {
+        await this.sendWelcomeEmail.execute({
+          credentialCode: data.credentialCode,
+          loginUrl,
+          profileCode: data.profileCode,
+        });
+        console.log(`[notification] Welcome email sent for credential: ${data.credentialCode}`);
+      } catch (error) {
+        console.error(`[notification] Failed to send welcome email for credential ${data.credentialCode}:`, error);
+      }
     }
   }
 }

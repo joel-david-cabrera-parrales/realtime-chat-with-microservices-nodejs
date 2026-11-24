@@ -11,4 +11,6 @@ export const emailService = new NodemailerEmailAdapter({
   password: envService.getOptional("MAILER_SECRET"),
   from: envService.getString("MAILER_FROM", mailerUser ?? "no-reply@chat.local"),
   timeoutMs: envService.getInt("MAILER_TIMEOUT_MS", 10000),
+  maxRetries: envService.getInt("MAILER_MAX_RETRIES", 3),
+  retryDelayMs: envService.getInt("MAILER_RETRY_DELAY_MS", 2000),
 });
