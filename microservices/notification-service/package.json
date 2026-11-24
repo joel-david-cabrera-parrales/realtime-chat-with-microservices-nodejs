@@ -17,7 +17,13 @@
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\""
   },
-  "keywords": ["microservices", "kafka", "email", "notifications", "typescript"],
+  "keywords": [
+    "microservices",
+    "kafka",
+    "email",
+    "notifications",
+    "typescript"
+  ],
   "type": "commonjs",
   "dependencies": {
     "axios": "^1.21.1",

@@ -11,11 +11,7 @@ export class CredentialDeletedEvent extends DomainEvent {
 
   private readonly payload: CredentialDeletedEventPayload;
 
-  constructor(props: {
-    credentialCode: string;
-    credentialId: number;
-    occurredAt: Date;
-  }) {
+  constructor(props: { credentialCode: string; credentialId: number; occurredAt: Date }) {
     super({
       aggregateId: props.credentialCode,
       eventId: DomainEvent.generateEventId(),

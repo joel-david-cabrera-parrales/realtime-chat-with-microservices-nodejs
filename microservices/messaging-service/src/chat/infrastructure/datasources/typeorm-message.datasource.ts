@@ -49,13 +49,10 @@ export class TypeOrmMessageDataSource implements MessageDataSource {
       .addOrderBy("message.code", "ASC");
 
     if (cursor !== undefined) {
-      query.andWhere(
-        "(message.created_at > :cursorCreatedAt) OR (message.created_at = :cursorCreatedAt AND message.code > :cursorCode)",
-        {
-          cursorCreatedAt: cursor.createdAt,
-          cursorCode: cursor.code,
-        },
-      );
+      query.andWhere("(message.created_at > :cursorCreatedAt) OR (message.created_at = :cursorCreatedAt AND message.code > :cursorCode)", {
+        cursorCreatedAt: cursor.createdAt,
+        cursorCode: cursor.code,
+      });
     }
 
     if (limit !== undefined) {
@@ -76,13 +73,10 @@ export class TypeOrmMessageDataSource implements MessageDataSource {
     return entity === null ? null : MessageMapper.toDomain(entity);
   }
 
-  public async findConversationSummaries(
-    conversationCodes: string[],
-    credentialCode: string,
-  ): Promise<ConversationMessageSummary[]> {
+  public async findConversationSummaries(conversationCodes: string[], credentialCode: string): Promise<ConversationMessageSummary[]> {
     if (conversationCodes.length === 0) return [];
 
-    const rows = await this.dataSource.query(
+    const rows = (await this.dataSource.query(
       `
         WITH requested AS (
           SELECT unnest($1::uuid[]) AS conversation_code
@@ -129,7 +123,7 @@ export class TypeOrmMessageDataSource implements MessageDataSource {
         LEFT JOIN unread ON unread.conversation_code = requested.conversation_code
       `,
       [conversationCodes, credentialCode],
-    ) as Array<{
+    )) as Array<{
       conversationCode: string;
       lastMessageCode: string | null;
       lastMessageSenderCredentialCode: string | null;
@@ -140,14 +134,15 @@ export class TypeOrmMessageDataSource implements MessageDataSource {
 
     return rows.map((row) => ({
       conversationCode: row.conversationCode,
-      lastMessage: row.lastMessageCode === null ? null : {
-        code: row.lastMessageCode,
-        senderCredentialCode: row.lastMessageSenderCredentialCode ?? "",
-        content: row.lastMessageContent ?? "",
-        createdAt: row.lastMessageCreatedAt instanceof Date
-          ? row.lastMessageCreatedAt.toISOString()
-          : String(row.lastMessageCreatedAt),
-      },
+      lastMessage:
+        row.lastMessageCode === null
+          ? null
+          : {
+              code: row.lastMessageCode,
+              senderCredentialCode: row.lastMessageSenderCredentialCode ?? "",
+              content: row.lastMessageContent ?? "",
+              createdAt: row.lastMessageCreatedAt instanceof Date ? row.lastMessageCreatedAt.toISOString() : String(row.lastMessageCreatedAt),
+            },
       unreadCount: Number(row.unreadCount),
     }));
   }

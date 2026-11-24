@@ -15,10 +15,7 @@ export class MessageReceiptRepositoryImpl implements MessageReceiptRepository {
     return this.messageReceiptDataSource.findByMessageCode(messageCode);
   }
 
-  public findByMessageAndCredential(
-    messageCode: MessageCode,
-    credentialCode: CredentialCode,
-  ): Promise<MessageReceipt | null> {
+  public findByMessageAndCredential(messageCode: MessageCode, credentialCode: CredentialCode): Promise<MessageReceipt | null> {
     return this.messageReceiptDataSource.findByMessageAndCredential(messageCode, credentialCode);
   }
 

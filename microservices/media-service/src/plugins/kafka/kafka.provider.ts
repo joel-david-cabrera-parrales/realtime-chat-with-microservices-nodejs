@@ -11,7 +11,12 @@ export const eventConsumer = new KafkaEventConsumerAdapter({
   brokers: parseList(envService.getString("KAFKA_BROKERS", "kafka:29092")),
   clientId: envService.getString("KAFKA_CLIENT_ID", "media-service"),
   groupId: envService.getString("KAFKA_GROUP_ID", "media-service"),
-  topics: parseList(envService.getString("KAFKA_TOPICS", "chat.auth.credential.created,chat.auth.credential.updated,chat.auth.credential.deleted,chat.auth.user.created,chat.auth.user.updated")),
+  topics: parseList(
+    envService.getString(
+      "KAFKA_TOPICS",
+      "chat.auth.credential.created,chat.auth.credential.updated,chat.auth.credential.deleted,chat.auth.user.created,chat.auth.user.updated",
+    ),
+  ),
   fromBeginning: envService.getBool("KAFKA_FROM_BEGINNING", false),
   sessionTimeoutMs: envService.getInt("KAFKA_SESSION_TIMEOUT_MS", 30000),
   retryBaseDelayMs: envService.getInt("KAFKA_RETRY_BASE_DELAY_MS", 1000),

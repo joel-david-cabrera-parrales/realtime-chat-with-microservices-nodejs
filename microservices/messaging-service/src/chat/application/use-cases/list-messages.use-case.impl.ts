@@ -29,8 +29,7 @@ export class ListMessagesUseCaseImpl extends ListMessagesUseCase {
     const messages = await this.messageRepository.findByConversation(conversation.code, cursor, limit);
 
     const last = messages[messages.length - 1];
-    const nextCursor =
-      messages.length === limit && last !== undefined ? PaginationCursor.create(last.createdAt, last.code.value).encode() : null;
+    const nextCursor = messages.length === limit && last !== undefined ? PaginationCursor.create(last.createdAt, last.code.value).encode() : null;
 
     return {
       output: {

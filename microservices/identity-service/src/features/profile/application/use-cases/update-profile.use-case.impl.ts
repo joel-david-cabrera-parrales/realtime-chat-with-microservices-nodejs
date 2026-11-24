@@ -5,7 +5,9 @@ import { UpdateProfileProps } from "../../domain/interfaces/profile.interface";
 import { ProfileNotFoundException } from "../../domain/exceptions/profile-not-found.exception";
 
 export class UpdateProfileUseCaseImpl extends UpdateProfileUseCase {
-  constructor(private readonly profileRepository: ProfileRepository) { super(); }
+  constructor(private readonly profileRepository: ProfileRepository) {
+    super();
+  }
 
   public async execute(id: string, changes: UpdateProfileProps): Promise<Profile> {
     const profile = await this.profileRepository.findById(id);

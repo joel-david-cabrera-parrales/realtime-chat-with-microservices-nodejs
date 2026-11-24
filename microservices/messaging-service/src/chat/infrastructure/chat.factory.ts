@@ -53,12 +53,7 @@ export const chatFactory = {
     const leaveConversationUseCase = new LeaveConversationUseCaseImpl(conversationRepository, conversationLoader, accessPolicy);
     const renameConversationUseCase = new RenameConversationUseCaseImpl(conversationRepository, conversationLoader, accessPolicy);
     const deleteConversationUseCase = new DeleteConversationUseCaseImpl(conversationRepository, conversationLoader, accessPolicy);
-    const sendMessageUseCase = new SendMessageUseCaseImpl(
-      conversationRepository,
-      messageRepository,
-      conversationLoader,
-      accessPolicy,
-    );
+    const sendMessageUseCase = new SendMessageUseCaseImpl(conversationRepository, messageRepository, conversationLoader, accessPolicy);
     const listMessagesUseCase = new ListMessagesUseCaseImpl(messageRepository, conversationLoader, accessPolicy);
     const getMessageUseCase = new GetMessageUseCaseImpl(messageLoader, conversationLoader, accessPolicy);
     const editMessageUseCase = new EditMessageUseCaseImpl(messageRepository, messageLoader, conversationLoader, accessPolicy);

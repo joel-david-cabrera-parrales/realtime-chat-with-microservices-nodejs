@@ -22,7 +22,7 @@ export class SendSessionRevokedEmailUseCaseImpl extends SendSessionRevokedEmailU
 
     const { html, text } = renderSessionRevokedEmail(
       { fullName: userCredential.fullName, username: userCredential.username, email: userCredential.email },
-      data
+      data,
     );
 
     await this.emailService.send({

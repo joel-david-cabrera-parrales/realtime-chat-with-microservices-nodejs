@@ -22,7 +22,7 @@ export class SendSessionStartedEmailUseCaseImpl extends SendSessionStartedEmailU
 
     const { html, text } = renderSessionCreatedEmail(
       { fullName: userCredential.fullName, username: userCredential.username, email: userCredential.email },
-      data
+      data,
     );
 
     await this.emailService.send({

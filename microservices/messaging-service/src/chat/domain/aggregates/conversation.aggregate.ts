@@ -14,12 +14,7 @@ import { ConversationTypeValue } from "../value-objects/conversation-type.value-
 import { CredentialCode } from "../value-objects/credential-code.value-object";
 import { DirectKey } from "../value-objects/direct-key.value-object";
 import { ParticipantRoleValue } from "../value-objects/participant-role.value-object";
-import {
-  ConversationPrimitives,
-  ConversationProps,
-  CreateConversationProps,
-  RehydrateConversationProps,
-} from "../interfaces/conversation.interface";
+import { ConversationPrimitives, ConversationProps, CreateConversationProps, RehydrateConversationProps } from "../interfaces/conversation.interface";
 import { DomainEvent } from "../../../shared/domain/events/domain-event";
 import { ConversationCreatedEvent } from "../events/conversation-created.event";
 import { ConversationDeletedEvent } from "../events/conversation-deleted.event";
@@ -113,13 +108,7 @@ export class Conversation {
       title: props.title === null ? undefined : ConversationTitle.create(props.title),
       directKey: props.directKey === null ? undefined : DirectKey.create(props.directKey),
       participants: props.participants.map((participant) =>
-        Participant.rehydrate(
-          participant.credentialCode,
-          participant.role,
-          participant.status,
-          participant.joinedAt,
-          participant.leftAt,
-        ),
+        Participant.rehydrate(participant.credentialCode, participant.role, participant.status, participant.joinedAt, participant.leftAt),
       ),
       createdBy: CredentialCode.create(props.createdBy),
       lastMessageAt: props.lastMessageAt === null ? undefined : new Date(props.lastMessageAt.getTime()),

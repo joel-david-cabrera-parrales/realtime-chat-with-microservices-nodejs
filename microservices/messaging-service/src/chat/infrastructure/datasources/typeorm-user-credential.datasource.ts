@@ -8,13 +8,7 @@ export class TypeOrmUserCredentialDataSource {
     return this.dataSource.getRepository(UserCredentialEntity);
   }
 
-  public async upsert(
-    credentialCode: string,
-    username: string,
-    isActive: boolean,
-    fullName?: string | null,
-    email?: string | null
-  ): Promise<void> {
+  public async upsert(credentialCode: string, username: string, isActive: boolean, fullName?: string | null, email?: string | null): Promise<void> {
     const existing = await this.repository.findOne({
       where: { credentialCode },
     });

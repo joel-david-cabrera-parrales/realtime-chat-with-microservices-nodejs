@@ -6,9 +6,7 @@ import { ChatControllerContract } from "../controllers/contracts/chat.controller
 
 const codeValidation: ValidationChain[] = [param("code").isUUID().withMessage("El código debe ser un UUID válido")];
 
-const credentialCodeValidation: ValidationChain[] = [
-  param("credentialCode").isUUID().withMessage("El código de credencial debe ser un UUID válido"),
-];
+const credentialCodeValidation: ValidationChain[] = [param("credentialCode").isUUID().withMessage("El código de credencial debe ser un UUID válido")];
 
 function createConversationValidation(): ValidationChain[] {
   return [
@@ -18,9 +16,7 @@ function createConversationValidation(): ValidationChain[] {
       .trim()
       .isIn(CONVERSATION_TYPES)
       .withMessage(`El tipo debe ser uno de: ${CONVERSATION_TYPES.join(", ")}`),
-    body("participantCredentialCodes")
-      .isArray({ min: 2 })
-      .withMessage("Debe indicarse al menos 2 participantes"),
+    body("participantCredentialCodes").isArray({ min: 2 }).withMessage("Debe indicarse al menos 2 participantes"),
     body("participantCredentialCodes.*").isUUID().withMessage("Cada participante debe ser un UUID válido"),
     body("title")
       .optional()
@@ -33,9 +29,7 @@ function createConversationValidation(): ValidationChain[] {
 }
 
 function addParticipantValidation(): ValidationChain[] {
-  return [
-    body("participantCredentialCode").isUUID().withMessage("El código de credencial debe ser un UUID válido"),
-  ];
+  return [body("participantCredentialCode").isUUID().withMessage("El código de credencial debe ser un UUID válido")];
 }
 
 function renameConversationValidation(): ValidationChain[] {

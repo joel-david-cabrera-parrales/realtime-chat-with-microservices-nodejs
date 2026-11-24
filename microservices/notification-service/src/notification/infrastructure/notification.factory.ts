@@ -13,7 +13,10 @@ import { CredentialDeletedListener } from "./listeners/credential-deleted.listen
 import { TypeOrmUserCredentialDataSource } from "./datasources/typeorm-user-credential.datasource";
 
 export const notificationFactory = {
-  registerListeners(eventConsumer: EventConsumerService, dataSource: DataSource): {
+  registerListeners(
+    eventConsumer: EventConsumerService,
+    dataSource: DataSource,
+  ): {
     sendWelcomeEmail: SendWelcomeEmailUseCaseImpl;
   } {
     const userCredentialDataSource = new TypeOrmUserCredentialDataSource(dataSource);

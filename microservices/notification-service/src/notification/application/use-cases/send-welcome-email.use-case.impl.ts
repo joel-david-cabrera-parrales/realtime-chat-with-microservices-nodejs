@@ -24,7 +24,7 @@ export class SendWelcomeEmailUseCaseImpl extends SendWelcomeEmailUseCase {
       { fullName: userCredential.fullName, username: userCredential.username, email: userCredential.email },
       data.loginUrl,
       "ChatApp",
-      data.profileCode
+      data.profileCode,
     );
 
     await this.emailService.send({

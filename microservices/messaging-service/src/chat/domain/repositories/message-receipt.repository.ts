@@ -5,9 +5,6 @@ import { MessageCode } from "../value-objects/message-code.value-object";
 export abstract class MessageReceiptRepository {
   abstract save(receipt: MessageReceipt): Promise<void>;
   abstract findByMessageCode(messageCode: MessageCode): Promise<MessageReceipt[]>;
-  abstract findByMessageAndCredential(
-    messageCode: MessageCode,
-    credentialCode: CredentialCode,
-  ): Promise<MessageReceipt | null>;
+  abstract findByMessageAndCredential(messageCode: MessageCode, credentialCode: CredentialCode): Promise<MessageReceipt | null>;
   abstract findByMessageCodes(messageCodes: MessageCode[]): Promise<MessageReceipt[]>;
 }

@@ -3,7 +3,9 @@ import { ListProfilesUseCase } from "../../domain/use-cases/list-profiles.use-ca
 import { ListProfilesOutput } from "../../domain/use-cases/dtos/list-profiles-output.dto";
 
 export class ListProfilesUseCaseImpl extends ListProfilesUseCase {
-  constructor(private readonly profileRepository: ProfileRepository) { super(); }
+  constructor(private readonly profileRepository: ProfileRepository) {
+    super();
+  }
 
   public async execute(): Promise<ListProfilesOutput> {
     const profiles = await this.profileRepository.findAll();

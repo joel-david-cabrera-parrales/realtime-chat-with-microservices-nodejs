@@ -35,10 +35,7 @@ export class TypeOrmMessageReceiptDataSource implements MessageReceiptDataSource
     return entities.map((entity) => MessageReceiptMapper.toDomain(entity));
   }
 
-  public async findByMessageAndCredential(
-    messageCode: MessageCode,
-    credentialCode: CredentialCode,
-  ): Promise<MessageReceipt | null> {
+  public async findByMessageAndCredential(messageCode: MessageCode, credentialCode: CredentialCode): Promise<MessageReceipt | null> {
     const entity = await this.repository.findOne({
       where: { messageCode: messageCode.value, credentialCode: credentialCode.value },
     });

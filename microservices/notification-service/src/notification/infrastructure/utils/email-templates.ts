@@ -54,7 +54,7 @@ function baseLayout(data: EmailTemplateData, body: string, title: string): strin
 export function renderSessionCreatedEmail(
   userCredential: { fullName?: string | null; username: string; email: string | null },
   data: SessionCreatedEmailData,
-  appName: string = "ChatApp"
+  appName: string = "ChatApp",
 ): { html: string; text: string } {
   const templateData: SessionCreatedTemplateData = {
     appName,
@@ -113,7 +113,7 @@ export function renderSessionCreatedEmail(
 export function renderSessionRevokedEmail(
   userCredential: { fullName?: string | null; username: string; email: string | null },
   data: SessionRevokedEmailData,
-  appName: string = "ChatApp"
+  appName: string = "ChatApp",
 ): { html: string; text: string } {
   const templateData: SessionRevokedTemplateData = {
     appName,
@@ -172,7 +172,7 @@ export function renderWelcomeEmail(
   userCredential: { fullName?: string | null; username: string; email: string | null },
   loginUrl: string,
   appName: string = "ChatApp",
-  profileCode?: string
+  profileCode?: string,
 ): { html: string; text: string } {
   const templateData: WelcomeTemplateData = {
     appName,

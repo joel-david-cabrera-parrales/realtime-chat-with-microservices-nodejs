@@ -20,11 +20,7 @@ export class ListConversationsUseCaseImpl extends ListConversationsUseCase {
     const limit = Math.min(Math.max(input.limit ?? DEFAULT_PAGE_SIZE, 1), MAX_PAGE_SIZE);
     const cursor = input.cursor === undefined ? undefined : PaginationCursor.decode(input.cursor);
 
-    const conversations = await this.conversationRepository.findByParticipant(
-      CredentialCode.create(input.actorCredentialCode),
-      cursor,
-      limit,
-    );
+    const conversations = await this.conversationRepository.findByParticipant(CredentialCode.create(input.actorCredentialCode), cursor, limit);
     const summaries = await this.messageRepository.findConversationSummaries(
       conversations.map((conversation) => conversation.code.value),
       input.actorCredentialCode,
@@ -33,9 +29,7 @@ export class ListConversationsUseCaseImpl extends ListConversationsUseCase {
 
     const last = conversations[conversations.length - 1];
     const nextCursor =
-      conversations.length === limit && last !== undefined
-        ? PaginationCursor.create(last.createdAt, last.code.value).encode()
-        : null;
+      conversations.length === limit && last !== undefined ? PaginationCursor.create(last.createdAt, last.code.value).encode() : null;
 
     return {
       output: {

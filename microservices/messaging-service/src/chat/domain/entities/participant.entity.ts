@@ -16,13 +16,7 @@ export class Participant {
     });
   }
 
-  public static rehydrate(
-    credentialCode: string,
-    role: string,
-    status: string,
-    joinedAt: Date,
-    leftAt: Date | null,
-  ): Participant {
+  public static rehydrate(credentialCode: string, role: string, status: string, joinedAt: Date, leftAt: Date | null): Participant {
     return new Participant({
       credentialCode: CredentialCode.create(credentialCode),
       role: ParticipantRoleValue.create(role),

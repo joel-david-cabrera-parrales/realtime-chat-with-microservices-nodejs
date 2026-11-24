@@ -42,13 +42,7 @@ export class CredentialUpdatedListener extends DomainEventListener {
       console.log(`[notification] Credential updated locally: ${data.credentialCode}`);
     } else if (event.envelope.type === "user.updated") {
       const data = event.envelope.data as UserUpdatedEventData;
-      await this.userCredentialDataSource.upsert(
-        data.credentialCode,
-        data.username,
-        true,
-        data.fullName ?? undefined,
-        data.email ?? undefined
-      );
+      await this.userCredentialDataSource.upsert(data.credentialCode, data.username, true, data.fullName ?? undefined, data.email ?? undefined);
       console.log(`[notification] User updated locally: ${data.credentialCode}`);
     }
   }

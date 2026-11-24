@@ -5,7 +5,9 @@ import { EmailAlreadyExistsException } from "../../domain/exceptions/email-alrea
 import { CreateProfileUseCase } from "../../domain/use-cases/create-profile.use-case";
 
 export class CreateProfileUseCaseImpl extends CreateProfileUseCase {
-  constructor(private readonly profileRepository: ProfileRepository) { super(); }
+  constructor(private readonly profileRepository: ProfileRepository) {
+    super();
+  }
 
   public async execute(input: CreateProfileInput): Promise<Profile> {
     const emailExists = await this.profileRepository.existsByEmail(input.email);

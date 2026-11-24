@@ -57,13 +57,18 @@ export class NodemailerEmailAdapter extends EmailService {
               }),
         });
 
-        console.log(`[email] Email sent successfully to ${Array.isArray(message.to) ? message.to.join(", ") : message.to} (messageId: ${info.messageId})`);
+        console.log(
+          `[email] Email sent successfully to ${Array.isArray(message.to) ? message.to.join(", ") : message.to} (messageId: ${info.messageId})`,
+        );
         return;
       } catch (error) {
         lastError = error as Error;
         const isLastAttempt = attempt === this.maxRetries;
 
-        console.warn(`[email] Attempt ${attempt}/${this.maxRetries} failed to send email to ${Array.isArray(message.to) ? message.to.join(", ") : message.to}:`, error);
+        console.warn(
+          `[email] Attempt ${attempt}/${this.maxRetries} failed to send email to ${Array.isArray(message.to) ? message.to.join(", ") : message.to}:`,
+          error,
+        );
 
         if (!isLastAttempt) {
           await this.sleep(this.retryDelayMs * attempt); // Exponential backoff
@@ -72,7 +77,10 @@ export class NodemailerEmailAdapter extends EmailService {
     }
 
     // All retries exhausted
-    console.error(`[email] Failed to send email after ${this.maxRetries} attempts to ${Array.isArray(message.to) ? message.to.join(", ") : message.to}:`, lastError);
+    console.error(
+      `[email] Failed to send email after ${this.maxRetries} attempts to ${Array.isArray(message.to) ? message.to.join(", ") : message.to}:`,
+      lastError,
+    );
     throw lastError;
   }
 

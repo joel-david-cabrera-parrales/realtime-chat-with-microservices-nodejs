@@ -349,11 +349,7 @@ export class ChatController extends ChatControllerContract {
   }
 
   private handleError(error: unknown, res: Response, next: NextFunction): void {
-    if (
-      error instanceof ConversationNotFoundException ||
-      error instanceof MessageNotFoundException ||
-      error instanceof ReceiptNotFoundException
-    ) {
+    if (error instanceof ConversationNotFoundException || error instanceof MessageNotFoundException || error instanceof ReceiptNotFoundException) {
       sendError(res, {
         statusCode: 404,
         message: error.message,
