@@ -1,8 +1,10 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FileCategory } from "../../../files/domain/enums/file-category.enum";
+import { UserCredentialEntity } from "./user-credential.entity";
 
 @Entity({ name: "files" })
 @Index("IDX_FILES_PROFILE_CODE", ["profileCode"])
+@Index("IDX_FILES_CREDENTIAL_CODE", ["credentialCode"])
 @Index("UQ_FILES_PROFILE_PHOTO", ["profileCode"], { unique: true, where: '"category" = \'PROFILE_PHOTO\' AND "deleted_at" IS NULL' })
 export class FileEntity {
   @PrimaryGeneratedColumn("increment", { name: "id", type: "int" })
@@ -13,6 +15,13 @@ export class FileEntity {
 
   @Column({ name: "profile_code", type: "uuid" })
   public profileCode!: string;
+
+  @Column({ name: "credential_code", type: "uuid", nullable: true })
+  public credentialCode!: string | null;
+
+  @ManyToOne(() => UserCredentialEntity, { onDelete: "SET NULL" })
+  @JoinColumn({ name: "credential_code", referencedColumnName: "credentialCode" })
+  public credential!: UserCredentialEntity | null;
 
   @Column({ name: "category", type: "varchar", length: 32 })
   public category!: FileCategory;

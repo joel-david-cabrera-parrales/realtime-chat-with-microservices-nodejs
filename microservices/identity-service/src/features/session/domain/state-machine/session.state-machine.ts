@@ -3,7 +3,7 @@ import { SessionStatus } from "../value-objects/session-status.value-object";
 
 const ALLOWED_TRANSITIONS: Record<SessionStatus, readonly SessionStatus[]> = {
   [SessionStatus.active]: [SessionStatus.expired, SessionStatus.revoked],
-  [SessionStatus.expired]: [],
+  [SessionStatus.expired]: [SessionStatus.revoked],
   [SessionStatus.revoked]: [],
 };
 

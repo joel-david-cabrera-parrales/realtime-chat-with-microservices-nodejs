@@ -23,7 +23,7 @@ export class CreateSessionUseCaseImpl extends CreateSessionUseCase {
     }
 
     const session = Session.create({
-      credentialId: credential.id.value,
+      credential,
       profileCode: credential.profileCode.value,
       expiresAt: input.expiresAt,
       ipAddress: input.ipAddress,

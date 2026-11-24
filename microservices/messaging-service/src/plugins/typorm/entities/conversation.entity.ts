@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { UserCredentialEntity } from "./user-credential.entity";
 
 @Index("UQ_conversations_direct_key", ["directKey"], { unique: true, where: '"deleted_at" IS NULL' })
 @Entity({ name: "conversations" })
@@ -20,6 +21,10 @@ export class ConversationEntity {
 
   @Column({ name: "created_by", type: "uuid" })
   public createdBy!: string;
+
+  @ManyToOne(() => UserCredentialEntity, { onDelete: "RESTRICT" })
+  @JoinColumn({ name: "created_by", referencedColumnName: "credentialCode" })
+  public creator!: UserCredentialEntity;
 
   @Column({ name: "last_message_at", type: "timestamptz", nullable: true })
   public lastMessageAt!: Date | null;

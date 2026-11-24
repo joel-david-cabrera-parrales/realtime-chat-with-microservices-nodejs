@@ -1,6 +1,7 @@
 import { Session } from "../../domain/aggregates/session.aggregate";
 import { SessionStatus } from "../../domain/value-objects/session-status.value-object";
 import { SessionEntity } from "../../../../plugins/typorm/entities/session.entity";
+import { CredentialEntity } from "../../../../plugins/typorm/entities/credential.entity";
 
 export class SessionMapper {
   public static toPersistence(session: Session): SessionEntity {
@@ -8,7 +9,6 @@ export class SessionMapper {
     const entity = new SessionEntity();
 
     entity.sessionCode = primitives.id;
-    entity.credentialId = primitives.credentialId;
     entity.profileCode = primitives.profileCode;
     entity.status = primitives.status as SessionStatus;
     entity.ipAddress = primitives.ipAddress;
@@ -17,13 +17,19 @@ export class SessionMapper {
     entity.expiresAt = new Date(primitives.expiresAt);
     entity.revokedAt = primitives.revokedAt === null ? null : new Date(primitives.revokedAt);
 
+    // Setear la relación credential usando el credentialId del aggregate
+    const credentialEntity = new CredentialEntity();
+    credentialEntity.id = primitives.credentialId;
+    entity.credential = credentialEntity;
+
     return entity;
   }
 
   public static toDomain(entity: SessionEntity): Session {
     return Session.rehydrate({
       id: entity.sessionCode,
-      credentialId: entity.credentialId,
+      credentialId: entity.credential.id,
+      credentialCode: entity.credential.credentialCode,
       profileCode: entity.profileCode,
       status: entity.status,
       ipAddress: entity.ipAddress,

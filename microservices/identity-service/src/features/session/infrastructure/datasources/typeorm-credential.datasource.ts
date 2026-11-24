@@ -5,6 +5,7 @@ import { CredentialDataSource } from "../../domain/datasources/credential.dataso
 import type { CredentialContact } from "../../domain/datasources/credential.datasource";
 import { CredentialId } from "../../domain/value-objects/credential-id.value-object";
 import { Username } from "../../domain/value-objects/username.value-object";
+import { ProfileCode } from "../../domain/value-objects/profile-code.value-object";
 import { AuthenticationTypeEntity } from "../../../../plugins/typorm/entities/authentication-type.entity";
 import { CredentialEntity } from "../../../../plugins/typorm/entities/credential.entity";
 import { CredentialMapper } from "../mappers/credential.mapper";
@@ -46,6 +47,15 @@ export class TypeOrmCredentialDataSource implements CredentialDataSource {
   public async findByUsername(username: Username): Promise<Credential | null> {
     const entity = await this.repository.findOne({
       where: { username: username.value },
+      relations: { authenticationType: true },
+    });
+
+    return entity === null ? null : CredentialMapper.toDomain(entity);
+  }
+
+  public async findByProfileCode(profileCode: ProfileCode): Promise<Credential | null> {
+    const entity = await this.repository.findOne({
+      where: { profileCode: profileCode.value },
       relations: { authenticationType: true },
     });
 

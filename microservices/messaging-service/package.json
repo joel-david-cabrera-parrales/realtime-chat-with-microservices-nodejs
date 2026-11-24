@@ -17,7 +17,14 @@
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\""
   },
-  "keywords": ["microservices", "ddd", "realtime", "websocket", "socket.io", "typescript"],
+  "keywords": [
+    "microservices",
+    "ddd",
+    "realtime",
+    "websocket",
+    "socket.io",
+    "typescript"
+  ],
   "type": "commonjs",
   "dependencies": {
     "axios": "^1.21.1",
@@ -30,6 +37,7 @@
     "express-validator": "7.3.2",
     "helmet": "8.3.0",
     "jsonwebtoken": "^9.0.3",
+    "kafkajs": "^2.2.4",
     "pg": "8.23.1",
     "socket.io": "^4.8.1",
     "typeorm": "1.1.2"

@@ -4,6 +4,7 @@ import { SESSION_EVENT_NAMES } from "../constants/session-event.constants";
 export interface SessionCreatedEventProps {
   sessionId: string;
   credentialId: number;
+  credentialCode: string;
   profileCode: string;
   expiresAt: Date;
   occurredAt: Date;
@@ -12,6 +13,7 @@ export interface SessionCreatedEventProps {
 export interface SessionCreatedEventPayload {
   sessionId: string;
   credentialId: number;
+  credentialCode: string;
   profileCode: string;
   expiresAt: string;
 }
@@ -19,6 +21,7 @@ export interface SessionCreatedEventPayload {
 interface SessionCreatedEventState {
   sessionId: string;
   credentialId: number;
+  credentialCode: string;
   profileCode: string;
   expiresAt: Date;
 }
@@ -36,6 +39,7 @@ export class SessionCreatedEvent extends DomainEvent {
     this.payload = {
       sessionId: props.sessionId,
       credentialId: props.credentialId,
+      credentialCode: props.credentialCode,
       profileCode: props.profileCode,
       expiresAt: new Date(props.expiresAt.getTime()),
     };
@@ -53,6 +57,10 @@ export class SessionCreatedEvent extends DomainEvent {
     return this.payload.credentialId;
   }
 
+  public get credentialCode(): string {
+    return this.payload.credentialCode;
+  }
+
   public get profileCode(): string {
     return this.payload.profileCode;
   }
@@ -65,6 +73,7 @@ export class SessionCreatedEvent extends DomainEvent {
     return {
       sessionId: this.payload.sessionId,
       credentialId: this.payload.credentialId,
+      credentialCode: this.payload.credentialCode,
       profileCode: this.payload.profileCode,
       expiresAt: this.payload.expiresAt.toISOString(),
     };

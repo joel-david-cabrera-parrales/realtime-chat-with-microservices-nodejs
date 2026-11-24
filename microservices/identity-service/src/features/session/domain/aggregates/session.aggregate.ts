@@ -12,6 +12,7 @@ import { ProfileCode } from "../value-objects/profile-code.value-object";
 import { SessionId } from "../value-objects/session-id.value-object";
 import { SessionStatus, SessionStatusValue } from "../value-objects/session-status.value-object";
 import { UserAgent } from "../value-objects/user-agent.value-object";
+import { Credential } from "./credential.aggregate";
 
 export class Session {
   private readonly events: DomainEvent[] = [];
@@ -27,7 +28,7 @@ export class Session {
 
     const session = new Session({
       id: SessionId.generate(),
-      credentialId: Session.validateCredentialId(props.credentialId),
+      credential: props.credential,
       profileCode: ProfileCode.create(props.profileCode),
       status: SessionStatusValue.active(),
       ipAddress: props.ipAddress === undefined ? undefined : IpAddress.create(props.ipAddress),
@@ -42,7 +43,8 @@ export class Session {
     session.recordEvent(
       new SessionCreatedEvent({
         sessionId: session.props.id.value,
-        credentialId: session.props.credentialId,
+        credentialId: session.props.credential.id.value,
+        credentialCode: session.props.credential.code.value,
         profileCode: session.props.profileCode.value,
         expiresAt: session.props.expiresAt,
         occurredAt: now,
@@ -55,7 +57,10 @@ export class Session {
   public static rehydrate(props: RehydrateSessionProps): Session {
     return new Session({
       id: SessionId.create(props.id),
-      credentialId: Session.validateCredentialId(props.credentialId),
+      credential: {
+        id: { value: props.credentialId },
+        code: { value: props.credentialCode },
+      } as Credential,
       profileCode: ProfileCode.create(props.profileCode),
       status: SessionStatusValue.create(props.status),
       ipAddress: props.ipAddress === null ? undefined : IpAddress.create(props.ipAddress),
@@ -72,8 +77,16 @@ export class Session {
     return this.props.id;
   }
 
+  public get credential(): Credential {
+    return this.props.credential;
+  }
+
   public get credentialId(): number {
-    return this.props.credentialId;
+    return this.props.credential.id.value;
+  }
+
+  public get credentialCode(): string {
+    return this.props.credential.code.value;
   }
 
   public get profileCode(): ProfileCode {
@@ -167,7 +180,8 @@ export class Session {
   public toPrimitives(): SessionPrimitives {
     return {
       id: this.props.id.value,
-      credentialId: this.props.credentialId,
+      credentialId: this.props.credential.id.value,
+      credentialCode: this.props.credential.code.value,
       profileCode: this.props.profileCode.value,
       status: this.props.status.value,
       ipAddress: this.props.ipAddress?.value ?? null,
@@ -199,7 +213,8 @@ export class Session {
       this.recordEvent(
         new SessionExpiredEvent({
           sessionId: this.props.id.value,
-          credentialId: this.props.credentialId,
+          credentialId: this.props.credential.id.value,
+          credentialCode: this.props.credential.code.value,
           profileCode: this.props.profileCode.value,
           expiredAt: at,
           occurredAt: at,
@@ -212,7 +227,8 @@ export class Session {
       this.recordEvent(
         new SessionRevokedEvent({
           sessionId: this.props.id.value,
-          credentialId: this.props.credentialId,
+          credentialId: this.props.credential.id.value,
+          credentialCode: this.props.credential.code.value,
           profileCode: this.props.profileCode.value,
           revokedAt: at,
           occurredAt: at,

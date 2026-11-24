@@ -4,6 +4,7 @@ import { AuthenticateOAuthUseCase } from "../../domain/use-cases/authenticate-oa
 import { CreateSessionUseCase } from "../../domain/use-cases/create-session.use-case";
 import { OAuthLoginInput, OAuthLoginOutput } from "../../domain/use-cases/dtos/oauth.dto";
 import { OAuthApplicationServiceContract } from "../contracts/oauth.application.service.contract";
+import { DomainEventResult } from "../../../../shared/domain/events/domain-event-result";
 
 export class OAuthApplicationService extends OAuthApplicationServiceContract {
   constructor(
@@ -17,13 +18,15 @@ export class OAuthApplicationService extends OAuthApplicationServiceContract {
 
   public async login(input: OAuthLoginInput): Promise<OAuthLoginOutput> {
     const { output, events } = await this.unitOfWork.execute(async () => {
-      const credential = await this.authenticateOAuthUseCase.execute({
+      const authResult: DomainEventResult<any> = await this.authenticateOAuthUseCase.execute({
         email: input.email,
         fullName: input.fullName,
         authenticationType: input.authenticationType,
       });
 
-      const { output: sessionOutput, events } = await this.createSessionUseCase.execute({
+      const credential = authResult.output;
+
+      const sessionResult: DomainEventResult<any> = await this.createSessionUseCase.execute({
         credential,
         expiresAt: input.expiresAt,
         ipAddress: input.ipAddress,
@@ -31,14 +34,14 @@ export class OAuthApplicationService extends OAuthApplicationServiceContract {
       });
 
       return {
-        events,
+        events: [...authResult.events, ...sessionResult.events],
         output: {
           authenticated: true as const,
           credentialId: credential.id.value,
           credentialCode: credential.code.value,
           profileCode: credential.profileCode.value,
-          session: sessionOutput.session,
-          tokens: sessionOutput.tokens,
+          session: sessionResult.output.session,
+          tokens: sessionResult.output.tokens,
         },
       };
     });

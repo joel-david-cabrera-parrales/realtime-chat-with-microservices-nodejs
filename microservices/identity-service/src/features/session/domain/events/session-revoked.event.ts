@@ -4,6 +4,7 @@ import { SESSION_EVENT_NAMES } from "../constants/session-event.constants";
 export interface SessionRevokedEventProps {
   sessionId: string;
   credentialId: number;
+  credentialCode: string;
   profileCode: string;
   revokedAt: Date;
   reason?: string | undefined;
@@ -13,6 +14,7 @@ export interface SessionRevokedEventProps {
 export interface SessionRevokedEventPayload {
   sessionId: string;
   credentialId: number;
+  credentialCode: string;
   profileCode: string;
   revokedAt: string;
   reason: string | null;
@@ -21,6 +23,7 @@ export interface SessionRevokedEventPayload {
 interface SessionRevokedEventState {
   sessionId: string;
   credentialId: number;
+  credentialCode: string;
   profileCode: string;
   revokedAt: Date;
   reason: string | undefined;
@@ -39,6 +42,7 @@ export class SessionRevokedEvent extends DomainEvent {
     this.payload = {
       sessionId: props.sessionId,
       credentialId: props.credentialId,
+      credentialCode: props.credentialCode,
       profileCode: props.profileCode,
       revokedAt: new Date(props.revokedAt.getTime()),
       reason: props.reason,
@@ -57,6 +61,10 @@ export class SessionRevokedEvent extends DomainEvent {
     return this.payload.credentialId;
   }
 
+  public get credentialCode(): string {
+    return this.payload.credentialCode;
+  }
+
   public get profileCode(): string {
     return this.payload.profileCode;
   }
@@ -73,6 +81,7 @@ export class SessionRevokedEvent extends DomainEvent {
     return {
       sessionId: this.payload.sessionId,
       credentialId: this.payload.credentialId,
+      credentialCode: this.payload.credentialCode,
       profileCode: this.payload.profileCode,
       revokedAt: this.payload.revokedAt.toISOString(),
       reason: this.payload.reason ?? null,

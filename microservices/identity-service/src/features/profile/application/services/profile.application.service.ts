@@ -15,6 +15,11 @@ import { UploadAvatarInput, UploadAvatarUseCase } from "../../domain/use-cases/u
 import { FileClientService } from "../../../../shared/domain/services/file.client.service";
 import { ProfileNotFoundException } from "../../domain/exceptions/profile-not-found.exception";
 import { ListProfilesOutput } from "../../domain/use-cases/dtos/list-profiles-output.dto";
+import { DomainEventPublisher } from "../../../../shared/domain/events/domain-event-publisher";
+import { UserUpdatedEvent } from "../../../session/domain/events/user-updated.event";
+import { CredentialRepository } from "../../../session/domain/repositories/credential.repository";
+import { ProfileCode } from "../../../session/domain/value-objects/profile-code.value-object";
+import { AuthenticationTypeCode } from "../../../session/domain/constants/authentication-type.constants";
 
 export class ProfileApplicationService extends ProfileApplicationServiceContract {
   constructor(
@@ -28,6 +33,8 @@ export class ProfileApplicationService extends ProfileApplicationServiceContract
     private readonly unitOfWork: UnitOfWork,
     private readonly uploadAvatarUseCase: UploadAvatarUseCase,
     private readonly fileClient: FileClientService,
+    private readonly domainEventPublisher: DomainEventPublisher,
+    private readonly credentialRepository: CredentialRepository,
   ) {
     super();
   }
@@ -79,7 +86,7 @@ export class ProfileApplicationService extends ProfileApplicationServiceContract
       return this.updateProfileUseCase.execute(id, changes);
     });
 
-    return {
+    const output = {
       id: profile.id.value,
       fullName: profile.fullName.value,
       email: profile.email.value,
@@ -91,6 +98,10 @@ export class ProfileApplicationService extends ProfileApplicationServiceContract
       createdAt: profile.createdAt.toISOString(),
       updatedAt: profile.updatedAt.toISOString(),
     };
+
+    await this.emitUserUpdatedEvent(profile.id.value, output);
+
+    return output;
   }
 
   public async delete(id: string): Promise<void> {
@@ -106,6 +117,30 @@ export class ProfileApplicationService extends ProfileApplicationServiceContract
 
   public async uploadAvatar(input: UploadAvatarInput): Promise<ProfileOutput> {
     const profile = await this.uploadAvatarUseCase.execute(input);
-    return profile.toPrimitives();
+    const output = profile.toPrimitives();
+    await this.emitUserUpdatedEvent(profile.id.value, output);
+    return output;
+  }
+
+  private async emitUserUpdatedEvent(profileCode: string, profileData: ProfileOutput): Promise<void> {
+    const credential = await this.credentialRepository.findByProfileCode(ProfileCode.create(profileCode));
+    if (!credential) return;
+
+    const event = new UserUpdatedEvent({
+      credentialCode: credential.code.value,
+      credentialId: credential.id.value,
+      username: credential.username.value,
+      profileCode: credential.profileCode.value,
+      authenticationType: credential.authenticationType,
+      fullName: profileData.fullName,
+      email: profileData.email,
+      phone: profileData.phone,
+      birthDate: profileData.birthDate,
+      gender: profileData.gender,
+      avatarFileCode: profileData.avatarFileCode,
+      occurredAt: new Date(),
+    });
+
+    await this.domainEventPublisher.publish([event]);
   }
 }

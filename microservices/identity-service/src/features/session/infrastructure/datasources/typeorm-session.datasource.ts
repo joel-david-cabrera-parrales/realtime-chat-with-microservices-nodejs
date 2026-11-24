@@ -31,25 +31,31 @@ export class TypeOrmSessionDataSource implements SessionDataSource {
   public async findById(id: SessionId): Promise<Session | null> {
     const entity = await this.repository.findOne({
       where: { sessionCode: id.value },
+      relations: { credential: true },
     });
 
     return entity === null ? null : SessionMapper.toDomain(entity);
   }
 
   public async findByCredentialId(credentialId: number): Promise<Session[]> {
-    const entities = await this.repository.find({
-      where: { credentialId },
-      order: { createdAt: "DESC" },
-    });
+    const entities = await this.repository
+      .createQueryBuilder("session")
+      .innerJoinAndSelect("session.credential", "credential")
+      .where("credential.id = :credentialId", { credentialId })
+      .orderBy("session.createdAt", "DESC")
+      .getMany();
 
     return entities.map((entity) => SessionMapper.toDomain(entity));
   }
 
   public async findActiveByCredentialId(credentialId: number): Promise<Session[]> {
-    const entities = await this.repository.find({
-      where: { credentialId, status: SessionStatus.active },
-      order: { createdAt: "DESC" },
-    });
+    const entities = await this.repository
+      .createQueryBuilder("session")
+      .innerJoinAndSelect("session.credential", "credential")
+      .where("credential.id = :credentialId", { credentialId })
+      .andWhere("session.status = :status", { status: SessionStatus.active })
+      .orderBy("session.createdAt", "DESC")
+      .getMany();
 
     return entities.map((entity) => SessionMapper.toDomain(entity));
   }

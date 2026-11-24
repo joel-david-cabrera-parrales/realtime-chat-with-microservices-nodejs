@@ -7,6 +7,7 @@ import { Password } from "../../domain/value-objects/password.value-object";
 import { ProfileCode } from "../../domain/value-objects/profile-code.value-object";
 import { Username } from "../../domain/value-objects/username.value-object";
 import { HashService } from "../../../../shared/domain/services/hash.service";
+import { DomainEventResult } from "../../../../shared/domain/events/domain-event-result";
 
 export class CreateCredentialUseCaseImpl extends CreateCredentialUseCase {
   constructor(
@@ -16,7 +17,7 @@ export class CreateCredentialUseCaseImpl extends CreateCredentialUseCase {
     super();
   }
 
-  public async execute(input: CreateCredentialInput): Promise<Credential> {
+  public async execute(input: CreateCredentialInput): Promise<DomainEventResult<Credential>> {
     const username = Username.create(input.username);
     const password = Password.create(input.password);
     const profileCode = ProfileCode.create(input.profileCode);
@@ -37,6 +38,9 @@ export class CreateCredentialUseCaseImpl extends CreateCredentialUseCase {
 
     await this.credentialRepository.save(credential);
 
-    return credential;
+    return {
+      output: credential,
+      events: credential.pullEvents(),
+    };
   }
 }

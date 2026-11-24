@@ -3,10 +3,11 @@ import { ProfileCode } from "../value-objects/profile-code.value-object";
 import { SessionId } from "../value-objects/session-id.value-object";
 import { SessionStatusValue } from "../value-objects/session-status.value-object";
 import { UserAgent } from "../value-objects/user-agent.value-object";
+import { Credential } from "../aggregates/credential.aggregate";
 
 export interface SessionProps {
   id: SessionId;
-  credentialId: number;
+  credential: Credential;
   profileCode: ProfileCode;
   status: SessionStatusValue;
   ipAddress: IpAddress | undefined;
@@ -19,7 +20,7 @@ export interface SessionProps {
 }
 
 export interface CreateSessionProps {
-  credentialId: number;
+  credential: Credential;
   profileCode: string;
   expiresAt: Date;
   ipAddress?: string | undefined;
@@ -29,6 +30,7 @@ export interface CreateSessionProps {
 export interface RehydrateSessionProps {
   id: string;
   credentialId: number;
+  credentialCode: string;
   profileCode: string;
   status: string;
   ipAddress: string | null;
@@ -43,6 +45,7 @@ export interface RehydrateSessionProps {
 export interface SessionPrimitives {
   id: string;
   credentialId: number;
+  credentialCode: string;
   profileCode: string;
   status: string;
   ipAddress: string | null;

@@ -6,6 +6,9 @@ import { CreateCredentialUseCase } from "../../domain/use-cases/create-credentia
 import { CreateSessionUseCase } from "../../domain/use-cases/create-session.use-case";
 import { SignupInput, SignupOutput } from "../../domain/use-cases/dtos/signup.dto";
 import { SignupApplicationServiceContract } from "../contracts/signup.application.service.contract";
+import { DomainEventResult } from "../../../../shared/domain/events/domain-event-result";
+import { UserCreatedEvent } from "../../domain/events/user-created.event";
+import { AuthenticationTypeCode } from "../../domain/constants/authentication-type.constants";
 
 export class SignupApplicationService extends SignupApplicationServiceContract {
   constructor(
@@ -29,7 +32,7 @@ export class SignupApplicationService extends SignupApplicationServiceContract {
         gender: input.profile.gender,
       });
 
-      await this.createCredentialUseCase.execute({
+      const credentialResult: DomainEventResult<any> = await this.createCredentialUseCase.execute({
         username: input.username,
         password: input.password,
         profileCode: profile.id,
@@ -40,22 +43,37 @@ export class SignupApplicationService extends SignupApplicationServiceContract {
         password: input.password,
       });
 
-      const { output: sessionOutput, events } = await this.createSessionUseCase.execute({
+      const sessionResult: DomainEventResult<any> = await this.createSessionUseCase.execute({
         credential,
         expiresAt: input.expiresAt,
         ipAddress: input.ipAddress,
         userAgent: input.userAgent,
       });
 
+      const now = new Date();
+      const userCreatedEvent = new UserCreatedEvent({
+        credentialCode: credential.code.value,
+        credentialId: credential.id.value,
+        username: credential.username.value,
+        profileCode: credential.profileCode.value,
+        authenticationType: credential.authenticationType,
+        fullName: profile.fullName,
+        email: profile.email,
+        phone: profile.phone,
+        birthDate: profile.birthDate,
+        gender: profile.gender,
+        occurredAt: now,
+      });
+
       return {
-        events,
+        events: [...credentialResult.events, ...sessionResult.events, userCreatedEvent],
         output: {
           authenticated: true as const,
           credentialId: credential.id.value,
           credentialCode: credential.code.value,
           profileCode: credential.profileCode.value,
-          session: sessionOutput.session,
-          tokens: sessionOutput.tokens,
+          session: sessionResult.output.session,
+          tokens: sessionResult.output.tokens,
         },
       };
     });

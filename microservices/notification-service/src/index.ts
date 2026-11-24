@@ -17,7 +17,7 @@ async function main(): Promise<void> {
     console.warn("Server will start anyway; /api/health will report degraded");
   }
 
-  notificationFactory.registerListeners(eventConsumer);
+  notificationFactory.registerListeners(eventConsumer, appDatasource);
 
   try {
     await eventConsumer.start();

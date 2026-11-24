@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { UserCredentialEntity } from "./user-credential.entity";
 
 @Index("IDX_messages_conversation_created", ["conversationCode", "createdAt", "code"])
 @Entity({ name: "messages" })
@@ -14,6 +15,10 @@ export class MessageEntity {
 
   @Column({ name: "sender_credential_code", type: "uuid" })
   public senderCredentialCode!: string;
+
+  @ManyToOne(() => UserCredentialEntity, { onDelete: "RESTRICT" })
+  @JoinColumn({ name: "sender_credential_code", referencedColumnName: "credentialCode" })
+  public senderCredential!: UserCredentialEntity;
 
   @Column({ name: "content", type: "text" })
   public content!: string;

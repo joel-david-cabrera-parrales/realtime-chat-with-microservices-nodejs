@@ -1,24 +1,29 @@
 import { EmailService } from "../../../shared/domain/email.service";
-import { ProfileClientService } from "../../../shared/domain/profile.client.service";
+import { TypeOrmUserCredentialDataSource } from "../../infrastructure/datasources/typeorm-user-credential.datasource";
 import { SessionCreatedEmailData } from "../../domain/use-cases/dtos/session-email.dto";
 import { SendSessionStartedEmailUseCase } from "../../domain/use-cases/send-session-started-email.use-case";
 
 export class SendSessionStartedEmailUseCaseImpl extends SendSessionStartedEmailUseCase {
   constructor(
-    private readonly profileClient: ProfileClientService,
+    private readonly userCredentialDataSource: TypeOrmUserCredentialDataSource,
     private readonly emailService: EmailService,
   ) {
     super();
   }
 
   public async execute(data: SessionCreatedEmailData): Promise<void> {
-    const profile = await this.profileClient.getByCode(data.profileCode);
+    const userCredential = await this.userCredentialDataSource.findByCredentialCode(data.credentialCode);
+
+    if (!userCredential || !userCredential.email) {
+      console.warn(`[notification] No email found for credentialCode: ${data.credentialCode}`);
+      return;
+    }
 
     await this.emailService.send({
-      to: profile.email,
+      to: userCredential.email,
       subject: "Inicio de sesión",
       text: [
-        `Hola ${profile.fullName},`,
+        `Hola ${userCredential.fullName ?? userCredential.username},`,
         "",
         "Se ha iniciado una sesión en tu cuenta.",
         "",

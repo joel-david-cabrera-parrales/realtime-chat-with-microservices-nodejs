@@ -90,6 +90,8 @@ export const sessionFactory = {
       unitOfWork,
       new UploadAvatarUseCaseImpl(profileRepository, fileClient),
       fileClient,
+      domainEventPublisher,
+      credentialRepository,
     );
 
     const sessionService = new SessionApplicationService(
@@ -146,6 +148,8 @@ export const sessionFactory = {
       unitOfWork,
       new UploadAvatarUseCaseImpl(profileRepository, fileClient),
       fileClient,
+      domainEventPublisher,
+      credentialRepository,
     );
     const authenticateOAuthUseCase = new AuthenticateOAuthUseCaseImpl(credentialRepository, profileApplicationService);
 

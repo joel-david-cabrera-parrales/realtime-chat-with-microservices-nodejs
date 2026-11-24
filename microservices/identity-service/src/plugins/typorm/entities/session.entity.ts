@@ -15,9 +15,6 @@ export class SessionEntity {
   })
   public sessionCode!: string;
 
-  @Column({ name: "credential_id", type: "int" })
-  public credentialId!: number;
-
   @ManyToOne(() => CredentialEntity, (credential) => credential.sessions, {
     onDelete: "CASCADE",
   })

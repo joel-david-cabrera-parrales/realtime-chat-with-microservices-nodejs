@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
+import { UserCredentialEntity } from "./user-credential.entity";
 
 @Unique("UQ_message_receipts_message_credential", ["messageCode", "credentialCode"])
 @Entity({ name: "message_receipts" })
@@ -18,6 +19,10 @@ export class MessageReceiptEntity {
 
   @Column({ name: "credential_code", type: "uuid" })
   public credentialCode!: string;
+
+  @ManyToOne(() => UserCredentialEntity, { onDelete: "RESTRICT" })
+  @JoinColumn({ name: "credential_code", referencedColumnName: "credentialCode" })
+  public credential!: UserCredentialEntity;
 
   @Column({ name: "status", type: "varchar", length: 20 })
   public status!: string;

@@ -5,6 +5,9 @@ import { AuthenticateOAuthUseCase } from "../../domain/use-cases/authenticate-oa
 import { ProfileCode } from "../../domain/value-objects/profile-code.value-object";
 import { Username } from "../../domain/value-objects/username.value-object";
 import { ProfileApplicationServiceContract } from "../../../profile/application/contracts/profile.application.service.contract";
+import { DomainEventResult } from "../../../../shared/domain/events/domain-event-result";
+import { UserCreatedEvent } from "../../domain/events/user-created.event";
+import { AuthenticationTypeCode } from "../../domain/constants/authentication-type.constants";
 
 export class AuthenticateOAuthUseCaseImpl extends AuthenticateOAuthUseCase {
   constructor(
@@ -14,16 +17,15 @@ export class AuthenticateOAuthUseCaseImpl extends AuthenticateOAuthUseCase {
     super();
   }
 
-  public async execute(input: AuthenticateOAuthInput): Promise<Credential> {
+  public async execute(input: AuthenticateOAuthInput): Promise<DomainEventResult<Credential>> {
     const username = Username.create(input.email);
 
     const existing = await this.credentialRepository.findByUsername(username);
 
     if (existing !== null) {
       existing.markAsAuthenticated();
-      await this.credentialRepository.save(existing);
-
-      return existing;
+      const events = await this.credentialRepository.save(existing);
+      return { output: existing, events };
     }
 
     const profile = await this.profileApplicationService.create({
@@ -38,8 +40,26 @@ export class AuthenticateOAuthUseCaseImpl extends AuthenticateOAuthUseCase {
     });
 
     credential.markAsAuthenticated();
-    await this.credentialRepository.save(credential);
+    const credentialEvents = await this.credentialRepository.save(credential);
 
-    return credential;
+    const now = new Date();
+    const userCreatedEvent = new UserCreatedEvent({
+      credentialCode: credential.code.value,
+      credentialId: credential.id.value,
+      username: credential.username.value,
+      profileCode: credential.profileCode.value,
+      authenticationType: credential.authenticationType,
+      fullName: input.fullName,
+      email: input.email,
+      phone: null,
+      birthDate: null,
+      gender: null,
+      occurredAt: now,
+    });
+
+    return {
+      output: credential,
+      events: [...credentialEvents, userCreatedEvent],
+    };
   }
 }
