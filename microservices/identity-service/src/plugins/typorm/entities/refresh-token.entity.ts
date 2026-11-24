@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { TokenStatus } from "../../../session/domain/value-objects/token-status.value-object";
+import { TokenStatus } from "../../../features/session/domain/value-objects/token-status.value-object";
 import { CredentialEntity } from "./credential.entity";
 
 @Entity({ name: "refresh_token" })

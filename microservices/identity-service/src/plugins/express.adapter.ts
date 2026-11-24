@@ -5,12 +5,12 @@ import cors from "cors";
 import helmet from "helmet";
 import passport from "passport";
 import session from "express-session";
-import { buildHealthRouter } from "../health/infrastructure/routes/health.router";
-import { sessionFactory } from "../session/infrastructure/session.factory";
+import { buildHealthRouter } from "../features/health/infrastructure/routes/health.router";
+import { sessionFactory } from "../features/session/infrastructure/session.factory";
 import { errorHandler } from "../shared/middlewares/error-handler.middleware";
 import { createRequestLoggerMiddleware } from "../shared/middlewares/request-logger.middleware";
 import { appDatasource } from "./typorm/datasource.provider";
-import { profileFactory } from "../profile/infrastructure/profile.factory";
+import { profileFactory } from "../features/profile/infrastructure/profile.factory";
 
 export class ExpressServer extends Server {
   private readonly app: Application;

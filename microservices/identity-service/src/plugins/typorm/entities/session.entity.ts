@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { SessionStatus } from "../../../session/domain/value-objects/session-status.value-object";
+import { SessionStatus } from "../../../features/session/domain/value-objects/session-status.value-object";
 import { CredentialEntity } from "./credential.entity";
 
 @Entity({ name: "session" })
